@@ -1,7 +1,15 @@
 language: node_js
 node_js: node
 before_install:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
+- export DISPLAY=:99.0
+- sh -e /etc/init.d/xvfb start
 addons:
   firefox: latest
+deploy:
+  provider: npm
+  email: core@donejs.com
+  api_key:
+    secure: TlLDdd4TMijIPrQGQYiriB+weEocvDOFzcRUvYkLUIPqV5Yx1NDmIRDb7xJk3o2OyiiIPjQf9FqKPao40ESFv3d1Kab6wyjfkM5L7DSy80PCeIgbyzg2gqIdbptJwCdFAcIBJ/EtbEjnGga8hzImfD+ayYPGrofXER44sKeeGR7OWA6uIUF5Q2hNjEMx+ut8RhRCdjGyx+0vJOIE/R8CpHWcwg6JXIkarlD06MAsU6lP2EOxJCCipHDnVlB7RTyhDRUXcBSsZzxAwAChJK6SJ3Vog0lPEaqwzHKzwxjtc/CbSVrtf6jRTMmGQKqj1AKJ6/xub/WOLom0KgcOJg714OX8XjjtO10+7145inJNJadAeRO9b2gzeBJAeJuSK0kIsss3S7rWEowJ9edTmdF/h04r/1M367mJYjjH9eXS/fsbMzrnhsq+wPofCFZFYPzlRyl4vpzo5pbkNz607iaFrApk/qDyYGcxeyoix0YbdUv7jCTz7cTLQRSAHcfV7kEJ5JGcKjKwRdHli1CnD8+uS7IUATG0ltIAZKYq+KXPOnt/a5Wtq9W5DNb47sqL5bA8iRpmdpnwZbfk2vrEzGCmdWKa9irYJB9MXYMYXDg46heg8QPwwR08RF5339jnUmh2U7zWA+aQr/q+pllaxeq/J+b7XhxLBLaAbgQzVR89ySE=
+  on:
+    tags: true
+    repo: canjs/can-define-class
