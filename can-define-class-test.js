@@ -1,12 +1,10 @@
-import QUnit from "steal-qunit";
-import mixinDefineProperty from "./can-define-class";
+var QUnit = require("steal-qunit");
+var DefineClass = require("./can-define-class");
 
-QUnit.module("can-stache-define-element");
+QUnit.module("can-define-class");
 
 QUnit.test("basics", function(assert) {
-  function Obj() {}
-  Obj.define = {};
-  mixinDefineProperty(Obj);
+  class Obj extends DefineClass {}
 
   var obj = new Obj();
   assert.ok(obj instanceof Obj);
