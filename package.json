@@ -1,7 +1,7 @@
 {
   "name": "can-define-class",
   "description": "Define properties on JavaScript classes",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": {
     "name": "Bitovi",
     "email": "contact@bitovi.com",
