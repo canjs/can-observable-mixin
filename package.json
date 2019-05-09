@@ -10,7 +10,21 @@
   "bugs": {
     "url": "https://github.com/canjs/can-define-class/issues"
   },
-  "dependencies": {},
+  "dependencies": {
+    "can-assign": "^1.3.1",
+    "can-data-types": "^1.2.0",
+    "can-define-lazy-value": "^1.1.0",
+    "can-event-queue": "^1.1.5",
+    "can-log": "^1.0.0",
+    "can-namespace": "^1.0.0",
+    "can-observation": "^4.1.2",
+    "can-observation-recorder": "^1.3.0",
+    "can-queues": "^1.2.1",
+    "can-reflect": "^1.17.9",
+    "can-simple-observable": "^2.4.1",
+    "can-string-to-any": "^1.2.0",
+    "can-symbol": "^1.6.4"
+  },
   "devDependencies": {
     "detect-cyclic-packages": "^1.1.0",
     "fixpack": "^2.3.1",
