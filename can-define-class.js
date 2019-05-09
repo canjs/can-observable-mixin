@@ -1,2 +1,2 @@
-module.exports = function mixinDefineProperty(Class) {
+module.exports = function mixinDefineProperty(/*Class*/) {
 };
