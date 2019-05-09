@@ -30,12 +30,11 @@
     "url": "git://github.com/canjs/can-define-class.git"
   },
   "scripts": {
-    "build": "node build.js",
     "detect-cycle": "detect-cyclic-packages",
     "jshint": "jshint ./*.js --config",
     "lint": "fixpack && npm run jshint",
     "postversion": "git push --follow-tags",
-    "preversion": "npm test && npm run build",
+    "preversion": "npm test",
     "test": "npm run detect-cycle && npm run lint && npm run testee",
     "testee": "testee test/test.html --browsers firefox"
   }
