@@ -1,0 +1,42 @@
+{
+  "name": "can-define-class",
+  "description": "Define properties on JavaScript classes",
+  "version": "0.0.0",
+  "author": {
+    "name": "Bitovi",
+    "email": "contact@bitovi.com",
+    "url": "http://bitovi.com"
+  },
+  "bugs": {
+    "url": "https://github.com/canjs/can-define-class/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "detect-cyclic-packages": "^1.1.0",
+    "fixpack": "^2.3.1",
+    "jshint": "^2.9.1",
+    "steal": "^2.2.1",
+    "steal-qunit": "^2.0.0",
+    "testee": "^0.9.0"
+  },
+  "homepage": "https://github.com/canjs/can-define-class",
+  "keywords": [
+    "CanJS"
+  ],
+  "license": "MIT",
+  "main": "can-define-class.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/canjs/can-define-class.git"
+  },
+  "scripts": {
+    "build": "node build.js",
+    "detect-cycle": "detect-cyclic-packages",
+    "jshint": "jshint ./*.js --config",
+    "lint": "fixpack && npm run jshint",
+    "postversion": "git push --follow-tags",
+    "preversion": "npm test && npm run build",
+    "test": "npm run detect-cycle && npm run lint && npm run testee",
+    "testee": "testee test/test.html --browsers firefox"
+  }
+}
