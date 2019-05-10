@@ -81,3 +81,34 @@ QUnit.test("listenTo to listen to property changes", function(assert) {
 
 	faves.color = "red";
 });
+
+QUnit.test("resolve(prop) can be used to resolve a property based on others", function(assert) {
+	class Person extends Defined {
+		static get define() {
+			return {
+				isBirthday: {
+					default: false
+				},
+				age: {
+					resolve({ listenTo, resolve }) {
+						let current = 1;
+
+						listenTo("isBirthday", isBirthday => {
+							if(isBirthday) {
+								resolve(current = current + 1);
+							}
+						});
+
+						resolve(current);
+					}
+				}
+			}
+		}
+	}
+
+	let p = new Person();
+	canReflect.onKeyValue(p, "age", function() {
+		assert.equal(p.age, 2, "Now is two");
+	});
+	p.isBirthday = true;
+});

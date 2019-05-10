@@ -86,44 +86,6 @@ function getEveryPropertyAndSymbol(obj) {
 	return props.concat(symbols);
 }
 
-function cleanUpDefinition(prop, definition, shouldWarn, typePrototype){
-	// cleanup `value` -> `default`
-	if(definition.value !== undefined && ( typeof definition.value !== "function" || definition.value.length === 0) ){
-
-		//!steal-remove-start
-		if(process.env.NODE_ENV !== 'production') {
-			if(shouldWarn) {
-				canLogDev.warn(
-					"can-define: Change the 'value' definition for " + canReflect.getName(typePrototype)+"."+prop + " to 'default'."
-				);
-			}
-		}
-		//!steal-remove-end
-
-		definition.default = definition.value;
-		delete definition.value;
-	}
-	// cleanup `Value` -> `DEFAULT`
-	if(definition.Value !== undefined  ){
-		//!steal-remove-start
-		if(process.env.NODE_ENV !== 'production') {
-			if(shouldWarn) {
-				canLogDev.warn(
-					"can-define: Change the 'Value' definition for " + canReflect.getName(typePrototype)+"."+prop + " to 'Default'."
-				);
-			}
-		}
-		//!steal-remove-end
-		definition.Default = definition.Value;
-		delete definition.Value;
-	}
-}
-
-function isValueResolver(definition) {
-	// there's a function and it has one argument
-	return typeof definition.value === "function" && definition.value.length;
-}
-
 module.exports = define = ns.define = function(typePrototype, defines, baseDefine) {
 	// default property definitions on _data
 	var prop,
@@ -263,7 +225,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	// Where the value is stored.  If there is a `get` the source of the value
 	// will be a compute in `this._computed[prop]`.  If not, the source of the
 	// value will be in `this._data[prop]`.
-	var dataProperty = definition.get || definition.async || isValueResolver(definition) ? "computed" : "data",
+	var dataProperty = definition.get || definition.async || definition.resolve ? "computed" : "data",
 
 		// simple functions that all read/get/set to the right place.
 		// - reader - reads the value but does not observe.
@@ -288,8 +250,8 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 				configurable: true
 			});
 		}
-		if(isValueResolver(definition)) {
-			Object.defineProperty(definition.value, "name", {
+		if(definition.resolve) {
+			Object.defineProperty(definition.resolve, "name", {
 				value: canReflect.getName(typePrototype) + "'s " + prop + " value",
 				configurable: true
 			});
@@ -311,8 +273,8 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 
 	// make a setter that's going to fire of events
 	var eventsSetter = make.set.events(prop, reader, setter, make.eventType[dataProperty](prop));
-	if(isValueResolver(definition)) {
-		computedInitializers[prop] = make.valueResolver(prop, definition, typeConvert);
+	if(definition.resolve) {
+		computedInitializers[prop] = make.resolver(prop, definition, typeConvert);
 	}
 	// Determine a function that will provide the initial property value.
 	else if ((definition.default !== undefined || definition.Default !== undefined)) {
@@ -399,10 +361,6 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 define.makeDefineInstanceKey = function(constructor) {
 	constructor[canSymbol.for("can.defineInstanceKey")] = function(property, value) {
 		var defineResult = this.prototype._define;
-		if(typeof value === "object") {
-			// change `value` to default.
-			cleanUpDefinition(property, value, false, this);
-		}
 		var definition = getDefinitionOrMethod(property, value, defineResult.defaultDefinition, this);
 		if(definition && typeof definition === "object") {
 			define.property(constructor.prototype, property, definition, defineResult.dataInitializers, defineResult.computedInitializers, defineResult.defaultDefinition);
@@ -456,16 +414,16 @@ make = {
 		};
 		return computeObj;
 	},
-	valueResolver: function(prop, definition, typeConvert) {
+	resolver: function(prop, definition, typeConvert) {
 		var getDefault = make.get.defaultValue(prop, definition, typeConvert);
 		return function(){
 			var map = this;
 			var defaultValue = getDefault.call(this);
-			var computeObj = make.computeObj(map, prop, new ResolverObservable(definition.value, map, defaultValue));
+			var computeObj = make.computeObj(map, prop, new ResolverObservable(definition.resolve, map, defaultValue));
 			//!steal-remove-start
 			if(process.env.NODE_ENV !== 'production') {
 				Object.defineProperty(computeObj.handler, "name", {
-					value: canReflect.getName(definition.value).replace('value', 'event emitter')
+					value: canReflect.getName(definition.resolve).replace('value', 'event emitter')
 				});
 			}
 			//!steal-remove-end
@@ -822,7 +780,7 @@ var addBehaviorToDefinition = function(definition, behavior, value) {
 // This is called by `define.property` AND `getDefinitionOrMethod` (which is called by `define`)
 // Currently, this is adding default behavior
 // copying `type` over, and even cleaning up the final definition object
-makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
+makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
 
 	var definition = {};
 
@@ -867,7 +825,6 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 			definition.type = define.types["*"];
 		}
 	}
-	cleanUpDefinition(prop, definition, true, typePrototype);
 	return definition;
 };
 
