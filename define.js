@@ -336,7 +336,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	// If property has a getter, create the compute that stores its data.
 	if (definition.get) {
 		throw new Error("'get' is not a valid option");
-		computedInitializers[prop] = make.compute(prop, definition.get, getInitialValue);
+		//computedInitializers[prop] = make.compute(prop, definition.get, getInitialValue);
 	}
 	else if (definition.async) {
 		computedInitializers[prop] = make.compute(prop, callAsync(definition.async), getInitialValue);
@@ -513,7 +513,7 @@ make = {
 				canReflect.setValue( this._computed[prop].compute, val );
 			};
 		},
-		events: function(prop, getCurrent, setData, eventType) {
+		events: function(prop, getCurrent, setData/*, eventType*/) {
 			return function(newVal) {
 				if (this[inSetupSymbol]) {
 					setData.call(this, newVal);
@@ -778,7 +778,7 @@ make = {
 			};
 		},
 		computed: function(prop) {
-			return function(val) {
+			return function(/*val*/) {
 				var compute = this._computed[prop].compute;
 				if (ObservationRecorder.isRecording()) {
 					ObservationRecorder.add(this, prop);
@@ -989,7 +989,7 @@ var canMetaSymbol = canSymbol.for("can.meta");
 assign(eventsProto, {
 	_eventSetup: function() {},
 	_eventTeardown: function() {},
-	addEventListener: function(eventName, handler, queue) {
+	addEventListener: function(eventName/*, handler, queue*/) {
 		setupComputed(this, eventName);
 		return eventQueue.addEventListener.apply(this, arguments);
 	},
@@ -998,7 +998,7 @@ assign(eventsProto, {
 	// Stops listening to an event.
 	// If this is the last listener of a computed property,
 	// stop forwarding events of the computed property to this map.
-	removeEventListener: function(eventName, handler) {
+	removeEventListener: function(eventName/*, handler*/) {
 		teardownComputed(this, eventName);
 		return eventQueue.removeEventListener.apply(this, arguments);
 
