@@ -1,6 +1,5 @@
 "use strict";
 
-var ns = require("can-namespace");
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
 
@@ -86,7 +85,7 @@ function getEveryPropertyAndSymbol(obj) {
 	return props.concat(symbols);
 }
 
-module.exports = define = ns.define = function(typePrototype, defines, baseDefine) {
+module.exports = define = function(typePrototype, defines, baseDefine) {
 	// default property definitions on _data
 	var prop,
 		dataInitializers = Object.create(baseDefine ? baseDefine.dataInitializers : null),

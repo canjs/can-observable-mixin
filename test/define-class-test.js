@@ -139,3 +139,63 @@ QUnit.test("getSchema still works when further deriving", function(assert) {
 	let schema = canReflect.getSchema(Faves);
 	assert.deepEqual(Object.keys(schema.keys), ["age"], "has the schema");
 });
+
+QUnit.test("Does not throw if no define is provided", function(assert) {
+	class Faves extends Defined {}
+	assert.ok(true, "Did not throw");
+});
+
+QUnit.skip("JavaScript setters work", function(assert) {
+	class Faves extends Defined {
+		static get define() {
+			return {};
+		}
+		set color(v) {
+			return "blue";
+		}
+	}
+
+	let faves = new Faves();
+	faves.color = "red";
+	assert.equal(faves.color, "blue", "Did not change");
+});
+
+QUnit.test("set() can return a different value", function(assert) {
+	class Faves extends Defined {
+		static get define() {
+			return {
+				color: {
+					set() {
+						return "blue";
+					}
+				}
+			}
+		}
+	}
+
+	let faves = new Faves();
+	faves.color = "red";
+	assert.equal(faves.color, "blue", "Did not change");
+});
+
+QUnit.test("set(newVal, resolve) can async resolve a value", function(assert) {
+	let done = assert.async();
+	class Faves extends Defined {
+		static get define() {
+			return {
+				color: {
+					set(n, resolve) {
+						setTimeout(() => resolve("green"), 10);
+					}
+				}
+			}
+		}
+	}
+
+	let faves = new Faves();
+	canReflect.onKeyValue(faves, "color", () => {
+		assert.equal(faves.color, "green", "Changed async");
+		done();
+	});
+	faves.color = "red";
+});
