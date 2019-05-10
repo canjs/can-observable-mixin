@@ -112,3 +112,30 @@ QUnit.test("resolve(prop) can be used to resolve a property based on others", fu
 	});
 	p.isBirthday = true;
 });
+
+QUnit.test("getSchema returns the schema", function(assert) {
+	class Faves extends Defined {
+		static get define() {
+			return {
+				age: {}
+			}
+		}
+	}
+
+	let schema = canReflect.getSchema(Faves);
+	assert.deepEqual(Object.keys(schema.keys), ["age"], "has the schema");
+});
+
+QUnit.test("getSchema still works when further deriving", function(assert) {
+	class Base extends Defined {}
+	class Faves extends Base {
+		static get define() {
+			return {
+				age: {}
+			}
+		}
+	}
+
+	let schema = canReflect.getSchema(Faves);
+	assert.deepEqual(Object.keys(schema.keys), ["age"], "has the schema");
+});
