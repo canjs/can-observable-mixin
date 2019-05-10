@@ -47,5 +47,6 @@
 	"phantom": true,
 	"rhino": true,
 	"node": true,
-	"esnext": true
+	"esnext": true,
+	"validthis": true
 }
