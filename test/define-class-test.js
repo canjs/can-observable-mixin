@@ -64,3 +64,20 @@ QUnit.test("async(resolve) resolves async values", function(assert) {
 		done();
 	});
 });
+
+QUnit.test("listenTo to listen to property changes", function(assert) {
+	class Faves extends Defined {
+		static get define() {
+			return {
+				color: {}
+			};
+		}
+	}
+
+	let faves = new Faves();
+	faves.listenTo("color", function() {
+		assert.equal(faves.color, "red", "got  the change");
+	});
+
+	faves.color = "red";
+});
