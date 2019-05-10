@@ -3,6 +3,7 @@
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
 
+var define;
 var Observation = require("can-observation");
 var ObservationRecorder = require("can-observation-recorder");
 var AsyncObservable = require("can-simple-observable/async/async");

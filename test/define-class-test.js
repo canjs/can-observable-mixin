@@ -199,3 +199,34 @@ QUnit.test("set(newVal, resolve) can async resolve a value", function(assert) {
 	});
 	faves.color = "red";
 });
+
+QUnit.test("Passing props into the constructor", function(assert) {
+	class Person extends Defined {
+		static get define() {
+			return {
+				age: {
+					default: 1
+				}
+			};
+		}
+	}
+
+	assert.equal(new Person().age, 1, "the default");
+	assert.equal(new Person({ age: 2 }).age, 2, "can be passed as a prop");
+});
+
+QUnit.test("seal: false prevents the object from being sealed", function(assert) {
+	class Thing extends Defined {
+	  static get seal() {
+		  return false;
+	  }
+	}
+
+	let p = new Thing();
+	p.set("expando", 11);
+
+	canReflect.onKeyValue(p, "expando", () => {
+		assert.equal(p.get("expando"), 15, "Not sealed");
+	});
+	p.set("expando", 15);
+});
