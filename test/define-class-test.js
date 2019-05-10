@@ -67,8 +67,10 @@ QUnit.test("async(resolve) resolves async values", function(assert) {
 
 QUnit.test("listenTo to listen to property changes", function(assert) {
 	class Faves extends Defined {
-		static define = {
-			color: {}
+		static get define() {
+			return {
+				color: {}
+			};
 		}
 	}
 
