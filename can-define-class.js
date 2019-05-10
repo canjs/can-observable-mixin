@@ -1,3 +1,4 @@
+const ns = require("can-namespace");
 const addDefinedProps = require("./define");
 const { updateSchemaKeys } = addDefinedProps;
 
@@ -36,5 +37,5 @@ function define(Base = Object) {
 	return Definable;
 }
 
-exports = module.exports = define();
+exports = module.exports = ns.DefineClass = define();
 exports.define = define;
