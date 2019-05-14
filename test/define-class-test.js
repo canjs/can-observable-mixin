@@ -160,6 +160,8 @@ QUnit.test("JavaScript setters work", function(assert) {
 	assert.equal(faves.color, "blue", "Did not change");
 });
 
+// Note that this is not documented behavior so we can change it in the future if needed
+// It's unlikely something someone would do on purpose anyways.
 QUnit.test("Setters on the define override those on the prototype", function(assert) {
 	class Faves extends Defined {
 		static get define() {
