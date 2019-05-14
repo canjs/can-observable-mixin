@@ -191,6 +191,10 @@ function define(Base = Object) {
 		[Symbol.for("can.serialize")](...args) {
 			return defineHelpers.reflectSerialize.apply(this, args);
 		}
+
+		[Symbol.for("can.hasKey")](key) {
+			return (key in this._define.definitions) || (this._instanceDefinitions !== undefined && key in this._instanceDefinitions);
+		}
 	}
 
 	addDefinedProps.makeDefineInstanceKey(Definable);

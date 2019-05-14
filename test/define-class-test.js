@@ -283,3 +283,32 @@ QUnit.test("enumerable: false prevents the property from being enumerable", func
 	}
 	assert.deepEqual(enumerated, ["shouldEnumerate"], "Only enumerable properties");
 });
+
+QUnit.test("canReflect.hasKey works", function(assert) {
+	class Thing extends Defined {
+		static get define() {
+			return {
+				derivedProp: {
+					get: function() {
+						if (this.prop) {
+							return this.prop + " World";
+						}
+					}
+				}
+			}
+		}
+	}
+
+	let thing = new Thing({ prop: "Hello" });
+
+	let testCases = [
+		{ method: "hasKey", prop: "prop", expected: true },
+		{ method: "hasKey", prop: "derivedProp", expected: true }
+	];
+
+	testCases.forEach(function(test) {
+		assert.equal(canReflect[test.method](thing, test.prop), test.expected,
+			"canReflect." + test.method + "(thing, '" + test.prop + "') should be " + test.expected
+		);
+	});
+});
