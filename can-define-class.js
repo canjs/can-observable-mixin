@@ -50,7 +50,7 @@ function getKeyValue(key) {
 }
 
 function define(Base = Object) {
-	class Definable extends Base {
+	class DefineClass extends Base {
 		static _initDefines() {
 			if(!this[hasBeenDefinedSymbol]) {
 				let prototypeObject = this.prototype;
@@ -146,6 +146,10 @@ function define(Base = Object) {
 			}
 		}
 
+		static [Symbol.for("can.new")](...args) {
+			return new this(...args);
+		}
+
 		get [Symbol.for("can.isMapLike")]() {
 			return true;
 		}
@@ -159,7 +163,7 @@ function define(Base = Object) {
 		}
 	}
 
-	return Definable;
+	return DefineClass;
 }
 
 exports = module.exports = ns.DefineClass = define();
