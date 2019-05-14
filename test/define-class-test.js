@@ -145,7 +145,7 @@ QUnit.test("Does not throw if no define is provided", function(assert) {
 	assert.ok(true, "Did not throw");
 });
 
-QUnit.skip("JavaScript setters work", function(assert) {
+QUnit.test("JavaScript setters work", function(assert) {
 	class Faves extends Defined {
 		static get define() {
 			return {};
@@ -158,6 +158,36 @@ QUnit.skip("JavaScript setters work", function(assert) {
 	let faves = new Faves();
 	faves.color = "red";
 	assert.equal(faves.color, "blue", "Did not change");
+});
+
+// Note that this is not documented behavior so we can change it in the future if needed
+// It's unlikely something someone would do on purpose anyways.
+QUnit.test("Setters on the define override those on the prototype", function(assert) {
+	class Faves extends Defined {
+		static get define() {
+			return {
+				color: {
+					enumerable: false,
+					set(v) {
+						return "green";
+					}
+				}
+			};
+		}
+		set color(v) {
+			return "blue";
+		}
+	}
+
+	let faves = new Faves();
+	faves.color = "red";
+	assert.equal(faves.color, "green", "Changed to green");
+
+	let props = [];
+	for(let prop in faves) {
+		props.push(prop);
+	}
+	assert.deepEqual(props, [], "Not enumerable too");
 });
 
 QUnit.test("set() can return a different value", function(assert) {

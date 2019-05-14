@@ -72,7 +72,7 @@ function defineConfigurableAndNotEnumerable(obj, prop, value) {
 }
 
 function eachPropertyDescriptor(map, cb){
-	for(var prop in map) {
+	for(var prop of Object.getOwnPropertyNames(map)) {
 		if(map.hasOwnProperty(prop)) {
 			cb.call(map, prop, Object.getOwnPropertyDescriptor(map,prop));
 		}
@@ -330,8 +330,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 
 	// If property has a getter, create the compute that stores its data.
 	if (definition.get) {
-		throw new Error("'get' is not a valid option");
-		//computedInitializers[prop] = make.compute(prop, definition.get, getInitialValue);
+		computedInitializers[prop] = make.compute(prop, definition.get, getInitialValue);
 	}
 	else if (definition.async) {
 		computedInitializers[prop] = make.compute(prop, callAsync(definition.async), getInitialValue);
@@ -914,8 +913,7 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype) {
 		defaultDefinition = Object.create(null);
 	}
 
-	eachPropertyDescriptor(defines, function( prop, propertyDescriptor ) {
-
+	function addDefinition(prop, propertyDescriptor) {
 		var value;
 		if(propertyDescriptor.get || propertyDescriptor.set) {
 			value = {get: propertyDescriptor.get, set: propertyDescriptor.set};
@@ -946,7 +944,10 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype) {
 				//!steal-remove-end
 			}
 		}
-	});
+	}
+
+	eachPropertyDescriptor(typePrototype, addDefinition);
+	eachPropertyDescriptor(defines, addDefinition);
 	if(defaults) {
 		// we should move this property off the prototype.
 		defineConfigurableAndNotEnumerable(defines,"*", defaults);
