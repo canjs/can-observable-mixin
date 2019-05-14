@@ -86,6 +86,39 @@ function getEveryPropertyAndSymbol(obj) {
 	return props.concat(symbols);
 }
 
+function cleanUpDefinition(prop, definition, shouldWarn, typePrototype){
+	// cleanup `value` -> `default`
+	if(definition.value !== undefined && ( typeof definition.value !== "function" || definition.value.length === 0) ){
+
+		//!steal-remove-start
+		if(process.env.NODE_ENV !== 'production') {
+			if(shouldWarn) {
+				canLogDev.warn(
+					"can-define: Change the 'value' definition for " + canReflect.getName(typePrototype)+"."+prop + " to 'default'."
+				);
+			}
+		}
+		//!steal-remove-end
+
+		definition.default = definition.value;
+		delete definition.value;
+	}
+	// cleanup `Value` -> `DEFAULT`
+	if(definition.Value !== undefined  ){
+		//!steal-remove-start
+		if(process.env.NODE_ENV !== 'production') {
+			if(shouldWarn) {
+				canLogDev.warn(
+					"can-define: Change the 'Value' definition for " + canReflect.getName(typePrototype)+"."+prop + " to 'Default'."
+				);
+			}
+		}
+		//!steal-remove-end
+		definition.Default = definition.Value;
+		delete definition.Value;
+	}
+}
+
 module.exports = define = function(typePrototype, defines, baseDefine) {
 	// default property definitions on _data
 	var prop,
@@ -358,9 +391,15 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 		configurable: true
 	});
 };
+
 define.makeDefineInstanceKey = function(constructor) {
 	constructor[canSymbol.for("can.defineInstanceKey")] = function(property, value) {
+		this._initDefines();
 		var defineResult = this.prototype._define;
+		if (typeof value === "object") {
+			// change `value` to default.
+			cleanUpDefinition(property, value, false, this);
+		}
 		var definition = getDefinitionOrMethod(property, value, defineResult.defaultDefinition, this);
 		if(definition && typeof definition === "object") {
 			define.property(constructor.prototype, property, definition, defineResult.dataInitializers, defineResult.computedInitializers, defineResult.defaultDefinition);
