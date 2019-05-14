@@ -230,3 +230,26 @@ QUnit.test("seal: false prevents the object from being sealed", function(assert)
 	});
 	p.set("expando", 15);
 });
+
+QUnit.test("enumerable: false prevents the property from being enumerable", function(assert) {
+	class Thing extends Defined {
+		static get define() {
+			return {
+				shouldEnumerate: {
+					default: "foo"
+				},
+				shouldNotEnumerate: {
+					default: "bar",
+					enumerable: false
+				}
+			};
+		}
+	}
+
+	let thing = new Thing();
+	let enumerated = [];
+	for(let prop in thing) {
+		enumerated.push(prop);
+	}
+	assert.deepEqual(enumerated, ["shouldEnumerate"], "Only enumerable properties");
+});
