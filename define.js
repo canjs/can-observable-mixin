@@ -19,6 +19,7 @@ var canLogDev = require("can-log/dev/dev");
 
 var stringToAny = require("can-string-to-any");
 var defineLazyValue = require("can-define-lazy-value");
+var dataTypes = require("can-data-types");
 
 var MaybeBoolean = require("can-data-types/maybe-boolean/maybe-boolean"),
     MaybeDate = require("can-data-types/maybe-date/maybe-date"),
@@ -849,7 +850,7 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	}
 	else if(typeof value === "function") {
 		if(canReflect.isConstructorLike(value)) {
-			definition = {Type: value};
+			definition = {Type: dataTypes.check(value)};
 		}
 		// or leaves as a function
 	} else if( Array.isArray(value) ) {

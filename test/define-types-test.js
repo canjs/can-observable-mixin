@@ -118,10 +118,20 @@ let checkIsNaN = {
 	check: isNaN
 };
 
+let checkDateMatchesNumber = {
+	check: function(instance, props) {
+		let date = instance.prop;
+		let num = props.prop;
+		QUnit.assert.strictEqual(date.getTime(), num, "Converted number to date");
+	}
+};
+
 let expectedToThrowBecauseRequired = {
 	check: shouldHaveThrownBecauseRequired,
 	throws: throwBecauseRequired
 };
+
+let dateAsNumber = new Date(1815, 11, 10).getTime();
 
 let cases = [
 	{ Type: Number, value: 36 },
@@ -136,6 +146,13 @@ let cases = [
 	{ Type: String, value: "some string" },
 	{ Type: Boolean, value: true },
 	{ Type: Date, value: new Date(1815, 11, 10) },
+	{
+		Type: Date, value: dateAsNumber,
+		maybeConvertNotRequired: checkDateMatchesNumber,
+		maybeConvertRequired: checkDateMatchesNumber,
+		convertNotRequired: checkDateMatchesNumber,
+		convertRequired: checkDateMatchesNumber
+	},
 
 	// Check throw, convert equal
 	{ Type: Number, value: "36" },
@@ -210,4 +227,31 @@ cases.forEach(testCase => {
 		});
 
 	}
+});
+
+
+QUnit.test("Can pass common/primitive types as the type option", function(assert) {
+	class MyThing extends Defined {
+		static get define() {
+			return {
+				num: Number,
+				str: String,
+				bool: Boolean,
+				date: Date
+			};
+		}
+	}
+
+	let now = new Date();
+	let thing = new MyThing({
+		num: 33,
+		str: "Hello world",
+		bool: false,
+		date: now
+	});
+
+	assert.equal(thing.num, 33, "Number accepted");
+	assert.equal(thing.str, "Hello world", "String accepted");
+	assert.equal(thing.bool, false, "Boolean accepted");
+	assert.equal(thing.date, now, "Passed a date");
 });
