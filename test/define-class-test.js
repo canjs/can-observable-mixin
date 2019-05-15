@@ -145,7 +145,7 @@ QUnit.test("Does not throw if no define is provided", function(assert) {
 	assert.ok(true, "Did not throw");
 });
 
-QUnit.skip("JavaScript setters work", function(assert) {
+QUnit.test("JavaScript setters work", function(assert) {
 	class Faves extends Defined {
 		static get define() {
 			return {};
@@ -158,6 +158,36 @@ QUnit.skip("JavaScript setters work", function(assert) {
 	let faves = new Faves();
 	faves.color = "red";
 	assert.equal(faves.color, "blue", "Did not change");
+});
+
+// Note that this is not documented behavior so we can change it in the future if needed
+// It's unlikely something someone would do on purpose anyways.
+QUnit.test("Setters on the define override those on the prototype", function(assert) {
+	class Faves extends Defined {
+		static get define() {
+			return {
+				color: {
+					enumerable: false,
+					set(v) {
+						return "green";
+					}
+				}
+			};
+		}
+		set color(v) {
+			return "blue";
+		}
+	}
+
+	let faves = new Faves();
+	faves.color = "red";
+	assert.equal(faves.color, "green", "Changed to green");
+
+	let props = [];
+	for(let prop in faves) {
+		props.push(prop);
+	}
+	assert.deepEqual(props, [], "Not enumerable too");
 });
 
 QUnit.test("set() can return a different value", function(assert) {
@@ -229,4 +259,56 @@ QUnit.test("seal: false prevents the object from being sealed", function(assert)
 		assert.equal(p.get("expando"), 15, "Not sealed");
 	});
 	p.set("expando", 15);
+});
+
+QUnit.test("enumerable: false prevents the property from being enumerable", function(assert) {
+	class Thing extends Defined {
+		static get define() {
+			return {
+				shouldEnumerate: {
+					default: "foo"
+				},
+				shouldNotEnumerate: {
+					default: "bar",
+					enumerable: false
+				}
+			};
+		}
+	}
+
+	let thing = new Thing();
+	let enumerated = [];
+	for(let prop in thing) {
+		enumerated.push(prop);
+	}
+	assert.deepEqual(enumerated, ["shouldEnumerate"], "Only enumerable properties");
+});
+
+QUnit.test("canReflect.hasKey works", function(assert) {
+	class Thing extends Defined {
+		static get define() {
+			return {
+				derivedProp: {
+					get: function() {
+						if (this.prop) {
+							return this.prop + " World";
+						}
+					}
+				}
+			}
+		}
+	}
+
+	let thing = new Thing({ prop: "Hello" });
+
+	let testCases = [
+		{ method: "hasKey", prop: "prop", expected: true },
+		{ method: "hasKey", prop: "derivedProp", expected: true }
+	];
+
+	testCases.forEach(function(test) {
+		assert.equal(canReflect[test.method](thing, test.prop), test.expected,
+			"canReflect." + test.method + "(thing, '" + test.prop + "') should be " + test.expected
+		);
+	});
 });

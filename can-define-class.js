@@ -7,9 +7,22 @@ const ObservationRecorder = require("can-observation-recorder");
 const canLogDev = require("can-log/dev/dev");
 const canReflect = require("can-reflect");
 const queues = require("can-queues");
+var addTypeEvents = require("can-event-queue/type/type");
 
 const hasBeenDefinedSymbol = Symbol.for("can.hasBeenDefined");
 const getSchemaSymbol = Symbol.for("can.getSchema");
+const inSetupSymbol = Symbol.for("can.initializing");
+
+function keysForDefinition(definitions) {
+	var keys = [];
+	for(var prop in definitions) {
+		var definition = definitions[prop];
+		if(typeof definition !== "object" || ("serialize" in definition ? !!definition.serialize : !definition.get)) {
+			keys.push(prop);
+		}
+	}
+	return keys;
+}
 
 function assign(source) {
 	queues.batch.start();
@@ -74,8 +87,15 @@ function define(Base = Object) {
 
 		constructor(props) {
 			super();
+			Object.defineProperty(this, inSetupSymbol, {
+				configurable: true,
+				enumerable: false,
+				value: true,
+				writable: true
+			});
 			new.target._initDefines();
 			setup.call(this, props, new.target.seal);
+			this[inSetupSymbol] = false;
 		}
 
 		get(prop){
@@ -161,7 +181,29 @@ function define(Base = Object) {
 		get [Symbol.for("can.isValueLike")]() {
 			return false;
 		}
+
+		[Symbol.for("can.getKeyValue")](...args) {
+			return getKeyValue.apply(this, args);
+		}
+
+		[Symbol.for("can.getOwnEnumerableKeys")]() {
+			ObservationRecorder.add(this, 'can.keys');
+			ObservationRecorder.add(Object.getPrototypeOf(this), 'can.keys');
+			return keysForDefinition(this._define.definitions).concat(keysForDefinition(this._instanceDefinitions) );
+		}
+
+		[Symbol.for("can.serialize")](...args) {
+			return defineHelpers.reflectSerialize.apply(this, args);
+		}
+
+		[Symbol.for("can.hasKey")](key) {
+			return (key in this._define.definitions) || (this._instanceDefinitions !== undefined && key in this._instanceDefinitions);
+		}
 	}
+
+	addDefinedProps.makeDefineInstanceKey(DefineClass);
+
+	addTypeEvents(DefineClass);
 
 	return DefineClass;
 }

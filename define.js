@@ -73,7 +73,7 @@ function defineConfigurableAndNotEnumerable(obj, prop, value) {
 }
 
 function eachPropertyDescriptor(map, cb){
-	for(var prop in map) {
+	for(var prop of Object.getOwnPropertyNames(map)) {
 		if(map.hasOwnProperty(prop)) {
 			cb.call(map, prop, Object.getOwnPropertyDescriptor(map,prop));
 		}
@@ -85,6 +85,39 @@ function getEveryPropertyAndSymbol(obj) {
 	var symbols = ("getOwnPropertySymbols" in Object) ?
 	  Object.getOwnPropertySymbols(obj) : [];
 	return props.concat(symbols);
+}
+
+function cleanUpDefinition(prop, definition, shouldWarn, typePrototype){
+	// cleanup `value` -> `default`
+	if(definition.value !== undefined && ( typeof definition.value !== "function" || definition.value.length === 0) ){
+
+		//!steal-remove-start
+		if(process.env.NODE_ENV !== 'production') {
+			if(shouldWarn) {
+				canLogDev.warn(
+					"can-define: Change the 'value' definition for " + canReflect.getName(typePrototype)+"."+prop + " to 'default'."
+				);
+			}
+		}
+		//!steal-remove-end
+
+		definition.default = definition.value;
+		delete definition.value;
+	}
+	// cleanup `Value` -> `DEFAULT`
+	if(definition.Value !== undefined  ){
+		//!steal-remove-start
+		if(process.env.NODE_ENV !== 'production') {
+			if(shouldWarn) {
+				canLogDev.warn(
+					"can-define: Change the 'Value' definition for " + canReflect.getName(typePrototype)+"."+prop + " to 'Default'."
+				);
+			}
+		}
+		//!steal-remove-end
+		definition.Default = definition.Value;
+		delete definition.Value;
+	}
 }
 
 module.exports = define = function(typePrototype, defines, baseDefine) {
@@ -304,8 +337,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 
 	// If property has a getter, create the compute that stores its data.
 	if (definition.get) {
-		throw new Error("'get' is not a valid option");
-		//computedInitializers[prop] = make.compute(prop, definition.get, getInitialValue);
+		computedInitializers[prop] = make.compute(prop, definition.get, getInitialValue);
 	}
 	else if (definition.async) {
 		computedInitializers[prop] = make.compute(prop, callAsync(definition.async), getInitialValue);
@@ -365,9 +397,15 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 		configurable: true
 	});
 };
+
 define.makeDefineInstanceKey = function(constructor) {
 	constructor[canSymbol.for("can.defineInstanceKey")] = function(property, value) {
+		this._initDefines();
 		var defineResult = this.prototype._define;
+		if (typeof value === "object") {
+			// change `value` to default.
+			cleanUpDefinition(property, value, false, this);
+		}
 		var definition = getDefinitionOrMethod(property, value, defineResult.defaultDefinition, this);
 		if(definition && typeof definition === "object") {
 			define.property(constructor.prototype, property, definition, defineResult.dataInitializers, defineResult.computedInitializers, defineResult.defaultDefinition);
@@ -881,8 +919,7 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype) {
 		defaultDefinition = Object.create(null);
 	}
 
-	eachPropertyDescriptor(defines, function( prop, propertyDescriptor ) {
-
+	function addDefinition(prop, propertyDescriptor) {
 		var value;
 		if(propertyDescriptor.get || propertyDescriptor.set) {
 			value = {get: propertyDescriptor.get, set: propertyDescriptor.set};
@@ -913,7 +950,10 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype) {
 				//!steal-remove-end
 			}
 		}
-	});
+	}
+
+	eachPropertyDescriptor(typePrototype, addDefinition);
+	eachPropertyDescriptor(defines, addDefinition);
 	if(defaults) {
 		// we should move this property off the prototype.
 		defineConfigurableAndNotEnumerable(defines,"*", defaults);
