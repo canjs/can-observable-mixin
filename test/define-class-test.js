@@ -2,7 +2,7 @@ const QUnit = require("steal-qunit");
 const Defined = require("../can-define-class");
 const canReflect = require("can-reflect");
 
-QUnit.module("DefineClass");
+QUnit.module("can-define-class - DefineClass");
 
 QUnit.test("Can define stuff", function(assert) {
   class Faves extends Defined {

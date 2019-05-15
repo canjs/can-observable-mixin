@@ -19,6 +19,7 @@ var canLogDev = require("can-log/dev/dev");
 
 var stringToAny = require("can-string-to-any");
 var defineLazyValue = require("can-define-lazy-value");
+var dataTypes = require("can-data-types");
 
 var MaybeBoolean = require("can-data-types/maybe-boolean/maybe-boolean"),
     MaybeDate = require("can-data-types/maybe-date/maybe-date"),
@@ -124,16 +125,22 @@ module.exports = define = function(typePrototype, defines, baseDefine) {
 	var prop,
 		dataInitializers = Object.create(baseDefine ? baseDefine.dataInitializers : null),
 		// computed property definitions on _computed
-		computedInitializers = Object.create(baseDefine ? baseDefine.computedInitializers : null);
+		computedInitializers = Object.create(baseDefine ? baseDefine.computedInitializers : null),
+		required = new Set();
 
 	var result = getDefinitionsAndMethods(defines, baseDefine, typePrototype);
 	result.dataInitializers = dataInitializers;
 	result.computedInitializers = computedInitializers;
-
+	result.required = required;
 
 	// Goes through each property definition and creates
 	// a `getter` and `setter` function for `Object.defineProperty`.
 	canReflect.eachKey(result.definitions, function(definition, property){
+		// Add this as a required property
+		if(definition.required === true) {
+			required.add(property);
+		}
+
 		define.property(typePrototype, property, definition, dataInitializers, computedInitializers, result.defaultDefinition);
 	});
 
@@ -819,7 +826,6 @@ var addBehaviorToDefinition = function(definition, behavior, value) {
 // Currently, this is adding default behavior
 // copying `type` over, and even cleaning up the final definition object
 makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
-
 	var definition = {};
 
 	canReflect.eachKey(def, function(value, behavior) {
@@ -882,7 +888,7 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	}
 	else if(typeof value === "function") {
 		if(canReflect.isConstructorLike(value)) {
-			definition = {Type: value};
+			definition = {Type: dataTypes.check(value)};
 		}
 		// or leaves as a function
 	} else if( Array.isArray(value) ) {
@@ -1027,10 +1033,14 @@ define.setup = function(props, sealed) {
 
 	/* jshint -W030 */
 
+	var requiredButNotProvided = new Set(this._define.required);
 	var definitions = this._define.definitions;
 	var instanceDefinitions = Object.create(null);
 	var map = this;
 	canReflect.eachKey(props, function(value, prop){
+		if(requiredButNotProvided.has(prop)) {
+			requiredButNotProvided.delete(prop);
+		}
 		if(definitions[prop] !== undefined) {
 			map[prop] = value;
 		} else {
@@ -1039,6 +1049,16 @@ define.setup = function(props, sealed) {
 	});
 	if(canReflect.size(instanceDefinitions) > 0) {
 		defineConfigurableAndNotEnumerable(this, "_instanceDefinitions", instanceDefinitions);
+	}
+	if(requiredButNotProvided.size) {
+		var msg, missingProps = Array.from(requiredButNotProvided);
+		if(requiredButNotProvided.size === 1) {
+			msg = `Missing required property [${missingProps[0]}].`;
+		} else {
+			msg = `Missing required properties [${missingProps.join(", ")}].`;
+		}
+
+		throw new Error(msg);
 	}
 	// only seal in dev mode for performance reasons.
 	//!steal-remove-start
