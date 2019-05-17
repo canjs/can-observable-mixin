@@ -799,13 +799,13 @@ make = {
 define.behaviors = ["get", "set", "value", "Value", "type", "Type", "serialize"];
 
 // This cleans up a particular behavior and adds it to the definition
-var addBehaviorToDefinition = function(definition, behavior, value) {
+var addBehaviorToDefinition = function(definition, behavior, descriptor, def) {
 	if(behavior === "enumerable") {
 		// treat enumerable like serialize
-		definition.serialize = !!value;
+		definition.serialize = !!def[behavior];
 	}
 	else if(behavior === "type") {
-		var behaviorDef = value;
+		var behaviorDef = def[behavior];
 		if(typeof behaviorDef === "string") {
 			behaviorDef = define.types[behaviorDef];
 			if(typeof behaviorDef === "object" && !isDefineType(behaviorDef)) {
@@ -818,7 +818,7 @@ var addBehaviorToDefinition = function(definition, behavior, value) {
 		}
 	}
 	else {
-		definition[behavior] = value;
+		definition[behavior] = descriptor.get || descriptor.value;
 	}
 };
 
@@ -828,8 +828,8 @@ var addBehaviorToDefinition = function(definition, behavior, value) {
 makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
 	var definition = {};
 
-	canReflect.eachKey(def, function(value, behavior) {
-		addBehaviorToDefinition(definition, behavior, value);
+	eachPropertyDescriptor(def, function(behavior, descriptor) {
+		addBehaviorToDefinition(definition, behavior, descriptor, def);
 	});
 	// only add default if it doesn't exist
 	canReflect.eachKey(defaultDefinition, function(value, prop){

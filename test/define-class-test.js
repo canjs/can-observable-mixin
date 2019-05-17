@@ -379,3 +379,23 @@ QUnit.test("Extended DefineClasses can be used to set the type", function(assert
 		assert.ok(true, "Throws because it is a strict type")
 	}
 });
+
+QUnit.test("Allow a default object to be provided by using a getter", function(assert) {
+	class Thing extends Defined {
+		static get define() {
+			return {
+				prop: {
+					get default() {
+						return { foo: "bar" };
+					}
+				}
+			}
+		}
+	}
+
+	let one = new Thing();
+	let two = new Thing();
+
+	assert.deepEqual(one.prop, { foo: "bar" }, "Sets the default");
+	assert.notEqual(one.prop, two.prop, "Different instances");
+});
