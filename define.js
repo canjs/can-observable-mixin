@@ -1,6 +1,5 @@
 "use strict";
 
-var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
 
 var define;
@@ -26,9 +25,10 @@ var MaybeBoolean = require("can-data-types/maybe-boolean/maybe-boolean"),
     MaybeNumber = require("can-data-types/maybe-number/maybe-number"),
     MaybeString = require("can-data-types/maybe-string/maybe-string");
 
-var newSymbol = canSymbol.for("can.new"),
-	serializeSymbol = canSymbol.for("can.serialize"),
-	inSetupSymbol = canSymbol.for("can.initializing");
+var newSymbol = Symbol.for("can.new"),
+	serializeSymbol = Symbol.for("can.serialize"),
+	inSetupSymbol = Symbol.for("can.initializing"),
+	isMemberSymbol = Symbol.for("can.isMember");
 
 var eventsProto, define,
 	make, makeDefinition, getDefinitionsAndMethods, getDefinitionOrMethod;
@@ -200,7 +200,7 @@ module.exports = define = function(typePrototype, defines, baseDefine) {
 
 	// Places Symbol.iterator or @@iterator on the prototype
 	// so that this can be iterated with for/of and canReflect.eachIndex
-	var iteratorSymbol = canSymbol.iterator || canSymbol.for("iterator");
+	var iteratorSymbol = Symbol.iterator || Symbol.for("iterator");
 	if(!typePrototype[iteratorSymbol]) {
 		defineConfigurableAndNotEnumerable(typePrototype, iteratorSymbol, function(){
 			return new define.Iterator(this);
@@ -399,7 +399,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 };
 
 define.makeDefineInstanceKey = function(constructor) {
-	constructor[canSymbol.for("can.defineInstanceKey")] = function(property, value) {
+	constructor[Symbol.for("can.defineInstanceKey")] = function(property, value) {
 		this._initDefines();
 		var defineResult = this.prototype._define;
 		if (typeof value === "object") {
@@ -885,7 +885,11 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	}
     // copies a `Type`'s methods over
 	else if(value && (value[serializeSymbol] || value[newSymbol]) ) {
-		definition = { Type: value };
+		if(value[isMemberSymbol]) {
+			definition = { Type: value };
+		} else {
+			definition = { Type: dataTypes.check(value) };
+		}
 	}
 	else if(typeof value === "function") {
 		if(canReflect.isConstructorLike(value)) {
@@ -990,7 +994,7 @@ function teardownComputed(instance, eventName){
 	}
 }
 
-var canMetaSymbol = canSymbol.for("can.meta");
+var canMetaSymbol = Symbol.for("can.meta");
 assign(eventsProto, {
 	_eventSetup: function() {},
 	_eventTeardown: function() {},
@@ -1013,8 +1017,8 @@ eventsProto.on = eventsProto.bind = eventsProto.addEventListener;
 eventsProto.off = eventsProto.unbind = eventsProto.removeEventListener;
 
 
-var onKeyValueSymbol = canSymbol.for("can.onKeyValue");
-var offKeyValueSymbol = canSymbol.for("can.offKeyValue");
+var onKeyValueSymbol = Symbol.for("can.onKeyValue");
+var offKeyValueSymbol = Symbol.for("can.offKeyValue");
 
 canReflect.assignSymbols(eventsProto,{
 	"can.onKeyValue": function(key){
