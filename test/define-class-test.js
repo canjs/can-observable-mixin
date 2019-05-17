@@ -82,7 +82,7 @@ QUnit.test("listenTo to listen to property changes", function(assert) {
 	faves.color = "red";
 });
 
-QUnit.test("resolve(prop) can be used to resolve a property based on others", function(assert) {
+QUnit.test("value(prop) can be used to resolve a property based on others", function(assert) {
 	class Person extends Defined {
 		static get define() {
 			return {
@@ -90,7 +90,7 @@ QUnit.test("resolve(prop) can be used to resolve a property based on others", fu
 					default: false
 				},
 				age: {
-					resolve({ listenTo, resolve }) {
+					value({ listenTo, resolve }) {
 						let current = 1;
 
 						listenTo("isBirthday", isBirthday => {
