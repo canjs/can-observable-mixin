@@ -22,8 +22,7 @@
     "can-queues": "^1.2.1",
     "can-reflect": "^1.17.9",
     "can-simple-observable": "^2.4.1",
-    "can-string-to-any": "^1.2.0",
-    "can-symbol": "^1.6.4"
+    "can-string-to-any": "^1.2.0"
   },
   "devDependencies": {
     "can-reflect-tests": "^0.3.1",

@@ -354,3 +354,28 @@ QUnit.test("Primitives can be provided as the default as the property value", fu
 	assert.equal(person.likesChocolate, false, "Boolean works");
 	assert.equal(person.favoriteColor, "green", "Strings work");
 });
+
+QUnit.test("Extended DefineClasses can be used to set the type", function(assert) {
+	class One extends Defined {
+	}
+
+	class Two extends Defined {
+		static get define() {
+			return {
+				one: One
+			}
+		}
+	}
+
+	let one = new One();
+	let two = new Two({ one });
+
+	assert.equal(two.one, one, "Able to pass the instance");
+
+	try {
+		new Two({ one: {} });
+		assert.ok(false, "Should have thrown");
+	} catch(e) {
+		assert.ok(true, "Throws because it is a strict type")
+	}
+});
