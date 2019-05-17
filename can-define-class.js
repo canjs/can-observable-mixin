@@ -106,18 +106,8 @@ function define(Base = Object) {
 
 		setup(props) {
 			if(!this[hasBeenSetupSymbol]) {
-				Object.defineProperty(this, inSetupSymbol, {
-					configurable: true,
-					enumerable: false,
-					value: true,
-					writable: true
-				});
-				Object.defineProperty(this, hasBeenSetupSymbol, {
-					configurable: true,
-					enumerable: false,
-					value: false,
-					writable: true
-				});
+				addDefinedProps.defineConfigurableAndNotEnumerable(this, inSetupSymbol, true);
+				addDefinedProps.defineConfigurableAndNotEnumerable(this, hasBeenSetupSymbol, false);
 				this.constructor._initDefines();
 				setup.call(this, props, this.constructor.seal);
 				this[inSetupSymbol] = false;
