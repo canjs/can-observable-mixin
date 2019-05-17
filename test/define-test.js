@@ -1,12 +1,12 @@
 const QUnit = require("steal-qunit");
-const { define: dFine } = require("../can-define-class");
+const { mixinDefine } = require("../can-define-class");
 
 QUnit.module("can-define-class - define()");
 
 const supportsCustomElements = "customElements" in window;
 
 QUnit.test("Can define stuff", function(assert) {
-  class Faves extends dFine() {
+  class Faves extends mixinDefine() {
     static get define() {
       return {
 		  color: {
@@ -20,15 +20,14 @@ QUnit.test("Can define stuff", function(assert) {
   assert.equal(faves.color, "blue", "Got the value");
 });
 
-QUnit.test("Can not define stuff", function(assert) {
-	class Faves extends dFine() {}
-
-	let faves = new Faves();
-	assert.ok(true, "created the instance");
+QUnit.test("Does not throw if no define is provided", function(assert) {
+	class Faves extends mixinDefine() {}
+	const faves = new Faves();
+	assert.ok(true, "Did not throw");
 });
 
 QUnit.test("Stuff is defined in constructor for non-element classes", function(assert) {
-  class Faves extends dFine(Object) {
+  class Faves extends mixinDefine(Object) {
     static get define() {
       return {
 		  color: {
@@ -48,7 +47,7 @@ QUnit.test("Stuff is defined in constructor for non-element classes", function(a
 
 if (supportsCustomElements) {
 	QUnit.test("Stuff is defined in connectedCallback for custom elements", function(assert) {
-	  class Faves extends dFine(HTMLElement) {
+	  class Faves extends mixinDefine(HTMLElement) {
 		static get define() {
 		  return {
 			  color: {
@@ -74,7 +73,7 @@ if (supportsCustomElements) {
 	});
 
 	QUnit.test("Stuff is not redefined in connectedCallback for classes that extend Elements but call setup themselves", function(assert) {
-	  class Faves extends dFine(HTMLElement) {
+	  class Faves extends mixinDefine(HTMLElement) {
 		  static get define() {
 			  return {
 				  color: {

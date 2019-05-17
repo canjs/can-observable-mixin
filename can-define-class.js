@@ -64,14 +64,12 @@ function getKeyValue(key) {
 	}
 }
 
-function define(Base = Object) {
+function mixinDefine(Base = Object) {
 	class DefineClass extends Base {
 		static _initDefines() {
 			if(!this[hasBeenDefinedSymbol]) {
 				let prototypeObject = this.prototype;
-				// Won't be necessary if we do https://github.com/canjs/can-define-class/issues/46
-				let defines = (this.define && this.define !== define) ? this.define : {};
-				addDefinedProps(prototypeObject, defines);
+				addDefinedProps(prototypeObject, this.define || {});
 				this[hasBeenDefinedSymbol] = true;
 			}
 		}
@@ -225,5 +223,5 @@ function define(Base = Object) {
 	return DefineClass;
 }
 
-exports = module.exports = ns.DefineClass = define();
-exports.define = define;
+exports = module.exports = ns.DefineClass = mixinDefine();
+exports.mixinDefine = mixinDefine;
