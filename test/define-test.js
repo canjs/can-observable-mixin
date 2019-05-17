@@ -17,3 +17,10 @@ QUnit.test("Can define stuff", function(assert) {
   let faves = new Faves();
   assert.equal(faves.color, "blue", "Got the value");
 });
+
+QUnit.test("Can not define stuff", function(assert) {
+	class Faves extends define() {}
+
+	let faves = new Faves();
+	assert.ok(true, "created the instance");
+});

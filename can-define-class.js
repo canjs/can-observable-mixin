@@ -68,7 +68,7 @@ function define(Base = Object) {
 			if(!this[hasBeenDefinedSymbol]) {
 				let prototypeObject = this.prototype;
 				// Won't be necessary if we do https://github.com/canjs/can-define-class/issues/46
-				let defines = this.define !== define ? this.define : {};
+				let defines = (this.define && this.define !== define) ? this.define : {};
 				addDefinedProps(prototypeObject, defines);
 				this[hasBeenDefinedSymbol] = true;
 			}
