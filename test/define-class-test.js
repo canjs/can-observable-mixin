@@ -312,3 +312,45 @@ QUnit.test("canReflect.hasKey works", function(assert) {
 		);
 	});
 });
+
+QUnit.test("Primitives can be provided as the default in the PropDefinition", function(assert) {
+	class Person extends Defined {
+		static get define() {
+			return {
+				age: {
+					default: 13
+				},
+				likesChocolate: {
+					default: false
+				},
+				favoriteColor: {
+					default: "green"
+				}
+			};
+		}
+	}
+
+	let person = new Person();
+
+	assert.equal(person.age, 13, "Number works");
+	assert.equal(person.likesChocolate, false, "Boolean works");
+	assert.equal(person.favoriteColor, "green", "Strings work");
+});
+
+QUnit.test("Primitives can be provided as the default as the property value", function(assert) {
+	class Person extends Defined {
+		static get define() {
+			return {
+				age: 13,
+				likesChocolate: false,
+				favoriteColor: "green"
+			};
+		}
+	}
+
+	let person = new Person();
+
+	assert.equal(person.age, 13, "Number works");
+	assert.equal(person.likesChocolate, false, "Boolean works");
+	assert.equal(person.favoriteColor, "green", "Strings work");
+});

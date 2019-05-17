@@ -879,8 +879,9 @@ makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
 getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	// Clean up the value to make it a definition-like object
 	var definition;
-	if(typeof value === "string") {
-		definition = {type: value};
+	var valueType = typeof value;
+	if(valueType === "string" || valueType === "number" || valueType === "boolean") {
+		definition = { default: value };
 	}
     // copies a `Type`'s methods over
 	else if(value && (value[serializeSymbol] || value[newSymbol]) ) {
@@ -932,16 +933,17 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype) {
 			return;
 		} else {
 			var result = getDefinitionOrMethod(prop, value, defaultDefinition, typePrototype);
-			if(result && typeof result === "object" && canReflect.size(result) > 0) {
+			var resultType = typeof result;
+			if(result && resultType === "object" && canReflect.size(result) > 0) {
 				definitions[prop] = result;
 			}
 			else {
 				// Removed adding raw values that are not functions
-				if (typeof result === 'function') {
+				if (resultType === 'function') {
 					methods[prop] = result;
 				}
 				//!steal-remove-start
-				else if (typeof result !== 'undefined') {
+				else if (resultType !== 'undefined') {
 					if(process.env.NODE_ENV !== 'production') {
                     	// Ex: {prop: 0}
 						canLogDev.error(canReflect.getName(typePrototype)+"."+prop + " does not match a supported propDefinition. See: https://canjs.com/doc/can-define.types.propDefinition.html");
