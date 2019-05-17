@@ -265,7 +265,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	// Where the value is stored.  If there is a `get` the source of the value
 	// will be a compute in `this._computed[prop]`.  If not, the source of the
 	// value will be in `this._data[prop]`.
-	var dataProperty = definition.get || definition.async || definition.resolve ? "computed" : "data",
+	var dataProperty = definition.get || definition.async || definition.value ? "computed" : "data",
 
 		// simple functions that all read/get/set to the right place.
 		// - reader - reads the value but does not observe.
@@ -290,8 +290,8 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 				configurable: true
 			});
 		}
-		if(definition.resolve) {
-			Object.defineProperty(definition.resolve, "name", {
+		if(definition.value) {
+			Object.defineProperty(definition.value, "name", {
 				value: canReflect.getName(typePrototype) + "'s " + prop + " value",
 				configurable: true
 			});
@@ -313,7 +313,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 
 	// make a setter that's going to fire of events
 	var eventsSetter = make.set.events(prop, reader, setter, make.eventType[dataProperty](prop));
-	if(definition.resolve) {
+	if(definition.value) {
 		computedInitializers[prop] = make.resolver(prop, definition, typeConvert);
 	}
 	// Determine a function that will provide the initial property value.
@@ -464,11 +464,11 @@ make = {
 		return function(){
 			var map = this;
 			var defaultValue = getDefault.call(this);
-			var computeObj = make.computeObj(map, prop, new ResolverObservable(definition.resolve, map, defaultValue));
+			var computeObj = make.computeObj(map, prop, new ResolverObservable(definition.value, map, defaultValue));
 			//!steal-remove-start
 			if(process.env.NODE_ENV !== 'production') {
 				Object.defineProperty(computeObj.handler, "name", {
-					value: canReflect.getName(definition.resolve).replace('value', 'event emitter')
+					value: canReflect.getName(definition.value).replace('value', 'event emitter')
 				});
 			}
 			//!steal-remove-end
