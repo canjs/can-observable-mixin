@@ -10,8 +10,10 @@ const queues = require("can-queues");
 var addTypeEvents = require("can-event-queue/type/type");
 
 const hasBeenDefinedSymbol = Symbol.for("can.hasBeenDefined");
+const hasBeenSetupSymbol = Symbol.for("can.hasBeenSetup");
 const getSchemaSymbol = Symbol.for("can.getSchema");
 const inSetupSymbol = Symbol.for("can.initializing");
+const constructorPropsSymbol = Symbol.for("can.constructorProps");
 
 function keysForDefinition(definitions) {
 	var keys = [];
@@ -88,15 +90,39 @@ function define(Base = Object) {
 
 		constructor(props) {
 			super();
-			Object.defineProperty(this, inSetupSymbol, {
-				configurable: true,
-				enumerable: false,
-				value: true,
-				writable: true
-			});
-			new.target._initDefines();
-			setup.call(this, props, new.target.seal);
-			this[inSetupSymbol] = false;
+			if (this instanceof Element) {
+				this[constructorPropsSymbol] = props;
+			} else {
+				this.setup(props);
+			}
+		}
+
+		connectedCallback() {
+			if (typeof super.connectedCallback === "function") {
+				super.connectedCallback();
+			}
+			this.setup( this[constructorPropsSymbol] );
+		}
+
+		setup(props) {
+			if(!this[hasBeenSetupSymbol]) {
+				Object.defineProperty(this, inSetupSymbol, {
+					configurable: true,
+					enumerable: false,
+					value: true,
+					writable: true
+				});
+				Object.defineProperty(this, hasBeenSetupSymbol, {
+					configurable: true,
+					enumerable: false,
+					value: false,
+					writable: true
+				});
+				this.constructor._initDefines();
+				setup.call(this, props, this.constructor.seal);
+				this[inSetupSymbol] = false;
+				this[hasBeenSetupSymbol] = true;
+			}
 		}
 
 		get(prop){
