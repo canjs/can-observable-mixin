@@ -10,8 +10,10 @@ const queues = require("can-queues");
 var addTypeEvents = require("can-event-queue/type/type");
 
 const hasBeenDefinedSymbol = Symbol.for("can.hasBeenDefined");
+const hasBeenSetupSymbol = Symbol.for("can.hasBeenSetup");
 const getSchemaSymbol = Symbol.for("can.getSchema");
 const inSetupSymbol = Symbol.for("can.initializing");
+const constructorPropsSymbol = Symbol.for("can.constructorProps");
 
 function keysForDefinition(definitions) {
 	var keys = [];
@@ -62,14 +64,13 @@ function getKeyValue(key) {
 	}
 }
 
-function define(Base = Object) {
+function mixinDefine(Base = Object) {
 	class DefineClass extends Base {
 		static _initDefines() {
 			if(!this[hasBeenDefinedSymbol]) {
 				let prototypeObject = this.prototype;
-				// Won't be necessary if we do https://github.com/canjs/can-define-class/issues/46
-				let defines = this.define !== define ? this.define : {};
-				addDefinedProps(prototypeObject, defines);
+				let define = typeof this.define === "object" ? this.define : {};
+				addDefinedProps(prototypeObject, define);
 				this[hasBeenDefinedSymbol] = true;
 			}
 		}
@@ -88,15 +89,29 @@ function define(Base = Object) {
 
 		constructor(props) {
 			super();
-			Object.defineProperty(this, inSetupSymbol, {
-				configurable: true,
-				enumerable: false,
-				value: true,
-				writable: true
-			});
-			new.target._initDefines();
-			setup.call(this, props, new.target.seal);
-			this[inSetupSymbol] = false;
+			if (this instanceof Element) {
+				this[constructorPropsSymbol] = props;
+			} else {
+				this.setup(props);
+			}
+		}
+
+		connectedCallback() {
+			if (typeof super.connectedCallback === "function") {
+				super.connectedCallback();
+			}
+			this.setup( this[constructorPropsSymbol] );
+		}
+
+		setup(props) {
+			if(!this[hasBeenSetupSymbol]) {
+				addDefinedProps.defineConfigurableAndNotEnumerable(this, inSetupSymbol, true);
+				addDefinedProps.defineConfigurableAndNotEnumerable(this, hasBeenSetupSymbol, false);
+				this.constructor._initDefines();
+				setup.call(this, props, this.constructor.seal);
+				this[inSetupSymbol] = false;
+				this[hasBeenSetupSymbol] = true;
+			}
 		}
 
 		get(prop){
@@ -209,5 +224,5 @@ function define(Base = Object) {
 	return DefineClass;
 }
 
-exports = module.exports = ns.DefineClass = define();
-exports.define = define;
+exports = module.exports = ns.DefineClass = mixinDefine();
+exports.mixinDefine = mixinDefine;
