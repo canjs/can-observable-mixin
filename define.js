@@ -1052,6 +1052,10 @@ define.setup = function(props, sealed) {
 		if(definitions[prop] !== undefined) {
 			map[prop] = value;
 		} else {
+			if(sealed) {
+				throw new Error(`The type ${canReflect.getName(map.constructor)} is sealed, but the property [${prop}] has no definition.`);
+			}
+
 			define.expando(map, prop, value);
 		}
 	});
