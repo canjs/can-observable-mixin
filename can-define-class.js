@@ -69,7 +69,8 @@ function mixinDefine(Base = Object) {
 		static _initDefines() {
 			if(!this[hasBeenDefinedSymbol]) {
 				let prototypeObject = this.prototype;
-				addDefinedProps(prototypeObject, this.define || {});
+				let define = typeof this.define === "object" ? this.define : {};
+				addDefinedProps(prototypeObject, define);
 				this[hasBeenDefinedSymbol] = true;
 			}
 		}
