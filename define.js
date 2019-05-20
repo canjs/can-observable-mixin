@@ -879,9 +879,11 @@ makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
 getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	// Clean up the value to make it a definition-like object
 	var definition;
-	var valueType = typeof value;
-	if(valueType === "string" || valueType === "number" || valueType === "boolean") {
-		definition = { default: value };
+	if(canReflect.isPrimitive(value)) {
+		definition = {
+			default: value,
+			Type: dataTypes.check(value.constructor)
+		};
 	}
     // copies a `Type`'s methods over
 	else if(value && (value[serializeSymbol] || value[newSymbol]) ) {
