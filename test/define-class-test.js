@@ -288,6 +288,7 @@ QUnit.test("canReflect.hasKey works", function(assert) {
 	class Thing extends Defined {
 		static get define() {
 			return {
+				prop: String,
 				derivedProp: {
 					get: function() {
 						if (this.prop) {
