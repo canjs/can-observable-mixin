@@ -28,6 +28,6 @@ var platforms = [{
 var url = "http://localhost:3000/test/test.html?hidepassed";
 
 SauceLabs({
-	urls: [{ name: "can-define-class", url : url }],
+	urls: [{ name: "can-define-mixin", url : url }],
 	platforms: platforms
 });

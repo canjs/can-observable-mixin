@@ -1,10 +1,12 @@
 "use strict";
 
 const QUnit = require("steal-qunit");
-const Defined = require("../can-define-class");
+const { mixinDefinedProxyObject } = require("../mixins");
 
-QUnit.module("can-define-class Type events");
+const DefineObject = mixinDefinedProxyObject();
+
+QUnit.module("can-define-mixin Type events");
 
 require("can-reflect-tests/observables/map-like/type/type")("Defined", function(){
-	return class Type extends Defined {};
+	return class Type extends DefineObject {};
 });

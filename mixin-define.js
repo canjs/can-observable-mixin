@@ -1,4 +1,3 @@
-const ns = require("can-namespace");
 const addDefinedProps = require("./define");
 const { updateSchemaKeys, setup } = addDefinedProps;
 
@@ -7,7 +6,6 @@ const ObservationRecorder = require("can-observation-recorder");
 const canLogDev = require("can-log/dev/dev");
 const canReflect = require("can-reflect");
 const queues = require("can-queues");
-var addTypeEvents = require("can-event-queue/type/type");
 
 const hasBeenDefinedSymbol = Symbol.for("can.hasBeenDefined");
 const hasBeenSetupSymbol = Symbol.for("can.hasBeenSetup");
@@ -219,10 +217,7 @@ function mixinDefine(Base = Object) {
 
 	addDefinedProps.makeDefineInstanceKey(DefineClass);
 
-	addTypeEvents(DefineClass);
-
 	return DefineClass;
 }
 
-exports = module.exports = ns.DefineClass = mixinDefine();
-exports.mixinDefine = mixinDefine;
+module.exports = mixinDefine;
