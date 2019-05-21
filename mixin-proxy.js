@@ -34,7 +34,7 @@ function proxyPrototype(Base) {
 	return LateDefined;
 }
 
-function proxyArray(Base) {
+function proxyArray() {
 	throw new Error("Not yet implemented.");
 }
 
