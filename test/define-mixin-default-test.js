@@ -1,8 +1,10 @@
 const QUnit = require("steal-qunit");
-const DefineClass = require("../can-define-class");
+const {mixinDefinedProxyObject} = require("../mixins");
+
+const DefineObject = mixinDefinedProxyObject();
 
 QUnit.test("Primitives can be provided as the default in the PropDefinition", function(assert) {
-	class Person extends DefineClass {
+	class Person extends DefineObject {
 		static get define() {
 			return {
 				age: {
@@ -26,7 +28,7 @@ QUnit.test("Primitives can be provided as the default in the PropDefinition", fu
 });
 
 QUnit.test("Primitives can be provided as the default as the property value", function(assert) {
-	class Person extends DefineClass {
+	class Person extends DefineObject {
 		static get define() {
 			return {
 				age: 13,
@@ -44,7 +46,7 @@ QUnit.test("Primitives can be provided as the default as the property value", fu
 });
 
 QUnit.test("Primitives provided as the default sets the type as strict", function(assert) {
-	class Person extends DefineClass {
+	class Person extends DefineObject {
 		static get define() {
 			return {
 				age: 13
@@ -64,11 +66,11 @@ QUnit.test("Primitives provided as the default sets the type as strict", functio
 	}
 });
 
-QUnit.test("Extended DefineClasses can be used to set the type", function(assert) {
-	class One extends DefineClass {
+QUnit.test("Extended DefineObjectes can be used to set the type", function(assert) {
+	class One extends DefineObject {
 	}
 
-	class Two extends DefineClass {
+	class Two extends DefineObject {
 		static get define() {
 			return {
 				one: One
@@ -90,7 +92,7 @@ QUnit.test("Extended DefineClasses can be used to set the type", function(assert
 });
 
 QUnit.test("Allow a default object to be provided by using a getter", function(assert) {
-	class Thing extends DefineClass {
+	class Thing extends DefineObject {
 		static get define() {
 			return {
 				prop: {

@@ -1,8 +1,10 @@
 const QUnit = require("steal-qunit");
-const DefineClass = require("../can-define-class");
+const {mixinDefinedProxyObject} = require("../mixins");
 
-QUnit.test("Calling an extended DefineClass with undefined props when sealed", function(assert) {
-	class Person extends DefineClass {
+const DefineObject = mixinDefinedProxyObject();
+
+QUnit.test("Calling an extended DefineObject with undefined props when sealed", function(assert) {
+	class Person extends DefineObject {
 		static get seal() { return true }
 	}
 
@@ -14,8 +16,8 @@ QUnit.test("Calling an extended DefineClass with undefined props when sealed", f
 	}
 });
 
-QUnit.test("Calling an extended DefineClass with undefined props when unsealed", function(assert) {
-	class Person extends DefineClass {
+QUnit.test("Calling an extended DefineObject with undefined props when unsealed", function(assert) {
+	class Person extends DefineObject {
 		static get seal() { return false }
 	}
 

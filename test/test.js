@@ -1,6 +1,6 @@
-require("./define-class-test");
+require("./define-mixin-test");
 require("./define-test");
 require("./define-types-test");
 require("./type-events-test");
-require("./define-class-default-test");
-require("./define-class-new-test");
+require("./define-mixin-default-test");
+require("./define-mixin-new-test");

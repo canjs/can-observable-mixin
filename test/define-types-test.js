@@ -1,9 +1,11 @@
 const QUnit = require("steal-qunit");
 const canReflect = require("can-reflect");
-const Defined = require("../can-define-class");
+const {mixinDefinedProxyObject} = require("../mixins");
 const types = require("can-data-types");
 
-QUnit.module("can-define-class - Types");
+const DefineObject = mixinDefinedProxyObject();
+
+QUnit.module("can-define-mixin - Types");
 
 /*
 Need to support
@@ -190,7 +192,7 @@ cases.forEach(testCase => {
 		let typeName = canReflect.getName(Type);
 		let testName = `${typeName} - ${caseName} - value (${!hasValue ? "NO VALUE" : typeof value === "string" ? `"${value}"` : value})`;
 		QUnit.test(testName, function(assert) {
-			class MyType extends Defined {
+			class MyType extends DefineObject {
 				static get define() {
 					return {
 						prop: {
@@ -231,7 +233,7 @@ cases.forEach(testCase => {
 
 
 QUnit.test("Can pass common/primitive types as the type option", function(assert) {
-	class MyThing extends Defined {
+	class MyThing extends DefineObject {
 		static get define() {
 			return {
 				num: Number,

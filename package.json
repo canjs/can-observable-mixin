@@ -1,5 +1,5 @@
 {
-  "name": "can-define-class",
+  "name": "can-define-mixin",
   "description": "Define properties on JavaScript classes",
   "version": "0.0.6",
   "author": {
@@ -8,7 +8,7 @@
     "url": "http://bitovi.com"
   },
   "bugs": {
-    "url": "https://github.com/canjs/can-define-class/issues"
+    "url": "https://github.com/canjs/can-define-mixin/issues"
   },
   "dependencies": {
     "can-assign": "^1.3.1",
@@ -35,15 +35,15 @@
     "test-saucelabs": "0.0.6",
     "testee": "^0.9.0"
   },
-  "homepage": "https://github.com/canjs/can-define-class",
+  "homepage": "https://github.com/canjs/can-define-mixin",
   "keywords": [
     "CanJS"
   ],
   "license": "MIT",
-  "main": "can-define-class.js",
+  "main": "mixins.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/canjs/can-define-class.git"
+    "url": "git://github.com/canjs/can-define-mixin.git"
   },
   "scripts": {
     "ci": "npm run test && node test/test-saucelabs.js",
