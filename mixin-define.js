@@ -1,4 +1,3 @@
-const ns = require("can-namespace");
 const addDefinedProps = require("./define");
 const { updateSchemaKeys, setup } = addDefinedProps;
 
