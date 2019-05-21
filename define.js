@@ -1077,7 +1077,7 @@ define.setup = function(props, sealed) {
 	if(process.env.NODE_ENV !== 'production') {
 		this._data;
 		this._computed;
-		if(sealed !== false) {
+		if(sealed === true) {
 			Object.seal(this);
 		}
 	}
