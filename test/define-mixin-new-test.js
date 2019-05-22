@@ -1,7 +1,7 @@
 const QUnit = require("steal-qunit");
-const {mixinDefinedProxyObject} = require("../mixins");
+const { mixinObject } = require("./helpers");
 
-const DefineObject = mixinDefinedProxyObject();
+const DefineObject = mixinObject();
 
 QUnit.test("Calling an extended DefineObject with undefined props when sealed", function(assert) {
 	class Person extends DefineObject {

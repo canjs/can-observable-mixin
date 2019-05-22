@@ -1,9 +1,9 @@
 const QUnit = require("steal-qunit");
 const canReflect = require("can-reflect");
-const {mixinDefinedProxyObject} = require("../mixins");
+const { mixinObject } = require("./helpers");
 const types = require("can-data-types");
 
-const DefineObject = mixinDefinedProxyObject();
+const DefineObject = mixinObject();
 
 QUnit.module("can-define-mixin - Types");
 
