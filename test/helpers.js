@@ -7,7 +7,7 @@ const mixinTypeEvents = require("../mixin-typeevents");
 exports.mixinObject = function(Base = Object) {
 	let ChildClass = class extends mixinProxy(Base) {
 		constructor(props) {
-			super(props);
+			super();
 			hooks.finalizeClass(this.constructor);
 			hooks.initialize(this, props);
 		}
