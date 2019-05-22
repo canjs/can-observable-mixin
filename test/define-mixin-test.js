@@ -208,28 +208,6 @@ QUnit.test("set() can return a different value", function(assert) {
 	assert.equal(faves.color, "blue", "Did not change");
 });
 
-QUnit.test("set(newVal, resolve) can async resolve a value", function(assert) {
-	let done = assert.async();
-	class Faves extends mixinObject() {
-		static get define() {
-			return {
-				color: {
-					set(n, resolve) {
-						setTimeout(() => resolve("green"), 10);
-					}
-				}
-			}
-		}
-	}
-
-	let faves = new Faves();
-	canReflect.onKeyValue(faves, "color", () => {
-		assert.equal(faves.color, "green", "Changed async");
-		done();
-	});
-	faves.color = "red";
-});
-
 QUnit.test("Passing props into the constructor", function(assert) {
 	class Person extends mixinObject() {
 		static get define() {
@@ -312,4 +290,26 @@ QUnit.test("canReflect.hasKey works", function(assert) {
 			"canReflect." + test.method + "(thing, '" + test.prop + "') should be " + test.expected
 		);
 	});
+});
+
+QUnit.test("setters get the lastSet value", function(assert) {
+	let setLastSet;
+	class Faves extends mixinObject() {
+		static get define() {
+			return {
+				food: {
+					set(newValue, lastSet) {
+						setLastSet = lastSet;
+						return newValue;
+					}
+				}
+			};
+		}
+	}
+
+	let faves = new Faves();
+	faves.food = "pizza";
+	faves.food = "pie";
+
+	assert.equal(setLastSet, "pizza", "lastSet provided to the setter");
 });

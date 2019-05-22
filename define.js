@@ -583,16 +583,7 @@ make = {
 				queues.batch.start();
 				var setterCalled = false,
 					current = getCurrent.call(this),
-					setValue = setter.call(this, value, function(value) {
-						setEvents.call(self, value);
-
-						setterCalled = true;
-						//!steal-remove-start
-						if(process.env.NODE_ENV !== 'production') {
-							clearTimeout(asyncTimer);
-						}
-						//!steal-remove-end
-					}, current);
+					setValue = setter.call(this, value, current);
 
 				if (setterCalled) {
 					queues.batch.stop();
