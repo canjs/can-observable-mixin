@@ -10,6 +10,8 @@ function proxyPrototype(Base) {
 		return inst;
 	}
 
+	const underlyingPrototypeObject = Object.create(Base.prototype);
+
 	const proxyHandlers = {
 		get(target, key, receiver) {
 			// TODO ObservationRecorder.add()
@@ -17,9 +19,7 @@ function proxyPrototype(Base) {
 		},
 		set(target, key, value, receiver) {
 			// TODO I know this is wrong but i'm just doing it this way for now, ok?
-			if(key in target) {
-				Reflect.set(target, key, value);
-			} else if (typeof key === "symbol") {
+			if(key in target || typeof key === "symbol") {
 				Reflect.set(target, key, value, receiver);
 			} else {
 				defineBehavior.expando(receiver, key, value);
@@ -29,8 +29,7 @@ function proxyPrototype(Base) {
 		}
 	};
 
-	LateDefined.prototype = new Proxy(Object.create(Base.prototype), proxyHandlers);
-
+	LateDefined.prototype = new Proxy(underlyingPrototypeObject, proxyHandlers);
 	return LateDefined;
 }
 
