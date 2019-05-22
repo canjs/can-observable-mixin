@@ -122,7 +122,7 @@ function cleanUpDefinition(prop, definition, shouldWarn, typePrototype){
 	}
 }
 
-module.exports = define = function(typePrototype, defines, baseDefine) {
+module.exports = define = function(typePrototype, defines, baseDefine, propertyDefaults = {}) {
 	// default property definitions on _data
 	var prop,
 		dataInitializers = Object.create(baseDefine ? baseDefine.dataInitializers : null),
@@ -130,7 +130,7 @@ module.exports = define = function(typePrototype, defines, baseDefine) {
 		computedInitializers = Object.create(baseDefine ? baseDefine.computedInitializers : null),
 		required = new Set();
 
-	var result = getDefinitionsAndMethods(defines, baseDefine, typePrototype);
+	var result = getDefinitionsAndMethods(defines, baseDefine, typePrototype, propertyDefaults);
 	result.dataInitializers = dataInitializers;
 	result.computedInitializers = computedInitializers;
 	result.required = required;
@@ -925,16 +925,14 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	}
 };
 // called by can.define
-getDefinitionsAndMethods = function(defines, baseDefines, typePrototype) {
+getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propertyDefaults) {
 	// make it so the definitions include base definitions on the proto
 	var definitions = Object.create(baseDefines ? baseDefines.definitions : null);
 	var methods = {};
 	// first lets get a default if it exists
-	var defaults = defines["*"],
-		defaultDefinition;
-	if(defaults) {
-		delete defines["*"];
-		defaultDefinition = getDefinitionOrMethod("*", defaults, {});
+	var defaultDefinition;
+	if(propertyDefaults) {
+		defaultDefinition = getDefinitionOrMethod("*", propertyDefaults, {});
 	} else {
 		defaultDefinition = Object.create(null);
 	}
@@ -975,9 +973,9 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype) {
 
 	eachPropertyDescriptor(typePrototype, addDefinition);
 	eachPropertyDescriptor(defines, addDefinition);
-	if(defaults) {
+	if(propertyDefaults) {
 		// we should move this property off the prototype.
-		defineConfigurableAndNotEnumerable(defines,"*", defaults);
+		defineConfigurableAndNotEnumerable(defines, "*", propertyDefaults);
 	}
 	return {definitions: definitions, methods: methods, defaultDefinition: defaultDefinition};
 };
@@ -1316,7 +1314,7 @@ define.hooks = {
 		if(!Type[hasBeenDefinedSymbol]) {
 			let prototypeObject = Type.prototype;
 			let defines = typeof Type.define === "object" ? Type.define : {};
-			define(prototypeObject, defines);
+			define(prototypeObject, defines, null, Type.propertyDefaults);
 			Type[hasBeenDefinedSymbol] = true;
 		}
 	},
