@@ -1,28 +1,26 @@
 const QUnit = require("steal-qunit");
-const { mixinDefinedProxyObject } = require("../mixins");
+const { mixinObject } = require("./helpers");
 const canReflect = require("can-reflect");
-
-const DefineObject = mixinDefinedProxyObject();
 
 QUnit.module("can-define-mixin - mixins(Object)");
 
 QUnit.test("Can define stuff", function(assert) {
-  class Faves extends DefineObject {
-    static get define() {
-      return {
-		  color: {
-			  default: "blue"
-		  }
-      };
-    }
-  }
+	class Faves extends mixinObject() {
+		static get define() {
+			return {
+				color: {
+					default: "blue"
+				}
+			};
+		}
+	}
 
-  let faves = new Faves();
-  assert.equal(faves.color, "blue", "Got the value");
+	let faves = new Faves();
+	assert.equal(faves.color, "blue", "Got the value");
 });
 
 QUnit.test("Changes are observed", function(assert) {
-	class Faves extends DefineObject {
+	class Faves extends mixinObject() {
 		static get define() {
 			return {
 				color: {
@@ -42,7 +40,7 @@ QUnit.test("Changes are observed", function(assert) {
 QUnit.test("async(resolve) resolves async values", function(assert) {
 	let done = assert.async();
 
-	class Faves extends DefineObject {
+	class Faves extends mixinObject() {
 		static get define() {
 			return {
 				age: {
@@ -68,7 +66,7 @@ QUnit.test("async(resolve) resolves async values", function(assert) {
 });
 
 QUnit.test("listenTo to listen to property changes", function(assert) {
-	class Faves extends DefineObject {
+	class Faves extends mixinObject() {
 		static get define() {
 			return {
 				color: {}
@@ -85,7 +83,7 @@ QUnit.test("listenTo to listen to property changes", function(assert) {
 });
 
 QUnit.test("value(prop) can be used to resolve a property based on others", function(assert) {
-	class Person extends DefineObject {
+	class Person extends mixinObject() {
 		static get define() {
 			return {
 				isBirthday: {
@@ -116,7 +114,7 @@ QUnit.test("value(prop) can be used to resolve a property based on others", func
 });
 
 QUnit.test("getSchema returns the schema", function(assert) {
-	class Faves extends DefineObject {
+	class Faves extends mixinObject() {
 		static get define() {
 			return {
 				age: {}
@@ -129,7 +127,7 @@ QUnit.test("getSchema returns the schema", function(assert) {
 });
 
 QUnit.test("getSchema still works when further deriving", function(assert) {
-	class Base extends DefineObject {}
+	class Base extends mixinObject() {}
 	class Faves extends Base {
 		static get define() {
 			return {
@@ -143,12 +141,12 @@ QUnit.test("getSchema still works when further deriving", function(assert) {
 });
 
 QUnit.test("Does not throw if no define is provided", function(assert) {
-	class Faves extends DefineObject {}
+	class Faves extends mixinObject() {}
 	assert.ok(true, "Did not throw");
 });
 
 QUnit.test("JavaScript setters work", function(assert) {
-	class Faves extends DefineObject {
+	class Faves extends mixinObject() {
 		static get define() {
 			return {};
 		}
@@ -165,7 +163,7 @@ QUnit.test("JavaScript setters work", function(assert) {
 // Note that this is not documented behavior so we can change it in the future if needed
 // It's unlikely something someone would do on purpose anyways.
 QUnit.test("Setters on the define override those on the prototype", function(assert) {
-	class Faves extends DefineObject {
+	class Faves extends mixinObject() {
 		static get define() {
 			return {
 				color: {
@@ -193,7 +191,7 @@ QUnit.test("Setters on the define override those on the prototype", function(ass
 });
 
 QUnit.test("set() can return a different value", function(assert) {
-	class Faves extends DefineObject {
+	class Faves extends mixinObject() {
 		static get define() {
 			return {
 				color: {
@@ -212,7 +210,7 @@ QUnit.test("set() can return a different value", function(assert) {
 
 QUnit.test("set(newVal, resolve) can async resolve a value", function(assert) {
 	let done = assert.async();
-	class Faves extends DefineObject {
+	class Faves extends mixinObject() {
 		static get define() {
 			return {
 				color: {
@@ -233,7 +231,7 @@ QUnit.test("set(newVal, resolve) can async resolve a value", function(assert) {
 });
 
 QUnit.test("Passing props into the constructor", function(assert) {
-	class Person extends DefineObject {
+	class Person extends mixinObject() {
 		static get define() {
 			return {
 				age: {
@@ -248,7 +246,7 @@ QUnit.test("Passing props into the constructor", function(assert) {
 });
 
 QUnit.test("seal: false prevents the object from being sealed", function(assert) {
-	class Thing extends DefineObject {
+	class Thing extends mixinObject() {
 	  static get seal() {
 		  return false;
 	  }
@@ -264,7 +262,7 @@ QUnit.test("seal: false prevents the object from being sealed", function(assert)
 });
 
 QUnit.test("enumerable: false prevents the property from being enumerable", function(assert) {
-	class Thing extends DefineObject {
+	class Thing extends mixinObject() {
 		static get define() {
 			return {
 				shouldEnumerate: {
@@ -287,7 +285,7 @@ QUnit.test("enumerable: false prevents the property from being enumerable", func
 });
 
 QUnit.test("canReflect.hasKey works", function(assert) {
-	class Thing extends DefineObject {
+	class Thing extends mixinObject() {
 		static get define() {
 			return {
 				prop: String,

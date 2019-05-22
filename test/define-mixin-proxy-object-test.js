@@ -1,7 +1,8 @@
-const {mixinDefinedProxyObject} = require("../mixins");
+const { mixinObject } = require("./helpers");
 const canReflect = require("can-reflect");
+const ObservationRecorder = require("can-observation-recorder");
 
-const DefineObject = mixinDefinedProxyObject();
+const DefineObject = mixinObject();
 
 QUnit.module("can-define-mixin - Proxy Objects");
 
@@ -15,4 +16,15 @@ QUnit.test("Can bind on properties not defined", function(assert) {
 	});
 
 	faves.food = "pizza";
+});
+
+QUnit.test("Can listen to changes when listening to undefined props", function(assert) {
+	let map = new DefineObject();
+
+	ObservationRecorder.start();
+	map.first;
+	let records = ObservationRecorder.stop();
+	let entries = Array.from(records.keyDependencies.get(map));
+
+	assert.deepEqual(entries, ["first"], "How the right entries");
 });

@@ -1,4 +1,4 @@
-const {mixinDefinedProxyObject} = require("../mixins");
+const {mixinElement} = require("../mixins");
 const canReflect = require("can-reflect");
 
 const supportsCustomElements = "customElements" in window;
@@ -7,7 +7,7 @@ if(supportsCustomElements) {
 	QUnit.module("can-define-mixin - Proxy HTMLElement");
 
 	QUnit.test("Can bind on properties not defined", function(assert) {
-		const Base = mixinDefinedProxyObject(HTMLElement);
+		const Base = mixinElement(HTMLElement);
 		class Favorites extends Base {}
 
 		customElements.define("my-favorites", Favorites);
@@ -24,7 +24,7 @@ if(supportsCustomElements) {
 	});
 
 	QUnit.test("Can have functions on the prototype", function(assert) {
-		const Base = mixinDefinedProxyObject(HTMLElement);
+		const Base = mixinElement(HTMLElement);
 		class Favorites extends Base {
 			listFavorites() {
 
@@ -44,7 +44,7 @@ if(supportsCustomElements) {
 	});
 
 	QUnit.test("Can have functions on the derived classes", function(assert) {
-		const Base = mixinDefinedProxyObject(HTMLElement);
+		const Base = mixinElement(HTMLElement);
 		class One extends Base {}
 		class Two extends One {
 			aFunction() {}
@@ -61,7 +61,7 @@ if(supportsCustomElements) {
 	});
 
 	QUnit.test("Can set a property of HTMLElement on the instance", function(assert) {
-		const Base = mixinDefinedProxyObject(HTMLElement);
+		const Base = mixinElement(HTMLElement);
 
 		class Instance extends Base {}
 
@@ -69,9 +69,19 @@ if(supportsCustomElements) {
 
 		let onclick = function(){};
 		let instance = new Instance();
+		instance.connectedCallback();
 		instance.onclick = onclick;
 
 		assert.equal(instance.onclick, onclick, "The onclick is there");
 		assert.equal(document.createElement("button").onclick, null, "Didn't mess with the HTMLElement's onclick");
+
+		canReflect.onKeyValue(instance, "onclick", function(newValue) {
+			assert.equal(newValue, newonclick, "Changed to the new value");
+		});
+
+		instance.onclick;
+
+		var newonclick = function(){};
+		instance.onclick = newonclick;
 	});
 }

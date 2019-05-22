@@ -1,7 +1,7 @@
 const QUnit = require("steal-qunit");
-const {mixinDefinedProxyObject} = require("../mixins");
+const { mixinObject } = require("./helpers");
 
-const DefineObject = mixinDefinedProxyObject();
+const DefineObject = mixinObject();
 
 QUnit.test("Primitives can be provided as the default in the PropDefinition", function(assert) {
 	class Person extends DefineObject {

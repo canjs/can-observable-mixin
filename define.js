@@ -28,7 +28,9 @@ var MaybeBoolean = require("can-data-types/maybe-boolean/maybe-boolean"),
 var newSymbol = Symbol.for("can.new"),
 	serializeSymbol = Symbol.for("can.serialize"),
 	inSetupSymbol = Symbol.for("can.initializing"),
-	isMemberSymbol = Symbol.for("can.isMember");
+	isMemberSymbol = Symbol.for("can.isMember"),
+	hasBeenDefinedSymbol = Symbol.for("can.hasBeenDefined"),
+	hasBeenSetupSymbol = Symbol.for("can.hasBeenSetup");
 
 var eventsProto, define,
 	make, makeDefinition, getDefinitionsAndMethods, getDefinitionOrMethod;
@@ -400,7 +402,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 
 define.makeDefineInstanceKey = function(constructor) {
 	constructor[Symbol.for("can.defineInstanceKey")] = function(property, value) {
-		this._initDefines();
+		define.hooks.finalizeClass(this);
 		var defineResult = this.prototype._define;
 		if (typeof value === "object") {
 			// change `value` to default.
@@ -544,6 +546,28 @@ make = {
 				}
 			};
 		},
+		eventDispatcher: function(map, prop, current, newVal) {
+			if (map[inSetupSymbol]) {
+				return;
+			}
+			else {
+				if (newVal !== current) {
+					var dispatched = {
+						patches: [{type: "set", key: prop, value: newVal}],
+						type: prop,
+						target: map
+					};
+
+					//!steal-remove-start
+					if(process.env.NODE_ENV !== 'production') {
+						dispatched.reasonLog = [ canReflect.getName(this) + "'s", prop, "changed to", newVal, "from", current ];
+					}
+					//!steal-remove-end
+
+					map.dispatch(dispatched, [newVal, current]);
+				}
+			}
+		},
 		setter: function(prop, setter, getCurrent, setEvents, hasGetter) {
 			return function(value) {
 				//!steal-remove-start
@@ -644,8 +668,6 @@ make = {
 							return;
 						}
 					}
-
-
 				}
 			};
 		},
@@ -1295,4 +1317,25 @@ define.updateSchemaKeys = function(schema, definitions) {
 		}
 	}
 	return schema;
+};
+
+
+define.hooks = {
+	finalizeClass: function(Type) {
+		if(!Type[hasBeenDefinedSymbol]) {
+			let prototypeObject = Type.prototype;
+			let defines = typeof Type.define === "object" ? Type.define : {};
+			define(prototypeObject, defines);
+			Type[hasBeenDefinedSymbol] = true;
+		}
+	},
+	initialize: function(instance, props) {
+		if(!instance[hasBeenSetupSymbol]) {
+			define.defineConfigurableAndNotEnumerable(instance, inSetupSymbol, true);
+			define.defineConfigurableAndNotEnumerable(instance, hasBeenSetupSymbol, false);
+			define.setup.call(instance, props, instance.constructor.seal);
+			instance[inSetupSymbol] = false;
+			instance[hasBeenSetupSymbol] = true;
+		}
+	}
 };
