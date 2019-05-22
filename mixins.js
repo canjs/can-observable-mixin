@@ -3,7 +3,7 @@ const mixinTypeEvents = require("can-event-queue/type/type");
 const mixinProxy = require("./mixin-proxy");
 
 function mixinDefinedProxyObject(Base) {
-	let DefinedObject = mixinProxy(mixinDefine(Base));
+	let DefinedObject = mixinDefine(mixinProxy(Base));
 	mixinTypeEvents(DefinedObject);
 	return DefinedObject;
 }
