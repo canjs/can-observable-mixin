@@ -1,19 +1,13 @@
 const addDefinedProps = require("./define");
-const { updateSchemaKeys, setup, hooks } = addDefinedProps;
+const { updateSchemaKeys, hooks } = addDefinedProps;
 
 const defineHelpers = require("./define-helpers");
 const ObservationRecorder = require("can-observation-recorder");
 const canLogDev = require("can-log/dev/dev");
 const canReflect = require("can-reflect");
 const queues = require("can-queues");
-const mixinMapProps = require("./mixin-mapprops");
 
-const hasBeenDefinedSymbol = Symbol.for("can.hasBeenDefined");
-const hasBeenSetupSymbol = Symbol.for("can.hasBeenSetup");
 const getSchemaSymbol = Symbol.for("can.getSchema");
-const inSetupSymbol = Symbol.for("can.initializing");
-const constructorPropsSymbol = Symbol.for("can.constructorProps");
-
 
 function keysForDefinition(definitions) {
 	var keys = [];
@@ -179,5 +173,5 @@ module.exports = function(Type) {
 		[Symbol.for("can.hasKey")](key) {
 			return (key in this._define.definitions) || (this._instanceDefinitions !== undefined && key in this._instanceDefinitions);
 		}
-	}
-}
+	};
+};

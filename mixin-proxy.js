@@ -1,6 +1,5 @@
 const defineBehavior = require("./define");
 const ObservationRecorder = require("can-observation-recorder");
-const queues = require("can-queues");
 
 const eventDispatcher = defineBehavior.make.set.eventDispatcher;
 
