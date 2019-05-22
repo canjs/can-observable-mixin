@@ -1,6 +1,7 @@
 const QUnit = require("steal-qunit");
 const { mixinObject } = require("./helpers");
 const canReflect = require("can-reflect");
+const types = require("can-data-types");
 
 QUnit.module("can-define-mixin - mixins(Object)");
 
@@ -312,4 +313,17 @@ QUnit.test("setters get the lastSet value", function(assert) {
 	faves.food = "pie";
 
 	assert.equal(setLastSet, "pizza", "lastSet provided to the setter");
+});
+
+QUnit.test("propertyDefaults becomes the default properties", function(assert) {
+	class Person extends mixinObject() {
+		static get propertyDefaults() {
+			return {
+				type: types.convert(Number)
+			};
+		}
+	}
+
+	let p = new Person({ age: "32" });
+	assert.deepEqual(p.age, 32, "Converted because of defaults");
 });
