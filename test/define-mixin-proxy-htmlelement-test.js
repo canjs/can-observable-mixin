@@ -1,20 +1,24 @@
 const {mixinDefinedProxyObject} = require("../mixins");
 const canReflect = require("can-reflect");
 
-QUnit.module("can-define-mixin - Proxy HTMLElement");
+const supportsCustomElements = "customElements" in window;
 
-QUnit.test("Can bind on properties not defined", function(assert) {
-	const Base = mixinDefinedProxyObject(HTMLElement);
-	class Favorites extends Base {}
+if(supportsCustomElements) {
+	QUnit.module("can-define-mixin - Proxy HTMLElement");
 
-	customElements.define("my-favorites", Favorites);
+	QUnit.test("Can bind on properties not defined", function(assert) {
+		const Base = mixinDefinedProxyObject(HTMLElement);
+		class Favorites extends Base {}
 
-	let faves = new Favorites();
-	faves.connectedCallback();
+		customElements.define("my-favorites", Favorites);
 
-	canReflect.onKeyValue(faves, "food", function() {
-		assert.ok(true);
+		let faves = new Favorites();
+		faves.connectedCallback();
+
+		canReflect.onKeyValue(faves, "food", function() {
+			assert.ok(true);
+		});
+
+		faves.food = "pizza";
 	});
-
-	faves.food = "pizza";
-});
+}
