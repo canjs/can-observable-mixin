@@ -58,6 +58,7 @@
     "http-server": "http-server -p 3000 --silent",
     "jshint": "jshint ./*.js --config",
     "lint": "fixpack && npm run jshint",
+    "prepublishOnly": "npm run compile-to-es5",
     "postversion": "git push --follow-tags",
     "preversion": "npm test",
     "test": "npm run detect-cycle && npm run lint && npm run testee",
