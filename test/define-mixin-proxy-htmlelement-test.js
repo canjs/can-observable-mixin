@@ -1,4 +1,4 @@
-const {mixinElement} = require("../mixins");
+const {mixinElement} = require("../src/mixins");
 const canReflect = require("can-reflect");
 
 const supportsCustomElements = "customElements" in window;

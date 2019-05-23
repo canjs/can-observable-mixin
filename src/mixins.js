@@ -1,6 +1,6 @@
 const defineBehavior = require("./define");
 const mixinElement = require("./mixin-element");
-const mixinMapProps = require("../mixin-mapprops");
+const mixinMapProps = require("./mixin-mapprops");
 const mixinProxy = require("./mixin-proxy");
 const mixinTypeEvents = require("./mixin-typeevents");
 

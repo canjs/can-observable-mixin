@@ -25,6 +25,9 @@
     "can-string-to-any": "^1.2.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
     "can-reflect-tests": "^0.3.1",
     "detect-cyclic-packages": "^1.1.0",
     "fixpack": "^2.3.1",
@@ -40,20 +43,26 @@
     "CanJS"
   ],
   "license": "MIT",
-  "main": "mixins.js",
+  "main": "dist/mixins.js",
+  "steal": {
+    "main": "src/mixins.js"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/canjs/can-define-mixin.git"
   },
   "scripts": {
+    "compile-to-es5": "babel src --out-dir dist",
     "ci": "npm run test && node test/test-saucelabs.js",
     "detect-cycle": "detect-cyclic-packages",
     "http-server": "http-server -p 3000 --silent",
     "jshint": "jshint ./*.js --config",
     "lint": "fixpack && npm run jshint",
+    "prepublishOnly": "npm run compile-to-es5",
     "postversion": "git push --follow-tags",
     "preversion": "npm test",
     "test": "npm run detect-cycle && npm run lint && npm run testee",
     "testee": "testee test/test.html --browsers firefox"
-  }
+  },
+  "browserslist": "ie 11"
 }
