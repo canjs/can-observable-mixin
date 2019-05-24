@@ -31,7 +31,7 @@ QUnit.test("Can listen to changes when listening to undefined props", function(a
 	assert.deepEqual(entries, ["first"], "How the right entries");
 });
 
-QUnit.test("Adding a property on the the prototype works", function(assert) {
+QUnit.test("Adding a property on the prototype works", function(assert) {
 	class Favorites extends DefineObject {}
 
 	hooks.finalizeClass(Favorites);

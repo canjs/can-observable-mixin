@@ -26,7 +26,7 @@ function proxyPrototype(Base) {
 		},
 		set(target, key, value, receiver) {
 			// TODO I know this is wrong but i'm just doing it this way for now, ok?
-			if(key in target || typeof key === "symbol") {
+			if(key in target || typeof key === "symbol" || receiver.hasOwnProperty("constructor")) {
 				let current = Reflect.get(target, key, receiver);
 				Reflect.set(target, key, value, receiver);
 				eventDispatcher(receiver, key, current, value);
