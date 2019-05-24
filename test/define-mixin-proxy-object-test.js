@@ -22,7 +22,7 @@ QUnit.test("Can listen to changes when listening to undefined props", function(a
 	let map = new DefineObject();
 
 	ObservationRecorder.start();
-	map.first;
+	map.first; // jshint ignore:line
 	let records = ObservationRecorder.stop();
 	let entries = Array.from(records.keyDependencies.get(map));
 

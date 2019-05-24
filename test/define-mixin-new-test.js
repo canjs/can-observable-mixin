@@ -5,11 +5,11 @@ const DefineObject = mixinObject();
 
 QUnit.test("Calling an extended DefineObject with undefined props when sealed", function(assert) {
 	class Person extends DefineObject {
-		static get seal() { return true }
+		static get seal() { return true; }
 	}
 
 	try {
-		let p = new Person({ name: "Matthew" });
+		new Person({ name: "Matthew" });
 		assert.ok(false, "Should not have allowed these undefined properties");
 	} catch(e) {
 		assert.ok(true, "Throw because undefined props were passed");
@@ -18,7 +18,7 @@ QUnit.test("Calling an extended DefineObject with undefined props when sealed", 
 
 QUnit.test("Calling an extended DefineObject with undefined props when unsealed", function(assert) {
 	class Person extends DefineObject {
-		static get seal() { return false }
+		static get seal() { return false; }
 	}
 
 	try {
