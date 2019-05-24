@@ -35,17 +35,17 @@ let options = [
 // CONVERT, Maybe, not-required
 
 function strictEqual(instance, props) {
-	QUnit.assert.strictEqual(instance.prop, props.prop, "Prop added exactly")
+	QUnit.assert.strictEqual(instance.prop, props.prop, "Prop added exactly");
 }
 
 function equal(instance, props) {
-	QUnit.assert.equal(instance.prop, props.prop, "Prop added exactly")
+	QUnit.assert.equal(instance.prop, props.prop, "Prop added exactly");
 }
 
 function propEqualTo(expectedValue) {
 	return function(instance) {
 		QUnit.assert.equal(instance.prop, expectedValue, `Prop is value ${expectedValue}`);
-	}
+	};
 }
 
 function isNaN(instance) {
@@ -191,7 +191,7 @@ cases.forEach(testCase => {
 	for(let [caseName, caseDefinition] of Object.entries(matrix)) {
 		let typeName = canReflect.getName(Type);
 		let testName = `${typeName} - ${caseName} - value (${!hasValue ? "NO VALUE" : typeof value === "string" ? `"${value}"` : value})`;
-		QUnit.test(testName, function(assert) {
+		QUnit.test(testName, function() {
 			class MyType extends DefineObject {
 				static get define() {
 					return {

@@ -51,7 +51,7 @@ QUnit.test("async(resolve) resolves async values", function(assert) {
 						});
 					}
 				}
-			}
+			};
 		}
 
 		get birthday() {
@@ -103,7 +103,7 @@ QUnit.test("value(prop) can be used to resolve a property based on others", func
 						resolve(current);
 					}
 				}
-			}
+			};
 		}
 	}
 
@@ -119,7 +119,7 @@ QUnit.test("getSchema returns the schema", function(assert) {
 		static get define() {
 			return {
 				age: {}
-			}
+			};
 		}
 	}
 
@@ -133,7 +133,7 @@ QUnit.test("getSchema still works when further deriving", function(assert) {
 		static get define() {
 			return {
 				age: {}
-			}
+			};
 		}
 	}
 
@@ -142,7 +142,7 @@ QUnit.test("getSchema still works when further deriving", function(assert) {
 });
 
 QUnit.test("Does not throw if no define is provided", function(assert) {
-	class Faves extends mixinObject() {}
+	class Faves extends mixinObject() {} // jshint ignore:line
 	assert.ok(true, "Did not throw");
 });
 
@@ -151,7 +151,7 @@ QUnit.test("JavaScript setters work", function(assert) {
 		static get define() {
 			return {};
 		}
-		set color(v) {
+		set color(v) { // jshint ignore:line
 			return "blue";
 		}
 	}
@@ -169,13 +169,13 @@ QUnit.test("Setters on the define override those on the prototype", function(ass
 			return {
 				color: {
 					enumerable: false,
-					set(v) {
+					set(v) { // jshint ignore:line
 						return "green";
 					}
 				}
 			};
 		}
-		set color(v) {
+		set color(v) { // jshint ignore:line
 			return "blue";
 		}
 	}
@@ -200,7 +200,7 @@ QUnit.test("set() can return a different value", function(assert) {
 						return "blue";
 					}
 				}
-			}
+			};
 		}
 	}
 
@@ -275,7 +275,7 @@ QUnit.test("canReflect.hasKey works", function(assert) {
 						}
 					}
 				}
-			}
+			};
 		}
 	}
 

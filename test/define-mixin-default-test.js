@@ -50,7 +50,7 @@ QUnit.test("Primitives provided as the default sets the type as strict", functio
 		static get define() {
 			return {
 				age: 13
-			}
+			};
 		}
 	}
 
@@ -74,7 +74,7 @@ QUnit.test("Extended DefineObjectes can be used to set the type", function(asser
 		static get define() {
 			return {
 				one: One
-			}
+			};
 		}
 	}
 
@@ -87,7 +87,7 @@ QUnit.test("Extended DefineObjectes can be used to set the type", function(asser
 		new Two({ one: {} });
 		assert.ok(false, "Should have thrown");
 	} catch(e) {
-		assert.ok(true, "Throws because it is a strict type")
+		assert.ok(true, "Throws because it is a strict type");
 	}
 });
 
@@ -100,7 +100,7 @@ QUnit.test("Allow a default object to be provided by using a getter", function(a
 						return { foo: "bar" };
 					}
 				}
-			}
+			};
 		}
 	}
 

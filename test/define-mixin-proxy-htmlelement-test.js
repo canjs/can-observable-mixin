@@ -75,13 +75,14 @@ if(supportsCustomElements) {
 		assert.equal(instance.onclick, onclick, "The onclick is there");
 		assert.equal(document.createElement("button").onclick, null, "Didn't mess with the HTMLElement's onclick");
 
+		var newonclick;
 		canReflect.onKeyValue(instance, "onclick", function(newValue) {
 			assert.equal(newValue, newonclick, "Changed to the new value");
 		});
 
-		instance.onclick;
+		instance.onclick; // jshint ignore:line
 
-		var newonclick = function(){};
+		newonclick = function(){};
 		instance.onclick = newonclick;
 	});
 }
