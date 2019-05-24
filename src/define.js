@@ -30,6 +30,8 @@ var newSymbol = Symbol.for("can.new"),
 var eventsProto, define,
 	make, makeDefinition, getDefinitionsAndMethods, getDefinitionOrMethod;
 
+var builtInTypes = [ Number, String, Boolean ];
+
 // UTILITIES
 function isDefineType(func){
 	return func && (func.canDefineType === true || func[newSymbol] );
@@ -848,7 +850,6 @@ makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
 		}
 	});
 
-	// normalize Type that implements can.new
 	if(def.Type) {
 		var value = def.Type;
 
@@ -858,8 +859,16 @@ makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
 				return serialize.call(val);
 			};
 		}
+
+		// normalize Type that implements can.new
 		if(value[newSymbol]) {
 			definition.type = value;
+			delete definition.Type;
+		}
+
+		// normalize Type that is a built-in constructor
+		if (builtInTypes.includes(value)) {
+			definition.type = type.check(value);
 			delete definition.Type;
 		}
 	}
