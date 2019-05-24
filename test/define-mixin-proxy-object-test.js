@@ -1,4 +1,6 @@
 const { mixinObject } = require("./helpers");
+const addDefinedProps = require("../src/define");
+const { hooks } = addDefinedProps;
 const canReflect = require("can-reflect");
 const ObservationRecorder = require("can-observation-recorder");
 
@@ -27,4 +29,17 @@ QUnit.test("Can listen to changes when listening to undefined props", function(a
 	let entries = Array.from(records.keyDependencies.get(map));
 
 	assert.deepEqual(entries, ["first"], "How the right entries");
+});
+
+QUnit.test("Adding a property on the the prototype works", function(assert) {
+	class Favorites extends DefineObject {}
+
+	hooks.finalizeClass(Favorites);
+	Favorites.prototype.aFunction = function() {};
+
+	let myFaves = new Favorites({ food: "pizza" });
+	let yourFaves = new Favorites({ food: "tacos" });
+
+	assert.equal(myFaves.food, "pizza", "myFaves.food is pizza");
+	assert.equal(yourFaves.food, "tacos", "yourFaves.food is tacos");
 });
