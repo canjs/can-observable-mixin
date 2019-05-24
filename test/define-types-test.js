@@ -1,7 +1,7 @@
 const QUnit = require("steal-qunit");
 const canReflect = require("can-reflect");
 const { mixinObject } = require("./helpers");
-const types = require("can-data-types");
+const types = require("can-type");
 
 const DefineObject = mixinObject();
 

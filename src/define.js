@@ -18,12 +18,7 @@ var canLogDev = require("can-log/dev/dev");
 
 var stringToAny = require("can-string-to-any");
 var defineLazyValue = require("can-define-lazy-value");
-var dataTypes = require("can-data-types");
-
-var MaybeBoolean = require("can-data-types/maybe-boolean/maybe-boolean"),
-    MaybeDate = require("can-data-types/maybe-date/maybe-date"),
-    MaybeNumber = require("can-data-types/maybe-number/maybe-number"),
-    MaybeString = require("can-data-types/maybe-string/maybe-string");
+var type = require("can-type");
 
 var newSymbol = Symbol.for("can.new"),
 	serializeSymbol = Symbol.for("can.serialize"),
@@ -895,7 +890,7 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	if(canReflect.isPrimitive(value)) {
 		definition = {
 			default: value,
-			Type: dataTypes.check(value.constructor)
+			Type: type.check(value.constructor)
 		};
 	}
     // copies a `Type`'s methods over
@@ -903,12 +898,12 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 		if(value[isMemberSymbol]) {
 			definition = { Type: value };
 		} else {
-			definition = { Type: dataTypes.check(value) };
+			definition = { Type: type.check(value) };
 		}
 	}
 	else if(typeof value === "function") {
 		if(canReflect.isConstructorLike(value)) {
-			definition = {Type: dataTypes.check(value)};
+			definition = {Type: type.check(value)};
 		}
 		// or leaves as a function
 	} else if( Array.isArray(value) ) {
@@ -1230,9 +1225,9 @@ function isObservableValue(obj){
 
 define.types = {
 	// To be made into a type ... this is both lazy {time: '123-456'}
-	'date': MaybeDate,
-	'number': MaybeNumber,
-	'boolean': MaybeBoolean,
+	'date': type.maybe(Date),
+	'number': type.maybe(Number),
+	'boolean': type.maybe(Boolean),
 	'observable': function(newVal) {
 			if(Array.isArray(newVal) && define.DefineList) {
 					newVal = new define.DefineList(newVal);
@@ -1269,7 +1264,7 @@ define.types = {
 	'any': function(val) {
 		return val;
 	},
-	'string': MaybeString,
+	'string': type.maybe(String),
 
 	'compute': {
 		set: function(newValue, setVal, setErr, oldValue) {
