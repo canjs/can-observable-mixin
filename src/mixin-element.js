@@ -14,12 +14,12 @@ module.exports = function mixinElement(BaseElement){
 			this[constructorPropsSymbol] = props;
 		}
 
-		initialize() {
-			hooks.initialize(this, this[constructorPropsSymbol]);
+		initialize(props) {
+			hooks.initialize(this, props || this[constructorPropsSymbol]);
 		}
 
-		render() {
-			hooks.initialize(this, this[constructorPropsSymbol]);
+		render(props) {
+			hooks.initialize(this, props || this[constructorPropsSymbol]);
 			this[renderedSymbol] = true;
 		}
 
