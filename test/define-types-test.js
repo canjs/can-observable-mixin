@@ -231,7 +231,6 @@ cases.forEach(testCase => {
 	}
 });
 
-
 QUnit.test("Can pass common/primitive types as the type option", function(assert) {
 	class MyThing extends DefineObject {
 		static get define() {
@@ -256,4 +255,25 @@ QUnit.test("Can pass common/primitive types as the type option", function(assert
 	assert.equal(thing.str, "Hello world", "String accepted");
 	assert.equal(thing.bool, false, "Boolean accepted");
 	assert.equal(thing.date, now, "Passed a date");
+});
+
+QUnit.test("Can pass common/primitive types in a property definition", function(assert) {
+	class MyThing extends DefineObject {
+		static get define() {
+			return {
+				num: Number,
+				numProp: { Type: Number },
+				numPropWithDefault: { Type: Number, default: 33 }
+			};
+		}
+	}
+
+	let thing = new MyThing({
+		num: 33,
+		numProp: 33
+	});
+
+	assert.strictEqual(thing.num, 33, "prop: Number works");
+	assert.strictEqual(thing.numProp, 33, "{ Type: Number } works");
+	assert.strictEqual(thing.numPropWithDefault, 33, "{ Type: Number, default: <number> } works");
 });
