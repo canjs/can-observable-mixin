@@ -257,7 +257,7 @@ QUnit.test("Can pass common/primitive types as the type option", function(assert
 	assert.equal(thing.date, now, "Passed a date");
 });
 
-QUnit.test("Can pass common/primitive types along with defaults", function(assert) {
+QUnit.test("Can pass common/primitive types in a property definition", function(assert) {
 	class MyThing extends DefineObject {
 		static get define() {
 			return {
