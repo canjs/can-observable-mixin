@@ -15,15 +15,24 @@ module.exports = function mixinElement(BaseElement){
 		}
 
 		initialize(props) {
+			if(super.initialize) {
+				super.initialize(props);
+			}
 			hooks.initialize(this, props || this[constructorPropsSymbol]);
 		}
 
 		render(props) {
+			if(super.render) {
+				super.render(props);
+			}
 			hooks.initialize(this, props || this[constructorPropsSymbol]);
 			this[renderedSymbol] = true;
 		}
 
 		connectedCallback() {
+			if(super.connectedCallback) {
+				super.connectedCallback();
+			}
 			if(!this[renderedSymbol]) {
 				this.render();
 			}
