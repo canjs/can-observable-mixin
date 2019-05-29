@@ -108,4 +108,33 @@ if(supportsCustomElements) {
 		assert.equal(renderObj.foo, "bar");
 		assert.equal(renderObj.baz, "bap");
 	});
+
+
+	QUnit.test("initialize, render, and connect are only called the first time connectedCallback is called", function(assert) {
+		assert.expect(3);
+
+		class Base extends HTMLElement {
+			initialize() {
+				assert.ok(true, "initialize");
+			}
+
+			render() {
+				assert.ok(true, "render");
+			}
+
+			connectedCallback() {
+				assert.ok(true, "connect");
+			}
+		}
+
+		class Obj extends mixinElement(Base) {
+
+		}
+
+		customElements.define('some-obj2', Obj);
+
+		const obj = new Obj();
+		obj.initialize();
+		obj.connectedCallback();
+	});
 }
