@@ -19,7 +19,6 @@ if(supportsCustomElements) {
 			assert.ok(true);
 		});
 
-
 		faves.food = "pizza";
 	});
 
@@ -84,5 +83,29 @@ if(supportsCustomElements) {
 
 		newonclick = function(){};
 		instance.onclick = newonclick;
+	});
+
+	QUnit.test("initial props should always be passed to initialize", function(assert) {
+		assert.expect(4);
+
+		const props = { foo: "bar", baz: "bap" };
+		class Obj extends mixinElement(Object) {
+			static get define() {
+				return {
+					foo: String,
+					baz: String
+				};
+			}
+		}
+
+		const initializeObj = new Obj();
+		initializeObj.initialize(props);
+		assert.equal(initializeObj.foo, "bar");
+		assert.equal(initializeObj.baz, "bap");
+
+		const renderObj = new Obj();
+		renderObj.render(props);
+		assert.equal(renderObj.foo, "bar");
+		assert.equal(renderObj.baz, "bap");
 	});
 }
