@@ -369,6 +369,10 @@ define.makeDefineInstanceKey = function(constructor) {
 	constructor[Symbol.for("can.defineInstanceKey")] = function(property, value) {
 		define.hooks.finalizeClass(this);
 		var defineResult = this.prototype._define;
+		if(value && typeof value.value != null) {
+			value.default = value.value;
+			delete value.value;
+		}
 		var definition = getDefinitionOrMethod(property, value, defineResult.defaultDefinition, this);
 		if(definition && typeof definition === "object") {
 			define.property(constructor.prototype, property, definition, defineResult.dataInitializers, defineResult.computedInitializers, defineResult.defaultDefinition);
