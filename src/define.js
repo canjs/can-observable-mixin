@@ -1210,7 +1210,8 @@ define.updateSchemaKeys = function(schema, definitions) {
 
 define.hooks = {
 	finalizeClass: function(Type) {
-		if(!Type[hasBeenDefinedSymbol]) {
+		let hasBeenDefined = Type.hasOwnProperty(hasBeenDefinedSymbol);
+		if(!hasBeenDefined) {
 			let prototypeObject = Type.prototype;
 			let defines = typeof Type.define === "object" ? Type.define : {};
 			define(prototypeObject, defines, null, Type.propertyDefaults);
