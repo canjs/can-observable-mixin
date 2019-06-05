@@ -16,7 +16,6 @@ var queues = require("can-queues");
 var assign = require("can-assign");
 var canLogDev = require("can-log/dev/dev");
 
-var stringToAny = require("can-string-to-any");
 var defineLazyValue = require("can-define-lazy-value");
 var type = require("can-type");
 
@@ -33,6 +32,10 @@ var eventsProto, define,
 // UTILITIES
 function isDefineType(func){
 	return func && (func.canDefineType === true || func[newSymbol] );
+}
+
+function observableType() {
+		throw new Error("This is not currently implemented.");
 }
 
 var peek = ObservationRecorder.ignore(canReflect.getValue.bind(canReflect));
@@ -82,39 +85,6 @@ function getEveryPropertyAndSymbol(obj) {
 	var symbols = ("getOwnPropertySymbols" in Object) ?
 	  Object.getOwnPropertySymbols(obj) : [];
 	return props.concat(symbols);
-}
-
-function cleanUpDefinition(prop, definition, shouldWarn, typePrototype){
-	// cleanup `value` -> `default`
-	if(definition.value !== undefined && ( typeof definition.value !== "function" || definition.value.length === 0) ){
-
-		//!steal-remove-start
-		if(process.env.NODE_ENV !== 'production') {
-			if(shouldWarn) {
-				canLogDev.warn(
-					"can-define: Change the 'value' definition for " + canReflect.getName(typePrototype)+"."+prop + " to 'default'."
-				);
-			}
-		}
-		//!steal-remove-end
-
-		definition.default = definition.value;
-		delete definition.value;
-	}
-	// cleanup `Value` -> `DEFAULT`
-	if(definition.Value !== undefined  ){
-		//!steal-remove-start
-		if(process.env.NODE_ENV !== 'production') {
-			if(shouldWarn) {
-				canLogDev.warn(
-					"can-define: Change the 'Value' definition for " + canReflect.getName(typePrototype)+"."+prop + " to 'Default'."
-				);
-			}
-		}
-		//!steal-remove-end
-		definition.Default = definition.Value;
-		delete definition.Value;
-	}
 }
 
 module.exports = define = function(typePrototype, defines, baseDefine, propertyDefaults = {}) {
@@ -248,7 +218,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	//!steal-remove-end
 
 	// Special case definitions that have only `type: "*"`.
-	if (type && onlyType(definition) && type === define.types["*"]) {
+	if (type && onlyType(definition) && type === type.Any) {
 		Object_defineNamedPrototypeProperty(typePrototype, prop, {
 			get: make.get.data(prop),
 			set: make.set.events(prop, make.get.data(prop), make.set.data(prop), make.eventType.data(prop)),
@@ -314,17 +284,17 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 		computedInitializers[prop] = make.resolver(prop, definition, typeConvert);
 	}
 	// Determine a function that will provide the initial property value.
-	else if ((definition.default !== undefined || definition.Default !== undefined)) {
+	else if (definition.default !== undefined) {
 
 		//!steal-remove-start
 		if (process.env.NODE_ENV !== 'production') {
 			// If value is an object or array, give a warning
 			if (definition.default !== null && typeof definition.default === 'object') {
-				canLogDev.warn("can-define: The default value for " + canReflect.getName(typePrototype)+"."+prop + " is set to an object. This will be shared by all instances of the DefineMap. Use a function that returns the object instead.");
+				canLogDev.warn("can-define-object: The default value for " + canReflect.getName(typePrototype)+"."+prop + " is set to an object. This will be shared by all instances of the DefineMap. Use a function that returns the object instead.");
 			}
 			// If value is a constructor, give a warning
 			if (definition.default && canReflect.isConstructorLike(definition.default)) {
-				canLogDev.warn("can-define: The \"default\" for " + canReflect.getName(typePrototype)+"."+prop + " is set to a constructor. Did you mean \"Default\" instead?");
+				canLogDev.warn("can-define-object: The \"default\" for " + canReflect.getName(typePrototype)+"."+prop + " is set to a constructor. Did you mean \"Default\" instead?");
 			}
 		}
 		//!steal-remove-end
@@ -399,9 +369,9 @@ define.makeDefineInstanceKey = function(constructor) {
 	constructor[Symbol.for("can.defineInstanceKey")] = function(property, value) {
 		define.hooks.finalizeClass(this);
 		var defineResult = this.prototype._define;
-		if (typeof value === "object") {
-			// change `value` to default.
-			cleanUpDefinition(property, value, false, this);
+		if(value && typeof value.value != null) {
+			value.default = value.value;
+			delete value.value;
 		}
 		var definition = getDefinitionOrMethod(property, value, defineResult.defaultDefinition, this);
 		if(definition && typeof definition === "object") {
@@ -747,12 +717,6 @@ make = {
 					}
 					value = typeConvert.call(this, value);
 				}
-				else {
-					var Default = definition.Default;
-					if (Default) {
-						value = typeConvert.call(this,new Default());
-					}
-				}
 				if(definition.set) {
 					// TODO: there's almost certainly a faster way of making this happen
 					// But this is maintainable.
@@ -814,13 +778,6 @@ var addBehaviorToDefinition = function(definition, behavior, descriptor, def) {
 	}
 	else if(behavior === "type") {
 		var behaviorDef = def[behavior];
-		if(typeof behaviorDef === "string") {
-			behaviorDef = define.types[behaviorDef];
-			if(typeof behaviorDef === "object" && !isDefineType(behaviorDef)) {
-				assign(definition, behaviorDef);
-				behaviorDef = behaviorDef[behavior];
-			}
-		}
 		if (typeof behaviorDef !== 'undefined') {
 			definition[behavior] = behaviorDef;
 		}
@@ -880,7 +837,7 @@ makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
 		}
 
 		if( canReflect.size(definition) === 0 ) {
-			definition.type = define.types["*"];
+			definition.type = type.Any;
 		}
 	}
 	return definition;
@@ -1126,7 +1083,7 @@ define.expando = function(map, prop, value) {
 		instanceDefines = map._instanceDefinitions;
 	}
 	if(!instanceDefines[prop]) {
-		var defaultDefinition = map._define.defaultDefinition || {type: define.types.observable};
+		var defaultDefinition = map._define.defaultDefinition || { type: observableType };
 		define.property(map, prop, defaultDefinition, {},{});
 		// possibly convert value to List or DefineMap
 		if(defaultDefinition.type) {
@@ -1134,7 +1091,7 @@ define.expando = function(map, prop, value) {
 		} else if (defaultDefinition.Type && canReflect.isConstructorLike(defaultDefinition.Type)) {
 			map._data[prop] = define.make.set.Type(prop, defaultDefinition.Type, returnFirstArg).call(map, value);
 		} else {
-			map._data[prop] = define.types.observable(value);
+			map._data[prop] = observableType(value);
 		}
 
 		instanceDefines[prop] = defaultDefinition;
@@ -1177,7 +1134,7 @@ define.makeSimpleGetterSetter = function(prop){
 		simpleGetterSetters[prop] = {
 			get: make.get.data(prop),
 			set: function(newVal){
-				return setter.call(this, define.types.observable(newVal));
+				return setter.call(this, observableType(newVal));
 			},
 			enumerable: true,
             configurable: true
@@ -1221,72 +1178,6 @@ define.Iterator.prototype.next = function(){
 		],
 		done: false
 	};
-};
-
-
-
-function isObservableValue(obj){
-	return canReflect.isValueLike(obj) && canReflect.isObservableLike(obj);
-}
-
-define.types = {
-	// To be made into a type ... this is both lazy {time: '123-456'}
-	'date': type.maybe(Date),
-	'number': type.maybe(Number),
-	'boolean': type.maybe(Boolean),
-	'observable': function(newVal) {
-			if(Array.isArray(newVal) && define.DefineList) {
-					newVal = new define.DefineList(newVal);
-			}
-			else if(canReflect.isPlainObject(newVal) &&  define.DefineMap) {
-					newVal = new define.DefineMap(newVal);
-			}
-			return newVal;
-	},
-	'stringOrObservable': function(newVal) {
-		if(Array.isArray(newVal)) {
-			return new define.DefaultList(newVal);
-		}
-		else if(canReflect.isPlainObject(newVal)) {
-			return new define.DefaultMap(newVal);
-		}
-		else {
-			return canReflect.convert( newVal, define.types.string);
-		}
-	},
-	/**
-	 * Implements HTML-style boolean logic for attribute strings, where
-	 * any string, including "", is truthy.
-	 */
-	'htmlbool': function(val) {
-		if (val === '') {
-			return true;
-		}
-		return !!stringToAny(val);
-	},
-	'*': function(val) {
-		return val;
-	},
-	'any': function(val) {
-		return val;
-	},
-	'string': type.maybe(String),
-
-	'compute': {
-		set: function(newValue, setVal, setErr, oldValue) {
-			if (isObservableValue(newValue) ) {
-				return newValue;
-			}
-			if (isObservableValue(oldValue)) {
-				canReflect.setValue(oldValue,newValue);
-				return oldValue;
-			}
-			return newValue;
-		},
-		get: function(value) {
-			return isObservableValue(value) ? canReflect.getValue(value) : value;
-		}
-	}
 };
 
 define.updateSchemaKeys = function(schema, definitions) {
