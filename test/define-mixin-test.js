@@ -327,3 +327,17 @@ QUnit.test("propertyDefaults becomes the default properties", function(assert) {
 	let p = new Person({ age: "32" });
 	assert.deepEqual(p.age, 32, "Converted because of defaults");
 });
+
+QUnit.test("propertyDefaults runs on expando properties", function(assert) {
+	class Player extends mixinObject() {
+		static get propertyDefaults() {
+			return {
+				type: types.convert(Number)
+			};
+		}
+	}
+
+	let p = new Player();
+	p.age = "32";
+	assert.deepEqual(p.age, 32, "Converted because of defaults");
+});
