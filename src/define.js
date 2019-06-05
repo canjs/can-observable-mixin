@@ -1327,5 +1327,6 @@ define.hooks = {
 			instance[inSetupSymbol] = false;
 			instance[hasBeenSetupSymbol] = true;
 		}
-	}
+	},
+	expando: define.expando
 };
