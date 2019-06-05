@@ -42,3 +42,16 @@ QUnit.test("Stuff is defined in constructor for non-element classes", function(a
 
   new Faves();
 });
+
+QUnit.test("Default strings work when they are like can-define types", function(assert) {
+	class Person extends mixinObject() {
+		static get define() {
+			return {
+				someProp: "number"
+			};
+		}
+	}
+
+	let p = new Person();
+	assert.equal(p.someProp, "number", "Is the string 'number'");
+});
