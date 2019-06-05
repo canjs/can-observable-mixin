@@ -188,7 +188,15 @@ var onlyType = function(obj){
 
 var callAsync = function(fn) {
 	return function asyncResolver(lastSet, resolve){
-		return fn.call(this, resolve, lastSet);
+		let newValue = fn.call(this, resolve, lastSet);
+
+		// This should really be happening in can-simple-observable/async/
+		// But that would be a breaking change so putting it here.
+		if(canReflect.isPromise(newValue)) {
+			newValue.then(resolve);
+		}
+
+		return newValue;
 	};
 };
 
