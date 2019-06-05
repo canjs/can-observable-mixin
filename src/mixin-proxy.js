@@ -2,16 +2,14 @@ const defineBehavior = require("./define");
 const ObservationRecorder = require("can-observation-recorder");
 
 const eventDispatcher = defineBehavior.make.set.eventDispatcher;
-
 const inSetupSymbol = Symbol.for("can.initializing");
 
-function isArrayType(Type) {
-	return Type === Array || Array.isPrototypeOf(Type);
-}
-
 function proxyPrototype(Base) {
+	const instances = new WeakSet();
+
 	function LateDefined() {
 		let inst = Reflect.construct(Base, arguments, new.target);
+		instances.add(inst);
 		return inst;
 	}
 
@@ -25,8 +23,9 @@ function proxyPrototype(Base) {
 			return Reflect.get(target, key, receiver);
 		},
 		set(target, key, value, receiver) {
-			// TODO I know this is wrong but i'm just doing it this way for now, ok?
-			if(key in target || typeof key === "symbol" || receiver.hasOwnProperty("constructor")) {
+			// We decided to punt on making the prototype observable, so anything
+			// set on a prototype just gets set.
+			if(key in target || typeof key === "symbol" || !instances.has(receiver)) {
 				let current = Reflect.get(target, key, receiver);
 				Reflect.set(target, key, value, receiver);
 				eventDispatcher(receiver, key, current, value);
@@ -42,16 +41,4 @@ function proxyPrototype(Base) {
 	return LateDefined;
 }
 
-function proxyArray() {
-	throw new Error("Not yet implemented.");
-}
-
-function mixinProxy(Base = Object) {
-	if(isArrayType(Base)) {
-		return proxyArray(Base);
-	} else {
-		return proxyPrototype(Base);
-	}
-}
-
-module.exports = mixinProxy;
+module.exports = proxyPrototype;
