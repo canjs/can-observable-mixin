@@ -28,3 +28,18 @@ QUnit.test("Calling an extended DefineObject with undefined props when unsealed"
 		assert.ok(false, "Should have set these properties");
 	}
 });
+
+QUnit.test("Calling new DefineObject does not interfere with extended types", function(assert) {
+	new DefineObject();
+
+	class Person extends DefineObject {
+		static get define() {
+			return {
+				age: 5
+			};
+		}
+	}
+
+	let p = new Person();
+	assert.equal(p.age, 5, "Defaults applied");
+});
