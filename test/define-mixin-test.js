@@ -2,6 +2,7 @@ const QUnit = require("steal-qunit");
 const { mixinObject } = require("./helpers");
 const canReflect = require("can-reflect");
 const types = require("can-type");
+const dev = require("can-test-helpers").dev;
 
 QUnit.module("can-define-mixin - mixins(Object)");
 
@@ -340,4 +341,34 @@ QUnit.test("propertyDefaults runs on expando properties", function(assert) {
 	let p = new Player();
 	p.age = "32";
 	assert.deepEqual(p.age, 32, "Converted because of defaults");
+});
+
+dev.devOnlyTest("types are not called in production", function(assert) {
+	let actualEnv = process.env.NODE_ENV;
+	process.env.NODE_ENV = "production";
+
+	let oopsType = {
+		[Symbol.for("can.new")]() {
+			throw new Error("Dont run me");
+		}
+	};
+
+	class Thing extends mixinObject() {
+		static get define() {
+			return {
+				foo: oopsType
+			};
+		}
+	}
+
+	let t = new Thing();
+
+	try {
+		t.foo = "bar";
+		assert.ok(true, "Did not run the type checker");
+	} catch(e) {
+		assert.ok(false, "Should not have run the type");
+	} finally {
+		process.env.NODE_ENV = actualEnv;
+	}
 });

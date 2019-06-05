@@ -636,9 +636,16 @@ make = {
 				if(type.canDefineType) {
 					return setter;
 				} else {
-					return function setter(newValue){
-						return set.call(this, canReflect.convert(newValue, type));
-					};
+					if(process.env.NODE_ENV !== 'production') {
+						return function setter(newValue){
+							return set.call(this, canReflect.convert(newValue, type));
+						};
+					} else {
+						// Prod mode, just set the value.
+						return function setter(newValue) {
+							return set.call(this, newValue);
+						};
+					}
 				}
 			}
 			// If type is a nested object: `type: {foo: "string", bar: "number"}`
