@@ -67,6 +67,32 @@ QUnit.test("async(resolve) resolves async values", function(assert) {
 	});
 });
 
+QUnit.test("async() returning a promise resolves", function(assert) {
+	let done = assert.async();
+
+	class Faves extends mixinObject() {
+		static get define() {
+			return {
+				age: {
+					async(resolve, last = 1) {
+						return Promise.resolve(this.birthday).then(() => last + 1);
+					}
+				}
+			};
+		}
+
+		get birthday() {
+			return Promise.resolve();
+		}
+	}
+
+	let faves = new Faves();
+	canReflect.onKeyValue(faves, "age", value => {
+		assert.equal(value, 2, "Age incremented");
+		done();
+	});
+});
+
 QUnit.test("listenTo to listen to property changes", function(assert) {
 	class Faves extends mixinObject() {
 		static get define() {
