@@ -1,7 +1,7 @@
 {
   "name": "can-define-mixin",
   "description": "Define properties on JavaScript classes",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "author": {
     "name": "Bitovi",
     "email": "contact@bitovi.com",
@@ -60,10 +60,10 @@
     "postversion": "git push --follow-tags",
     "prepublishOnly": "npm run compile-to-es5",
     "preversion": "npm test",
-    "release:pre": "npm version prerelease && npm publish --tag pre",
-    "release:patch": "npm version patch && npm publish",
-    "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:patch": "npm version patch && npm publish",
+    "release:pre": "npm version prerelease && npm publish --tag pre",
     "test": "npm run detect-cycle && npm run lint && npm run testee",
     "testee": "testee test/test.html --browsers firefox"
   },
