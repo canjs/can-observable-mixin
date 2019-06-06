@@ -213,18 +213,6 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 
 	var type = definition.type;
 
-	//!steal-remove-start
-	if(process.env.NODE_ENV !== 'production') {
-		if (type && canReflect.isConstructorLike(type) && !isDefineType(type)) {
-			canLogDev.warn(
-				"can-define: the definition for " + canReflect.getName(typePrototype) + "."+
-                prop +
-				" uses a constructor for \"type\". Did you mean \"Type\"?"
-			);
-		}
-	}
-	//!steal-remove-end
-
 	// Special case definitions that have only `type: "*"`.
 	if (type && onlyType(definition) && type === type.Any) {
 		Object_defineNamedPrototypeProperty(typePrototype, prop, {
@@ -279,9 +267,6 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 		return val;
 	};
 
-	if (definition.Type) {
-		typeConvert = make.set.Type(prop, definition.Type, typeConvert);
-	}
 	if (type) {
 		typeConvert = make.set.type(prop, type, typeConvert);
 	}
@@ -347,7 +332,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 		setter = function() {
 			//!steal-remove-start
 			if(process.env.NODE_ENV !== 'production') {
-				canLogDev.warn("can-define: Set value for property " +
+				canLogDev.warn("can-define-object: Set value for property " +
 					canReflect.getName(typePrototype)+"."+ prop +
 					" ignored, as its definition has a zero-argument getter and no setter");
 			}
@@ -359,9 +344,6 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	// Add type behavior to the setter.
 	if (type) {
 		setter = make.set.type(prop, type, setter);
-	}
-	if (definition.Type) {
-		setter = make.set.Type(prop, definition.Type, setter);
 	}
 
 	// Define the property.
@@ -590,7 +572,7 @@ make = {
 							//!steal-remove-start
 							if(process.env.NODE_ENV !== 'production') {
 								asyncTimer = setTimeout(function() {
-									canLogDev.warn('can-define: Setter "' + canReflect.getName(self)+"."+prop + '" did not return a value or call the setter callback.');
+									canLogDev.warn('can-define-object: Setter "' + canReflect.getName(self)+"."+prop + '" did not return a value or call the setter callback.');
 								}, canLogDev.warnTimeout);
 							}
 							//!steal-remove-end
@@ -656,33 +638,7 @@ make = {
 					}
 				}
 			}
-			// If type is a nested object: `type: {foo: "string", bar: "number"}`
-			if (typeof type === "object") {
-				return make.set.Type(prop, type, set);
-			} else {
-				return setter;
-			}
-		},
-		Type: function(prop, Type, set) {
-			// `type`: {foo: "string"}
-			if(Array.isArray(Type) && define.DefineList) {
-				Type = define.DefineList.extend({
-					"#": Type[0]
-				});
-			} else if (typeof Type === "object") {
-				if(define.DefineMap) {
-					Type = define.DefineMap.extend(Type);
-				} else {
-					Type = define.Constructor(Type);
-				}
-			}
-			return function(newValue) {
-				if (newValue instanceof Type || newValue == null) {
-					return set.call(this, newValue);
-				} else {
-					return set.call(this, new Type(newValue));
-				}
-			};
+			return setter;
 		}
 	},
 	// Helpes that indicate what the event type should be.  These probably aren't needed.
@@ -783,7 +739,7 @@ make = {
 	}
 };
 
-define.behaviors = ["get", "set", "value", "Value", "type", "Type", "serialize"];
+define.behaviors = ["get", "set", "value", "type", "serialize"];
 
 // This cleans up a particular behavior and adds it to the definition
 var addBehaviorToDefinition = function(definition, behavior, descriptor, def) {
@@ -814,39 +770,17 @@ makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
 	// only add default if it doesn't exist
 	canReflect.eachKey(defaultDefinition, function(value, prop){
 		if(definition[prop] === undefined) {
-			if(prop !== "type" && prop !== "Type") {
+			if(prop !== "type") {
 				definition[prop] = value;
 			}
 		}
 	});
 
-	if(def.Type) {
-		var value = def.Type;
-
-		var serialize = value[serializeSymbol];
-		if(serialize) {
-			definition.serialize = function(val){
-				return serialize.call(val);
-			};
-		}
-
-		// normalize Type that implements can.new
-		if(value[newSymbol]) {
-			definition.type = value;
-			delete definition.Type;
-		}
-		// normalize Type that is a built-in constructor
-		else if (canReflect.isConstructorLike(value)) {
-			definition.type = type.check(value);
-			delete definition.Type;
-		}
-	}
-
 	// We only want to add a defaultDefinition if def.type is not a string
 	// if def.type is a string it is handled in addDefinition
 	if(typeof def.type !== 'string') {
 		// if there's no type definition, take it from the defaultDefinition
-		if(!definition.type && !definition.Type) {
+		if(!definition.type) {
             var defaultsCopy = canReflect.assignMap({},defaultDefinition);
             definition = canReflect.assignMap(defaultsCopy, definition);
 		}
@@ -868,24 +802,24 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	if(canReflect.isPrimitive(value)) {
 		definition = {
 			default: value,
-			Type: type.check(value.constructor)
+			type: type.check(value.constructor)
 		};
 	}
     // copies a `Type`'s methods over
 	else if(value && (value[serializeSymbol] || value[newSymbol]) ) {
 		if(value[isMemberSymbol]) {
-			definition = { Type: value };
+			definition = { type: value };
 		} else {
-			definition = { Type: type.check(value) };
+			definition = { type: type.check(value) };
 		}
 	}
 	else if(typeof value === "function") {
 		if(canReflect.isConstructorLike(value)) {
-			definition = {Type: type.check(value)};
+			definition = { type: type.check(value) };
 		}
 		// or leaves as a function
 	} else if( Array.isArray(value) ) {
-		definition = {Type: value};
+		definition = { type: value };
 	} else if( canReflect.isPlainObject(value) ){
 		definition = value;
 	}
@@ -1104,8 +1038,6 @@ define.expando = function(map, prop, value) {
 		// possibly convert value to List or DefineMap
 		if(defaultDefinition.type) {
 			map._data[prop] = define.make.set.type(prop, defaultDefinition.type, returnFirstArg).call(map, value);
-		} else if (defaultDefinition.Type && canReflect.isConstructorLike(defaultDefinition.Type)) {
-			map._data[prop] = define.make.set.Type(prop, defaultDefinition.Type, returnFirstArg).call(map, value);
 		} else {
 			map._data[prop] = observableType(value);
 		}
@@ -1200,9 +1132,7 @@ define.updateSchemaKeys = function(schema, definitions) {
 	for(var prop in definitions) {
 		var definition = definitions[prop];
 		if(definition.serialize !== false ) {
-			if(definition.Type) {
-				schema.keys[prop] = definition.Type;
-			} else if(definition.type) {
+			if(definition.type) {
 				schema.keys[prop] = definition.type;
 			} else {
 				schema.keys[prop] = function(val){ return val; };

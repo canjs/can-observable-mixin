@@ -136,20 +136,20 @@ let expectedToThrowBecauseRequired = {
 let dateAsNumber = new Date(1815, 11, 10).getTime();
 
 let cases = [
-	{ Type: Number, value: 36 },
+	{ type: Number, value: 36 },
 	{
-		Type: Number,
+		type: Number,
 		value: "not a number",
 		maybeConvertNotRequired: checkIsNaN,
 		maybeConvertRequired: checkIsNaN,
 		convertNotRequired: checkIsNaN,
 		convertRequired: checkIsNaN
 	},
-	{ Type: String, value: "some string" },
-	{ Type: Boolean, value: true },
-	{ Type: Date, value: new Date(1815, 11, 10) },
+	{ type: String, value: "some string" },
+	{ type: Boolean, value: true },
+	{ type: Date, value: new Date(1815, 11, 10) },
 	{
-		Type: Date, value: dateAsNumber,
+		type: Date, value: dateAsNumber,
 		maybeConvertNotRequired: checkDateMatchesNumber,
 		maybeConvertRequired: checkDateMatchesNumber,
 		convertNotRequired: checkDateMatchesNumber,
@@ -157,9 +157,9 @@ let cases = [
 	},
 
 	// Check throw, convert equal
-	{ Type: Number, value: "36" },
+	{ type: Number, value: "36" },
 	{
-		Type: Number, value: null,
+		type: Number, value: null,
 		convertNotRequired: {
 			check: propEqualTo(0)
 		},
@@ -168,7 +168,7 @@ let cases = [
 		}
 	 },
 	{
-		Type: Number,
+		type: Number,
 		value: undefined,
 		convertNotRequired: checkIsNaN,
 		convertRequired: checkIsNaN
@@ -176,7 +176,7 @@ let cases = [
 
 	// Required but not provided a value
 	{
-		Type: Number,
+		type: Number,
 		checkNoMaybeRequired: expectedToThrowBecauseRequired,
 		maybeRequired: expectedToThrowBecauseRequired,
 		maybeConvertRequired: expectedToThrowBecauseRequired,
@@ -185,18 +185,18 @@ let cases = [
 ];
 
 cases.forEach(testCase => {
-	let { Type, value } = testCase;
+	let { type, value } = testCase;
 	let hasValue = "value" in testCase;
 
 	for(let [caseName, caseDefinition] of Object.entries(matrix)) {
-		let typeName = canReflect.getName(Type);
+		let typeName = canReflect.getName(type);
 		let testName = `${typeName} - ${caseName} - value (${!hasValue ? "NO VALUE" : typeof value === "string" ? `"${value}"` : value})`;
 		QUnit.test(testName, function() {
 			class MyType extends DefineObject {
 				static get define() {
 					return {
 						prop: {
-							type: types[caseDefinition.method](Type),
+							type: types[caseDefinition.method](type),
 							required: caseDefinition.required || false
 						}
 					};
@@ -262,8 +262,8 @@ QUnit.test("Can pass common/primitive types in a property definition", function(
 		static get define() {
 			return {
 				num: Number,
-				numProp: { Type: Number },
-				numPropWithDefault: { Type: Number, default: 33 }
+				numProp: { type: Number },
+				numPropWithDefault: { type: Number, default: 33 }
 			};
 		}
 	}
@@ -274,6 +274,6 @@ QUnit.test("Can pass common/primitive types in a property definition", function(
 	});
 
 	assert.strictEqual(thing.num, 33, "prop: Number works");
-	assert.strictEqual(thing.numProp, 33, "{ Type: Number } works");
-	assert.strictEqual(thing.numPropWithDefault, 33, "{ Type: Number, default: <number> } works");
+	assert.strictEqual(thing.numProp, 33, "{ type: Number } works");
+	assert.strictEqual(thing.numPropWithDefault, 33, "{ type: Number, default: <number> } works");
 });
