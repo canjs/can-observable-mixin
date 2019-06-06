@@ -1,3 +1,4 @@
+"use strict";
 const QUnit = require("steal-qunit");
 const { mixinObject } = require("./helpers");
 const canReflect = require("can-reflect");
@@ -396,5 +397,26 @@ dev.devOnlyTest("types are not called in production", function(assert) {
 		assert.ok(false, "Should not have run the type");
 	} finally {
 		process.env.NODE_ENV = actualEnv;
+	}
+});
+
+QUnit.test("Adding expando properties on sealed objects", function(assert) {
+	class MyType extends mixinObject() {
+		static get define() {
+			return {
+				myProp: String
+			};
+		}
+
+		static get seal() { return true; }
+	}
+
+	const myType = new MyType();
+
+	try {
+		myType.otherProp = "value"; // error!
+		assert.ok(false, "Should have thrown");
+	} catch(e) {
+		assert.ok(true, "Threw because it is sealed");
 	}
 });

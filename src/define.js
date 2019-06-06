@@ -1087,7 +1087,8 @@ define.expando = function(map, prop, value) {
 	var instanceDefines = map._instanceDefinitions;
 	if(!instanceDefines) {
 		if(Object.isSealed(map)) {
-			return;
+			let errorMessage = `Cannot set property [${prop}] on sealed instance of ${canReflect.getName(map)}`;
+			throw new Error(errorMessage);
 		}
 		Object.defineProperty(map, "_instanceDefinitions", {
 			configurable: true,
