@@ -420,3 +420,19 @@ QUnit.test("Adding expando properties on sealed objects", function(assert) {
 		assert.ok(true, "Threw because it is sealed");
 	}
 });
+
+QUnit.test("getters on the define object work", function(assert) {
+	class MyType extends mixinObject() {
+		static get define() {
+			return {
+				noun: "World",
+				get greeting() {
+					return `Hello ${this.noun}`;
+				}
+			};
+		}
+	}
+
+	const myType = new MyType();
+	assert.equal(myType.greeting, "Hello World");
+});
