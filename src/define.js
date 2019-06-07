@@ -776,19 +776,36 @@ makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
 		}
 	});
 
-	// We only want to add a defaultDefinition if def.type is not a string
-	// if def.type is a string it is handled in addDefinition
-	if(typeof def.type !== 'string') {
-		// if there's no type definition, take it from the defaultDefinition
-		if(!definition.type) {
-            var defaultsCopy = canReflect.assignMap({},defaultDefinition);
-            definition = canReflect.assignMap(defaultsCopy, definition);
+	if(def.type) {
+		var value = def.type;
+
+		var serialize = value[serializeSymbol];
+		if(serialize) {
+			definition.serialize = function(val){
+				return serialize.call(val);
+			};
 		}
 
-		if( canReflect.size(definition) === 0 ) {
-			definition.type = type.Any;
+		// normalize type that implements can.new
+		if(value[newSymbol]) {
+			definition.type = value;
+		}
+		// normalize type that is a built-in constructor
+		else if (canReflect.isConstructorLike(value)) {
+			definition.type = type.check(value);
 		}
 	}
+
+	// if there's no type definition, take it from the defaultDefinition
+	if(!definition.type) {
+		var defaultsCopy = canReflect.assignMap({},defaultDefinition);
+		definition = canReflect.assignMap(defaultsCopy, definition);
+	}
+
+	if( canReflect.size(definition) === 0 ) {
+		definition.type = type.Any;
+	}
+
 	return definition;
 };
 
