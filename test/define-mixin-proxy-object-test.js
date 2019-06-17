@@ -28,7 +28,7 @@ QUnit.test("Can listen to changes when listening to undefined props", function(a
 	let records = ObservationRecorder.stop();
 	let entries = Array.from(records.keyDependencies.get(map));
 
-	assert.deepEqual(entries, ["first"], "How the right entries");
+	assert.deepEqual(entries, ["first"], "Has the right entries");
 });
 
 QUnit.test("Adding a property on the prototype works", function(assert) {
@@ -42,4 +42,23 @@ QUnit.test("Adding a property on the prototype works", function(assert) {
 
 	assert.equal(myFaves.food, "pizza", "myFaves.food is pizza");
 	assert.equal(yourFaves.food, "tacos", "yourFaves.food is tacos");
+});
+
+QUnit.test("Symbols are not observable", function(assert) {
+	let map = new DefineObject();
+	let sym = Symbol.for("can.something");
+
+	ObservationRecorder.start();
+	map[sym]; // jshint ignore:line
+	let records = ObservationRecorder.stop();
+	let entries = Array.from(records.keyDependencies.get(map) || []);
+
+	assert.deepEqual(entries, [], "no observations are created");
+
+	ObservationRecorder.start();
+	map[sym] = "Hi";
+	records = ObservationRecorder.stop();
+	entries = Array.from(records.keyDependencies.get(map) || []);
+
+	assert.deepEqual(entries, [], "no observations are created");
 });
