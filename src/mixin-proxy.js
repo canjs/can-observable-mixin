@@ -17,15 +17,21 @@ function proxyPrototype(Base) {
 
 	const proxyHandlers = {
 		get(target, key, receiver) {
-			if (!this[inSetupSymbol]) {
+			if (!this[inSetupSymbol] && typeof key !== "symbol") {
 				ObservationRecorder.add(receiver, key);
 			}
 			return Reflect.get(target, key, receiver);
 		},
 		set(target, key, value, receiver) {
+			// Symbols are not observable, so just set the value
+			if (typeof key === "symbol") {
+				Reflect.set(target, key, value, receiver);
+				return true;
+			}
+
 			// We decided to punt on making the prototype observable, so anything
 			// set on a prototype just gets set.
-			if(key in target || typeof key === "symbol" || !instances.has(receiver)) {
+			if(key in target || !instances.has(receiver)) {
 				let current = Reflect.get(target, key, receiver);
 				Reflect.set(target, key, value, receiver);
 				eventDispatcher(receiver, key, current, value);
