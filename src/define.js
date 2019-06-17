@@ -24,7 +24,7 @@ var newSymbol = Symbol.for("can.new"),
 	inSetupSymbol = Symbol.for("can.initializing"),
 	isMemberSymbol = Symbol.for("can.isMember"),
 	hasBeenDefinedSymbol = Symbol.for("can.hasBeenDefined"),
-	hasBeenSetupSymbol = Symbol.for("can.hasBeenSetup");
+	canMetaSymbol = Symbol.for("can.meta");
 
 var eventsProto, define,
 	make, makeDefinition, getDefinitionsAndMethods, getDefinitionOrMethod;
@@ -69,6 +69,14 @@ function defineConfigurableAndNotEnumerable(obj, prop, value) {
 		enumerable: false,
 		writable: true,
 		value: value
+	});
+}
+
+function defineNotWritableAndNotEnumerable(obj, prop, value) {
+	Object.defineProperty(obj, prop, {
+		value: value,
+		enumerable: false,
+		writable: false
 	});
 }
 
@@ -398,7 +406,6 @@ define.Constructor = function(defines, sealed) {
 
 // A bunch of helper functions that are used to create various behaviors.
 make = {
-
 	computeObj: function(map, prop, observable) {
 		var computeObj = {
 			oldValue: undefined,
@@ -931,7 +938,6 @@ function teardownComputed(instance, eventName){
 	}
 }
 
-var canMetaSymbol = Symbol.for("can.meta");
 assign(eventsProto, {
 	_eventSetup: function() {},
 	_eventTeardown: function() {},
@@ -970,12 +976,12 @@ canReflect.assignSymbols(eventsProto,{
 
 delete eventsProto.one;
 
+define.finalizeInstance = function() {
+	defineNotWritableAndNotEnumerable(this, "constructor", this.constructor);
+	defineNotWritableAndNotEnumerable(this, canMetaSymbol, Object.create(null));
+};
+
 define.setup = function(props, sealed) {
-	Object.defineProperty(this,"constructor", {value: this.constructor, enumerable: false, writable: false});
-	Object.defineProperty(this,canMetaSymbol, {value: Object.create(null), enumerable: false, writable: false});
-
-	/* jshint -W030 */
-
 	var requiredButNotProvided = new Set(this._define.required);
 	var definitions = this._define.definitions;
 	var instanceDefinitions = Object.create(null);
@@ -1007,16 +1013,6 @@ define.setup = function(props, sealed) {
 
 		throw new Error(msg);
 	}
-	// only seal in dev mode for performance reasons.
-	//!steal-remove-start
-	if(process.env.NODE_ENV !== 'production') {
-		this._data;
-		this._computed;
-		if(sealed === true) {
-			Object.seal(this);
-		}
-	}
-	//!steal-remove-end
 };
 
 
@@ -1175,13 +1171,40 @@ define.hooks = {
 		}
 	},
 	initialize: function(instance, props) {
-		if(!instance[hasBeenSetupSymbol]) {
-			define.defineConfigurableAndNotEnumerable(instance, inSetupSymbol, true);
-			define.defineConfigurableAndNotEnumerable(instance, hasBeenSetupSymbol, false);
-			define.setup.call(instance, props, instance.constructor.seal);
-			instance[inSetupSymbol] = false;
-			instance[hasBeenSetupSymbol] = true;
+		var firstInitialize = !instance.hasOwnProperty(canMetaSymbol);
+		var sealed = instance.constructor.seal;
+
+		if (firstInitialize) {
+			define.finalizeInstance.call(instance);
 		}
+
+		if (!instance[canMetaSymbol].initialized) {
+			defineConfigurableAndNotEnumerable(instance, inSetupSymbol, true);
+
+			define.setup.call(instance, props, sealed);
+
+			// set inSetup to false so events can be dispatched
+			instance[inSetupSymbol] = false;
+
+			// set instance as initialized so this is only called once
+			instance[canMetaSymbol].initialized = true;
+		}
+
+		// only seal in dev mode for performance reasons.
+		//!steal-remove-start
+		if(process.env.NODE_ENV !== 'production') {
+			// only seal the first time initialize is called
+			// even if meta.initialized is reset to false
+			if (firstInitialize) {
+				/* jshint -W030 */
+				instance._data;
+				instance._computed;
+				if(sealed === true) {
+					Object.seal(instance);
+				}
+			}
+		}
+		//!steal-remove-end
 	},
 	expando: define.expando
 };
