@@ -1,5 +1,6 @@
 const QUnit = require("steal-qunit");
 const { mixinObject } = require("./helpers");
+const { hooks } = require("../src/define");
 
 QUnit.module("can-define-mixin - define()");
 
@@ -54,4 +55,20 @@ QUnit.test("Default strings work when they are like can-define types", function(
 
 	let p = new Person();
 	assert.equal(p.someProp, "number", "Is the string 'number'");
+});
+
+QUnit.test("initialize can be called multiple times if Symbol is reset", function(assert) {
+	const metaSymbol = Symbol.for("can.meta");
+	class Obj extends mixinObject() {
+		static get define() {
+			return { age: Number };
+		}
+	}
+
+	const obj = new Obj({ age: 30 });
+	assert.equal(obj.age, 30, "initialized once by constructor");
+
+	obj[metaSymbol].initialized = false;
+	hooks.initialize(obj, { age: 35 });
+	assert.equal(obj.age, 35, "initialized again");
 });
