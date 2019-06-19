@@ -795,8 +795,13 @@ makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
 
 		// normalize type that implements can.new
 		if(value[newSymbol]) {
-			definition.type = value;
+			if(value[isMemberSymbol]) {
+				definition.type = value;
+			} else {
+				definition.type = type.check(value);
+			}
 		}
+
 		// normalize type that is a built-in constructor
 		else if (canReflect.isConstructorLike(value)) {
 			definition.type = type.check(value);
