@@ -278,71 +278,45 @@ QUnit.test("Can pass common/primitive types in a property definition", function(
 	assert.strictEqual(thing.numPropWithDefault, 33, "{ type: Number, default: <number> } works");
 });
 
-QUnit.test("common/primitive types throw when used as the type option and set to a different type", function(assert) {
-	class MyNumberThing extends DefineObject {
+QUnit.test("types throw when value is set to a different type", function(assert) {
+	class Defined extends DefineObject {
 		static get define() {
 			return {
-				num: { type: Number }
-			};
-		}
-	}
-	class MyStringThing extends DefineObject {
-		static get define() {
-			return {
-				str: { type: String }
-			};
-		}
-	}
-	class MyBooleanThing extends DefineObject {
-		static get define() {
-			return {
-				bool: { type: Boolean }
-			};
-		}
-	}
-	class MyDateThing extends DefineObject {
-		static get define() {
-			return {
-				date: { type: Date }
+				// common primitive shorthand
+				num: Number,
+				str: String,
+				bool: Boolean,
+				date: Date,
+				// common primitive in PropertyDefinition
+				numDefinition: { type: Number },
+				strDefinition: { type: String },
+				boolDefinition: { type: Boolean },
+				dateDefinition: { type: Date }
 			};
 		}
 	}
 
 	let now = new Date();
 
-	try {
-		new MyNumberThing({
-			num: "33"
-		});
-		assert.ok(false, "should throw but didn't");
-	} catch(err) {
-		assert.ok(true, "should throw: " + err);
-	}
+	const testCases = {
+		num: "33",
+		str: 33,
+		bool: "false",
+		date: now.toString(),
+		numDefinition: "33",
+		strDefinition: 33,
+		boolDefinition: "false",
+		dateDefinition: now.toString()
+	};
 
-	try {
-		new MyStringThing({
-			str: 33
-		});
-		assert.ok(false, "should throw but didn't");
-	} catch(err) {
-		assert.ok(true, "should throw: " + err);
-	}
-
-	try {
-		new MyBooleanThing({
-			bool: "false"
-		});
-		assert.ok(false, "should throw but didn't");
-	} catch(err) {
-		assert.ok(true, "should throw: " + err);
-	}
-
-	try {
-		new MyDateThing({
-			date: now.toString()
-		});
-		assert.ok(false, "should throw but didn't");
-	} catch(err) {
-		assert.ok(true, "should throw: " + err);
-	}
+	canReflect.eachKey(testCases, function(value, prop) {
+		try {
+			new Defined({
+				[prop]: value
+			});
+			assert.ok(false, "should throw but didn't");
+		} catch(err) {
+			assert.ok(true, "should throw: " + err);
+		}
+	});
 });
