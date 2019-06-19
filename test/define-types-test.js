@@ -279,6 +279,10 @@ QUnit.test("Can pass common/primitive types in a property definition", function(
 });
 
 QUnit.test("types throw when value is set to a different type", function(assert) {
+	function Thing() {}
+	Thing.prototype = Object.create(Thing);
+	class ExtendedDefineObject extends DefineObject {}
+
 	class Defined extends DefineObject {
 		static get define() {
 			return {
@@ -291,7 +295,15 @@ QUnit.test("types throw when value is set to a different type", function(assert)
 				numDefinition: { type: Number },
 				strDefinition: { type: String },
 				boolDefinition: { type: Boolean },
-				dateDefinition: { type: Date }
+				dateDefinition: { type: Date },
+				// custom type shorthand
+				thing: Thing,
+				defineObject: DefineObject,
+				extendedDefineObject: ExtendedDefineObject,
+				// custom type PropertyDefinition
+				thingDefinition: { type: Thing },
+				defineObjectDefinition: { type: DefineObject },
+				extendedDefineObjectDefinition: { type: ExtendedDefineObject }
 			};
 		}
 	}
@@ -306,7 +318,13 @@ QUnit.test("types throw when value is set to a different type", function(assert)
 		numDefinition: "33",
 		strDefinition: 33,
 		boolDefinition: "false",
-		dateDefinition: now.toString()
+		dateDefinition: now.toString(),
+		thing: {},
+		defineObject: {},
+		extendedDefineObject: {},
+		thingDefinition: {},
+		defineObjectDefinition: {},
+		extendedDefineObjectDefinition: {}
 	};
 
 	canReflect.eachKey(testCases, function(value, prop) {
@@ -314,7 +332,7 @@ QUnit.test("types throw when value is set to a different type", function(assert)
 			new Defined({
 				[prop]: value
 			});
-			assert.ok(false, "should throw but didn't");
+			assert.ok(false, `${prop} = ${value} should throw but didn't`);
 		} catch(err) {
 			assert.ok(true, "should throw: " + err);
 		}
