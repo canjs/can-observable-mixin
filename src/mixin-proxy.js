@@ -13,12 +13,12 @@ let isProtoReadOnSuper = false;
 		let par = class { fn() { } };
 		let base = new Proxy(par, {
 			get(t, k, r) {
-				if(k === "__proto__") isProtoReadOnSuper = true;
+				if(k === "__proto__") { isProtoReadOnSuper = true; }
 				return Reflect.get(t, k, r);
 			}
-		})
+		});
 		let chi = class extends base { fn() { super.fn(); } };
-		(new chi).fn();
+		(new chi()).fn();
 	}
 })();
 
@@ -45,7 +45,7 @@ function proxyPrototype(Base) {
 				ObservationRecorder.add(receiver, key);
 			}
 			return Reflect.get(target, key, receiver);
-		}
+		};
 
 	const proxyHandlers = {
 		get: getHandler,
