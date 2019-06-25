@@ -7,8 +7,20 @@ const inSetupSymbol = Symbol.for("can.initializing");
 // A bug in Safari means that __proto__ key is sent. This causes problems
 // When addEventListener is called on a non-element.
 // https://github.com/tc39/test262/pull/2203
-const ignoredKeys = new Set();
-ignoredKeys.add("__proto__");
+let isProtoReadOnSuper = false;
+(function(){
+	if(typeof Proxy === "function") {
+		let par = class { fn() { } };
+		let base = new Proxy(par, {
+			get(t, k, r) {
+				if(k === "__proto__") isProtoReadOnSuper = true;
+				return Reflect.get(t, k, r);
+			}
+		})
+		let chi = class extends base { fn() { super.fn(); } };
+		(new chi).fn();
+	}
+})();
 
 function proxyPrototype(Base) {
 	const instances = new WeakSet();
@@ -21,13 +33,22 @@ function proxyPrototype(Base) {
 
 	const underlyingPrototypeObject = Object.create(Base.prototype);
 
-	const proxyHandlers = {
-		get(target, key, receiver) {
-			if (!this[inSetupSymbol] && typeof key !== "symbol" && !ignoredKeys.has(key)) {
+	const getHandler = isProtoReadOnSuper ?
+		function(target, key, receiver) {
+			if (!this[inSetupSymbol] && typeof key !== "symbol" && key !== "__proto__") {
 				ObservationRecorder.add(receiver, key);
 			}
 			return Reflect.get(target, key, receiver);
-		},
+		} :
+		function(target, key, receiver) {
+			if (!this[inSetupSymbol] && typeof key !== "symbol") {
+				ObservationRecorder.add(receiver, key);
+			}
+			return Reflect.get(target, key, receiver);
+		}
+
+	const proxyHandlers = {
+		get: getHandler,
 		set(target, key, value, receiver) {
 			// Symbols are not observable, so just set the value
 			if (typeof key === "symbol") {
