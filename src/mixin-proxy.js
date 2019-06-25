@@ -4,6 +4,12 @@ const ObservationRecorder = require("can-observation-recorder");
 const eventDispatcher = defineBehavior.make.set.eventDispatcher;
 const inSetupSymbol = Symbol.for("can.initializing");
 
+// A bug in Safari means that __proto__ key is sent. This causes problems
+// When addEventListener is called on a non-element.
+// https://github.com/tc39/test262/pull/2203
+const ignoredKeys = new Set();
+ignoredKeys.add("__proto__");
+
 function proxyPrototype(Base) {
 	const instances = new WeakSet();
 
@@ -17,7 +23,7 @@ function proxyPrototype(Base) {
 
 	const proxyHandlers = {
 		get(target, key, receiver) {
-			if (!this[inSetupSymbol] && typeof key !== "symbol") {
+			if (!this[inSetupSymbol] && typeof key !== "symbol" && !ignoredKeys.has(key)) {
 				ObservationRecorder.add(receiver, key);
 			}
 			return Reflect.get(target, key, receiver);

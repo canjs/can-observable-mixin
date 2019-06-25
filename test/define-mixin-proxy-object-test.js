@@ -62,3 +62,22 @@ QUnit.test("Symbols are not observable", function(assert) {
 
 	assert.deepEqual(entries, [], "no observations are created");
 });
+
+QUnit.test("Does not observe __proto__", function(assert) {
+	class Parent extends DefineObject {
+		fn() {}
+	}
+	class Child extends Parent {
+		fn() {
+			super.fn();
+		}
+	}
+
+	let instance = new Child();
+
+	ObservationRecorder.start();
+	instance.fn();
+	let records = ObservationRecorder.stop();
+	let deps = Array.from(records.keyDependencies);
+	assert.equal(deps.length, 0, "Nothing recorded just by calling super.fn()");
+});
