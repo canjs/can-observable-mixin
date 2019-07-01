@@ -62,8 +62,9 @@ QUnit.test("async(resolve) resolves async values", function(assert) {
 	}
 
 	let faves = new Faves();
+
 	canReflect.onKeyValue(faves, "age", value => {
-		assert.equal(value, 2, "Age incremented");
+		assert.equal(value, 2, "Age set when `resolve` is called");
 		done();
 	});
 });
@@ -88,8 +89,11 @@ QUnit.test("async() returning a promise resolves", function(assert) {
 	}
 
 	let faves = new Faves();
+
+	assert.equal(faves.age, undefined, "Age has correct initial value");
+
 	canReflect.onKeyValue(faves, "age", value => {
-		assert.equal(value, 2, "Age incremented");
+		assert.equal(value, 2, "Age set when promise resolves");
 		done();
 	});
 });

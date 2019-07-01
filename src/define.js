@@ -202,6 +202,7 @@ var callAsync = function(fn) {
 		// But that would be a breaking change so putting it here.
 		if(canReflect.isPromise(newValue)) {
 			newValue.then(resolve);
+			return undefined;
 		}
 
 		return newValue;
