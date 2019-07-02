@@ -463,7 +463,7 @@ QUnit.test("Warn of async(resolve) is an async function", function(assert) {
 		static get define() {
 			return  {
 				todos: {
-					async async(resolve) {
+					async async(resolve) { // jshint ignore:line
 
 					}
 				}
