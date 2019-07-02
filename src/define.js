@@ -1011,10 +1011,11 @@ define.setup = function(props, sealed) {
 	}
 	if(requiredButNotProvided.size) {
 		var msg, missingProps = Array.from(requiredButNotProvided);
+		let thisName = canReflect.getName(this);
 		if(requiredButNotProvided.size === 1) {
-			msg = `Missing required property [${missingProps[0]}].`;
+			msg = `${thisName}: Missing required property [${missingProps[0]}].`;
 		} else {
-			msg = `Missing required properties [${missingProps.join(", ")}].`;
+			msg = `${thisName}: Missing required properties [${missingProps.join(", ")}].`;
 		}
 
 		throw new Error(msg);
