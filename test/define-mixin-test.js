@@ -451,7 +451,7 @@ QUnit.test("Error for required properties includes the function name", function(
 		}
 
 		try {
-			const thing = new MySpecialThing({});
+			new MySpecialThing({});
 		} catch(err) {
 			assert.ok(/MySpecialThing/.test(err.message), "Required message includes the funtion name");
 		}
