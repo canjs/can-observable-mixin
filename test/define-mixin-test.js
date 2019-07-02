@@ -440,3 +440,20 @@ QUnit.test("getters on the define object work", function(assert) {
 	const myType = new MyType();
 	assert.equal(myType.greeting, "Hello World");
 });
+
+QUnit.test("Error for required properties includes the function name", function(assert) {
+		class MySpecialThing extends mixinObject() {
+			static get define() {
+				return {
+					prop: { required: true }
+				};
+			}
+		}
+
+		try {
+			const thing = new MySpecialThing({});
+		} catch(err) {
+			assert.ok(/MySpecialThing/.test(err.message), "Required message includes the funtion name");
+		}
+
+});
