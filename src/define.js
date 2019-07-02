@@ -38,6 +38,11 @@ function observableType() {
 		throw new Error("This is not currently implemented.");
 }
 
+var AsyncFunction = (async function(){}).constructor;
+function isAsyncFunction(fn) {
+	return fn && fn instanceof AsyncFunction;
+}
+
 var peek = ObservationRecorder.ignore(canReflect.getValue.bind(canReflect));
 
 var Object_defineNamedPrototypeProperty = Object.defineProperty;
@@ -750,7 +755,7 @@ make = {
 define.behaviors = ["get", "set", "value", "type", "serialize"];
 
 // This cleans up a particular behavior and adds it to the definition
-var addBehaviorToDefinition = function(definition, behavior, descriptor, def) {
+var addBehaviorToDefinition = function(definition, behavior, descriptor, def, prop, typePrototype) {
 	if(behavior === "enumerable") {
 		// treat enumerable like serialize
 		definition.serialize = !!def[behavior];
@@ -762,18 +767,27 @@ var addBehaviorToDefinition = function(definition, behavior, descriptor, def) {
 		}
 	}
 	else {
-		definition[behavior] = descriptor.get || descriptor.value;
+		// This is a good place to do warnings? This gets called for every behavior
+		// Both by .define() and .property()
+		var value = descriptor.get || descriptor.value;
+		if(behavior === "async") {
+			if(value.length === 1 && isAsyncFunction(value)) {
+				canLogDev.warn(`${canReflect.getName(typePrototype)}: async property [${prop}] should not be an async function and also use the resolve() argument. Remove the argument and return a value from the async function instead.`);
+			}
+		}
+
+		definition[behavior] = value;
 	}
 };
 
 // This is called by `define.property` AND `getDefinitionOrMethod` (which is called by `define`)
 // Currently, this is adding default behavior
 // copying `type` over, and even cleaning up the final definition object
-makeDefinition = function(prop, def, defaultDefinition/*, typePrototype*/) {
+makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 	var definition = {};
 
 	eachPropertyDescriptor(def, function(behavior, descriptor) {
-		addBehaviorToDefinition(definition, behavior, descriptor, def);
+		addBehaviorToDefinition(definition, behavior, descriptor, def, prop, typePrototype);
 	});
 	// only add default if it doesn't exist
 	canReflect.eachKey(defaultDefinition, function(value, prop){
@@ -869,7 +883,7 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propert
 	// first lets get a default if it exists
 	var defaultDefinition;
 	if(propertyDefaults) {
-		defaultDefinition = getDefinitionOrMethod("*", propertyDefaults, {});
+		defaultDefinition = getDefinitionOrMethod("*", propertyDefaults, {}, typePrototype);
 	} else {
 		defaultDefinition = Object.create(null);
 	}

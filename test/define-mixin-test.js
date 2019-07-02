@@ -457,3 +457,21 @@ QUnit.test("Error for required properties includes the function name", function(
 		}
 
 });
+
+QUnit.test("Warn of async(resolve) is an async function", function(assert) {
+	class MyThing extends mixinObject() {
+		static get define() {
+			return  {
+				todos: {
+					async async(resolve) {
+
+					}
+				}
+			};
+		}
+	}
+
+	let count = dev.willWarn(/async function/);
+	new MyThing();
+	assert.equal(count(), 1, "1 warning");
+});
