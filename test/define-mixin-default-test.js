@@ -1,9 +1,12 @@
 const QUnit = require("steal-qunit");
 const { mixinObject } = require("./helpers");
+const type = require("can-type");
 
 const DefineObject = mixinObject();
 
 QUnit.test("Primitives can be provided as the default in the PropDefinition", function(assert) {
+	assert.expect(9);
+
 	class Person extends DefineObject {
 		static get define() {
 			return {
@@ -25,9 +28,37 @@ QUnit.test("Primitives can be provided as the default in the PropDefinition", fu
 	assert.equal(person.age, 13, "Number works");
 	assert.equal(person.likesChocolate, false, "Boolean works");
 	assert.equal(person.favoriteColor, "green", "Strings work");
+
+	person.age = 30;
+	person.likesChocolate = true;
+	person.favoriteColor = "red";
+
+	assert.equal(person.age, 30, "Number can be set to another number");
+	assert.equal(person.likesChocolate, true, "Boolean can be set to another boolean");
+	assert.equal(person.favoriteColor, "red", "Strings can be set to another string");
+
+	try {
+		person.age = "50";
+	} catch(e) {
+		assert.ok(true, "Number cannot be set to a non-number");
+	}
+
+	try {
+		person.likesChocolate = "false";
+	} catch(e) {
+		assert.ok(true, "Boolean cannot be set to a non-boolean");
+	}
+
+	try {
+		person.favoriteColor = undefined;
+	} catch(e) {
+		assert.ok(true, "String cannot be set to a non-string");
+	}
 });
 
 QUnit.test("Primitives can be provided as the default as the property value", function(assert) {
+	assert.expect(9);
+
 	class Person extends DefineObject {
 		static get define() {
 			return {
@@ -43,6 +74,32 @@ QUnit.test("Primitives can be provided as the default as the property value", fu
 	assert.equal(person.age, 13, "Number works");
 	assert.equal(person.likesChocolate, false, "Boolean works");
 	assert.equal(person.favoriteColor, "green", "Strings work");
+
+	person.age = 30;
+	person.likesChocolate = true;
+	person.favoriteColor = "red";
+
+	assert.equal(person.age, 30, "Number can be set to another number");
+	assert.equal(person.likesChocolate, true, "Boolean can be set to another boolean");
+	assert.equal(person.favoriteColor, "red", "Strings can be set to another string");
+
+	try {
+		person.age = "50";
+	} catch(e) {
+		assert.ok(true, "Number cannot be set to a non-number");
+	}
+
+	try {
+		person.likesChocolate = "false";
+	} catch(e) {
+		assert.ok(true, "Boolean cannot be set to a non-boolean");
+	}
+
+	try {
+		person.favoriteColor = undefined;
+	} catch(e) {
+		assert.ok(true, "String cannot be set to a non-string");
+	}
 });
 
 QUnit.test("Primitives provided as the default sets the type as strict", function(assert) {
@@ -165,4 +222,66 @@ QUnit.test("Functions can be provided as the default as the property value", fun
 	} catch(e) {
 		assert.ok(true, "setting property to a non-function throws an error");
 	}
+});
+
+QUnit.test("Primitives provided as the default are not strict if there is a propertyDefaults type", function(assert) {
+	assert.expect(4);
+
+	class Person extends DefineObject {
+		static get propertyDefaults() {
+			return {
+				type: type.Any
+			};
+		}
+
+		static get define() {
+			return {
+				age: 13,
+				ageProp: {
+					default: 14
+				}
+			};
+		}
+	}
+
+	let person = new Person();
+
+	assert.equal(person.age, 13, "Default for prop");
+	assert.equal(person.ageProp, 14, "Default for prop with definition");
+
+	person.age = "thirteen";
+	assert.equal(person.age, "thirteen", "Setting the value of prop to another type works");
+
+	person.ageProp = "fourteen";
+	assert.equal(person.ageProp, "fourteen", "Setting the value of prop with definition to another type works");
+});
+
+QUnit.test("Primitives provided as the default are not strict if they have a type", function(assert) {
+	assert.expect(4);
+
+	class Person extends DefineObject {
+		static get define() {
+			return {
+				age: {
+					default: 13,
+					type: type.Any
+				},
+				ageFunc: {
+					default() { return 14; },
+					type: type.Any
+				}
+			};
+		}
+	}
+
+	let person = new Person();
+
+	assert.equal(person.age, 13, "Default for primitive default");
+	assert.equal(person.ageFunc(), 14, "Default for function default");
+
+	person.age = "thirteen";
+	assert.equal(person.age, "thirteen", "Setting the value of prop to another type works");
+
+	person.ageFunc = "fourteen";
+	assert.equal(person.ageFunc, "fourteen", "Setting the value of prop to another type works");
 });

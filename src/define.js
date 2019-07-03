@@ -35,7 +35,7 @@ function isDefineType(func){
 }
 
 function observableType() {
-		throw new Error("This is not currently implemented.");
+	throw new Error("This is not currently implemented.");
 }
 
 var AsyncFunction = (async function(){}).constructor;
@@ -371,8 +371,9 @@ define.makeDefineInstanceKey = function(constructor) {
 	constructor[Symbol.for("can.defineInstanceKey")] = function(property, value) {
 		define.hooks.finalizeClass(this);
 		var defineResult = this.prototype._define;
-		if(value && typeof value.value != null) {
+		if(value && typeof value.value !== "undefined") {
 			value.default = value.value;
+			value.type = type.Any;
 			delete value.value;
 		}
 		var definition = getDefinitionOrMethod(property, value, defineResult.defaultDefinition, this);
@@ -825,9 +826,16 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 		}
 	}
 
-	if (definition.default) {
-		if (typeof definition.default === "function" && !definition.default.isAGetter) {
+	var noTypeDefined = !definition.type && (!defaultDefinition.type ||
+		defaultDefinition.type && defaultDefinition.typeSetByDefault);
+
+	if (definition.hasOwnProperty("default")) {
+		if (typeof definition.default === "function" && !definition.default.isAGetter && noTypeDefined) {
 			definition.type = type.check(Function);
+		}
+
+		if (canReflect.isPrimitive(definition.default) && noTypeDefined) {
+			definition.type = type.check(definition.default.constructor);
 		}
 	}
 
@@ -837,8 +845,11 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 		definition = canReflect.assignMap(defaultsCopy, definition);
 	}
 
-	if( canReflect.size(definition) === 0 ) {
+	if(canReflect.size(definition) === 0) {
 		definition.type = type.Any;
+		// `setByDefault` indicates that the default type can be
+		// overridden by an inferred type
+		definition.typeSetByDefault = true;
 	}
 
 	return definition;
@@ -854,7 +865,11 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	if(canReflect.isPrimitive(value)) {
 		definition = {
 			default: value,
-			type: type.check(value.constructor)
+			// only include type from defaultDefininition
+			// if it came from propertyDefaults
+			type: defaultDefinition.typeSetByDefault ?
+				type.check(value.constructor) :
+				defaultDefinition.type
 		};
 	}
     // copies a `Type`'s methods over
