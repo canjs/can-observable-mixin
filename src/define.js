@@ -85,10 +85,10 @@ function defineNotWritableAndNotEnumerable(obj, prop, value) {
 	});
 }
 
-function eachPropertyDescriptor(map, cb){
+function eachPropertyDescriptor(map, cb, ...args){
 	for(var prop of Object.getOwnPropertyNames(map)) {
 		if(map.hasOwnProperty(prop)) {
-			cb.call(map, prop, Object.getOwnPropertyDescriptor(map,prop));
+			cb.call(map, prop, Object.getOwnPropertyDescriptor(map, prop), ...args);
 		}
 	}
 }
@@ -322,7 +322,6 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 		dataInitializers[prop] = getInitialValue;
 	}
 
-
 	// Define setter behavior.
 
 	// If there's a `get` and `set`, make the setter get the `lastSetValue` on the
@@ -353,7 +352,6 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 			//!steal-remove-end
 		};
 	}
-
 
 	// Add type behavior to the setter.
 	if (type) {
@@ -696,7 +694,8 @@ make = {
 			return function() {
 				var value = definition.default;
 				if (value !== undefined) {
-					if (typeof value === "function") {
+					// call `get default() { ... }` but not `default() { ... }`
+					if (typeof value === "function" && value.isAGetter) {
 						value = value.call(this);
 					}
 					value = typeConvert.call(this, value);
@@ -717,7 +716,7 @@ make = {
 					}, definition.get);
 
 					setter.call(this,value);
-					sync= false;
+					sync = false;
 
 					// VALUE will be undefined if the callback is never called.
 					return VALUE;
@@ -770,6 +769,9 @@ var addBehaviorToDefinition = function(definition, behavior, descriptor, def, pr
 		// This is a good place to do warnings? This gets called for every behavior
 		// Both by .define() and .property()
 		var value = descriptor.get || descriptor.value;
+		if (descriptor.get) {
+			value.isAGetter = true;
+		}
 		if(behavior === "async") {
 			if(value.length === 1 && isAsyncFunction(value)) {
 				canLogDev.warn(`${canReflect.getName(typePrototype)}: async property [${prop}] should not be an async function and also use the resolve() argument. Remove the argument and return a value from the async function instead.`);
@@ -823,9 +825,15 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 		}
 	}
 
+	if (definition.default) {
+		if (typeof definition.default === "function" && !definition.default.isAGetter) {
+			definition.type = type.check(Function);
+		}
+	}
+
 	// if there's no type definition, take it from the defaultDefinition
 	if(!definition.type) {
-		var defaultsCopy = canReflect.assignMap({},defaultDefinition);
+		var defaultsCopy = canReflect.assignMap({}, defaultDefinition);
 		definition = canReflect.assignMap(defaultsCopy, definition);
 	}
 
@@ -860,8 +868,9 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	else if(typeof value === "function") {
 		if(canReflect.isConstructorLike(value)) {
 			definition = { type: type.check(value) };
+		} else {
+			definition = { default: value, type: Function };
 		}
-		// or leaves as a function
 	} else if( Array.isArray(value) ) {
 		definition = { type: value };
 	} else if( canReflect.isPlainObject(value) ){
@@ -888,15 +897,15 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propert
 		defaultDefinition = Object.create(null);
 	}
 
-	function addDefinition(prop, propertyDescriptor) {
+	function addDefinition(prop, propertyDescriptor, skipGetDefinitionForMethods) {
 		var value;
 		if(propertyDescriptor.get || propertyDescriptor.set) {
-			value = {get: propertyDescriptor.get, set: propertyDescriptor.set};
+			value = { get: propertyDescriptor.get, set: propertyDescriptor.set };
 		} else {
 			value = propertyDescriptor.value;
 		}
 
-		if(prop === "constructor") {
+		if(prop === "constructor" || skipGetDefinitionForMethods && typeof value === "function") {
 			methods[prop] = value;
 			return;
 		} else {
@@ -907,14 +916,14 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propert
 			}
 			else {
 				// Removed adding raw values that are not functions
-				if (resultType === 'function') {
+				if (resultType === "function") {
 					methods[prop] = result;
 				}
 				//!steal-remove-start
 				else if (resultType !== 'undefined') {
 					if(process.env.NODE_ENV !== 'production') {
                     	// Ex: {prop: 0}
-						canLogDev.error(canReflect.getName(typePrototype)+"."+prop + " does not match a supported propDefinition. See: https://canjs.com/doc/can-define.types.propDefinition.html");
+						canLogDev.error(canReflect.getName(typePrototype)+"."+prop + " does not match a supported definitionObject. See: https://canjs.com/doc/can-define-object/object.types.definitionObject.html");
 					}
 				}
 				//!steal-remove-end
@@ -922,13 +931,13 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propert
 		}
 	}
 
-	eachPropertyDescriptor(typePrototype, addDefinition);
+	eachPropertyDescriptor(typePrototype, addDefinition, true);
 	eachPropertyDescriptor(defines, addDefinition);
 	if(propertyDefaults) {
 		// we should move this property off the prototype.
 		defineConfigurableAndNotEnumerable(defines, "*", propertyDefaults);
 	}
-	return {definitions: definitions, methods: methods, defaultDefinition: defaultDefinition};
+	return { definitions: definitions, methods: methods, defaultDefinition: defaultDefinition };
 };
 
 eventsProto = eventQueue({});

@@ -338,3 +338,79 @@ QUnit.test("types throw when value is set to a different type", function(assert)
 		}
 	});
 });
+
+QUnit.test("Can pass Function as the type option", function(assert) {
+	assert.expect(3);
+
+	class MyThing extends DefineObject {
+		static get define() {
+			return {
+				func: Function
+			};
+		}
+	}
+
+	let thing = new MyThing({
+		func: function() { return 33; }
+	});
+
+	assert.equal(thing.func(), 33, "function accepted");
+
+	thing.func = function() { return 30; };
+	assert.equal(thing.func(), 30, "function can be overwritten");
+
+	try {
+		thing.func = 50;
+	} catch(e) {
+		assert.ok(true, "error thrown when set to non-function");
+	}
+});
+
+QUnit.test("Can pass Function in a property definition", function(assert) {
+	assert.expect(9);
+
+	class MyThing extends DefineObject {
+		static get define() {
+			return {
+				func: Function,
+				funcProp: { type: Function },
+				funcPropWithDefault: { type: Function, default() { return 33; } }
+			};
+		}
+	}
+
+	let thing = new MyThing({
+		func: function() { return 33; },
+		funcProp: function() { return 33; }
+	});
+
+	assert.strictEqual(thing.func(), 33, "prop: Function works");
+	assert.strictEqual(thing.funcProp(), 33, "{ type: Function } works");
+	assert.strictEqual(thing.funcPropWithDefault(), 33, "{ type: Function, default: <Function> } works");
+
+	thing.func = function() { return 30; };
+	thing.funcProp = function() { return 30; };
+	thing.funcPropWithDefault = function() { return 30; };
+
+	assert.strictEqual(thing.func(), 30, "prop: Function can be overwritten");
+	assert.strictEqual(thing.funcProp(), 30, "{ type: Function } can be overwritten");
+	assert.strictEqual(thing.funcPropWithDefault(), 30, "{ type: Function, default: <Function> } can be overwritten");
+
+	try {
+		thing.func = 50;
+	} catch(e) {
+		assert.ok(true, "prop: Function error thrown when set to non-function");
+	}
+
+	try {
+		thing.funcProp = 50;
+	} catch(e) {
+		assert.ok(true, "{ type: Function } error thrown when set to non-function");
+	}
+
+	try {
+		thing.funcPropWithDefault = 50;
+	} catch(e) {
+		assert.ok(true, "{ type: Function, default: <Function> } error thrown when set to non-function");
+	}
+});
