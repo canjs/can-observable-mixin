@@ -110,3 +110,59 @@ QUnit.test("Allow a default object to be provided by using a getter", function(a
 	assert.deepEqual(one.prop, { foo: "bar" }, "Sets the default");
 	assert.notEqual(one.prop, two.prop, "Different instances");
 });
+
+QUnit.test("Functions can be provided as the default in the PropDefinition", function(assert) {
+	assert.expect(3);
+
+	class Person extends DefineObject {
+		static get define() {
+			return {
+				getAge: {
+					default() {
+						return 13;
+					}
+				}
+			};
+		}
+	}
+
+	let person = new Person();
+
+	assert.equal(person.getAge(), 13, "property is a function");
+
+	person.getAge = function() { return 30; };
+	assert.equal(person.getAge(), 30, "function can be overwritten");
+
+	try {
+		person.getAge = 50;
+	} catch(e) {
+		assert.ok(true, "setting property to a non-function throws an error");
+	}
+});
+
+QUnit.test("Functions can be provided as the default as the property value", function(assert) {
+	assert.expect(3);
+
+	class Person extends DefineObject {
+		static get define() {
+			return {
+				getAge() {
+					return 13;
+				}
+			};
+		}
+	}
+
+	let person = new Person();
+
+	assert.equal(person.getAge(), 13, "property is a function");
+
+	person.getAge = function() { return 30; };
+	assert.equal(person.getAge(), 30, "function can be overwritten");
+
+	try {
+		person.getAge = 50;
+	} catch(e) {
+		assert.ok(true, "setting property to a non-function throws an error");
+	}
+});
