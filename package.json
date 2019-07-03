@@ -1,7 +1,7 @@
 {
   "name": "can-define-mixin",
   "description": "Define properties on JavaScript classes",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "author": {
     "name": "Bitovi",
     "email": "contact@bitovi.com",
