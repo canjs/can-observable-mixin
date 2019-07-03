@@ -38,8 +38,19 @@ function observableType() {
 	throw new Error("This is not currently implemented.");
 }
 
-var AsyncFunction = (async function(){}).constructor;
+var AsyncFunction;
+var browserSupportsAsyncFunctions = (function() {
+	try {
+		AsyncFunction = (async function(){}).constructor;
+		return true;
+	} catch(e) {
+		return false;
+	}
+}());
 function isAsyncFunction(fn) {
+	if (!browserSupportsAsyncFunctions) {
+		return false;
+	}
 	return fn && fn instanceof AsyncFunction;
 }
 
