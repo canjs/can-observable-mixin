@@ -34,10 +34,6 @@ function isDefineType(func){
 	return func && (func.canDefineType === true || func[newSymbol] );
 }
 
-function isFunctionAGetter(func) {
-	return func.name.indexOf("get ") === 0;
-}
-
 function observableType() {
 		throw new Error("This is not currently implemented.");
 }
@@ -92,7 +88,7 @@ function defineNotWritableAndNotEnumerable(obj, prop, value) {
 function eachPropertyDescriptor(map, cb, ...args){
 	for(var prop of Object.getOwnPropertyNames(map)) {
 		if(map.hasOwnProperty(prop)) {
-			cb.call(map, prop, Object.getOwnPropertyDescriptor(map,prop), ...args);
+			cb.call(map, prop, Object.getOwnPropertyDescriptor(map, prop), ...args);
 		}
 	}
 }
@@ -699,7 +695,7 @@ make = {
 				var value = definition.default;
 				if (value !== undefined) {
 					// call `get default() { ... }` but not `default() { ... }`
-					if (typeof value === "function" && isFunctionAGetter(value)) {
+					if (typeof value === "function" && value.isAGetter) {
 						value = value.call(this);
 					}
 					value = typeConvert.call(this, value);
@@ -773,6 +769,9 @@ var addBehaviorToDefinition = function(definition, behavior, descriptor, def, pr
 		// This is a good place to do warnings? This gets called for every behavior
 		// Both by .define() and .property()
 		var value = descriptor.get || descriptor.value;
+		if (descriptor.get) {
+			value.isAGetter = true;
+		}
 		if(behavior === "async") {
 			if(value.length === 1 && isAsyncFunction(value)) {
 				canLogDev.warn(`${canReflect.getName(typePrototype)}: async property [${prop}] should not be an async function and also use the resolve() argument. Remove the argument and return a value from the async function instead.`);
@@ -827,7 +826,7 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 	}
 
 	if (definition.default) {
-		if (typeof definition.default === "function" && !isFunctionAGetter(definition.default)) {
+		if (typeof definition.default === "function" && !definition.default.isAGetter) {
 			definition.type = type.check(Function);
 		}
 	}
