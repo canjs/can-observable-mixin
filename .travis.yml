@@ -16,6 +16,7 @@ deploy:
   'on':
     tags: true
     repo: canjs/can-define-mixin
+  skip_cleanup: true
 dist: xenial
 services:
   - xvfb
