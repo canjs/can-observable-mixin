@@ -389,7 +389,7 @@ define.makeDefineInstanceKey = function(constructor) {
 		}
 		var definition = getDefinitionOrMethod(property, value, defineResult.defaultDefinition, this);
 		if(definition && typeof definition === "object") {
-			define.property(constructor.prototype, property, definition, defineResult.dataInitializers, defineResult.computedInitializers, defineResult.defaultDefinition);
+			define.property(this.prototype, property, definition, defineResult.dataInitializers, defineResult.computedInitializers, defineResult.defaultDefinition);
 			defineResult.definitions[property] = definition;
 		} else {
 			defineResult.methods[property] = definition;

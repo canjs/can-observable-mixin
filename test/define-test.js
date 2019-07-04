@@ -1,6 +1,7 @@
 const QUnit = require("steal-qunit");
 const { mixinObject } = require("./helpers");
 const { hooks } = require("../src/define");
+const canReflect = require("can-reflect");
 
 QUnit.module("can-define-mixin - define()");
 
@@ -71,4 +72,19 @@ QUnit.test("initialize can be called multiple times if Symbol is reset", functio
 	obj[metaSymbol].initialized = false;
 	hooks.initialize(obj, { age: 35 });
 	assert.equal(obj.age, 35, "initialized again");
+});
+
+QUnit.test("defineInstanceKey does not add to the base prototype", function(assert) {
+	const Base = mixinObject();
+	class Obj extends Base {}
+	canReflect.defineInstanceKey(Obj, "_saving", {
+		configurable: true,
+		default: false,
+		enumerable: false,
+		writable: true
+	});
+	new Obj();
+
+	let desc = Object.getOwnPropertyDescriptor(Base.prototype, "_saving");
+	assert.ok(!desc, "There is no descriptor on the Base class");
 });
