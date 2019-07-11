@@ -498,7 +498,14 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 			expectedWarnings: 1
 		},
 		{
-			name: "type with zero-arg getter, with setter",
+			name: "type with zero-arg getter, no setter, only default type should not warn",
+			definition: {
+				get() { return "whatever"; }
+			},
+			warning: /type value for property .* ignored/,
+			setProp: false,
+			expectedWarnings: 0
+		},
 			definition: {
 				type: String,
 				get() { return "whatever"; },

@@ -246,7 +246,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 					" ignored, as its definition has a zero-argument getter and no setter");
 		}
 
-	if(!definition.set && definition.get && definition.get.length === 0 && ( definition.type ) ) {
+	if(!definition.set && definition.get && definition.get.length === 0 && ( definition.type && definition.type !== defaultDefinition.type ) ) {
 			canLogDev.warn("can-define-object: type value for property " +
 					canReflect.getName(typePrototype)+"."+ prop +
 					" ignored, as its definition has a zero-argument getter and no setter");
