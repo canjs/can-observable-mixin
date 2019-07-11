@@ -483,7 +483,7 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 			definition: {
 				get() { return "whatever"; }
 			},
-			warning: /type .* ignored/,
+			warning: /Set value for property .* ignored/,
 			setProp: true,
 			expectedWarnings: 1
 		},
@@ -493,7 +493,7 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 				type: String,
 				get() { return "whatever"; }
 			},
-			warning: /type .* ignored/,
+			warning: /type value for property .* ignored/,
 			setProp: false,
 			expectedWarnings: 1
 		},
@@ -506,12 +506,14 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 			setProp: false,
 			expectedWarnings: 0
 		},
+		{
+			name: "type with zero-arg getter, with setter should not warn",
 			definition: {
 				type: String,
 				get() { return "whatever"; },
 				set (val) { return val; }
 			},
-			warning: /type .* ignored/,
+			warning: /type value for property .* ignored/,
 			setProp: false,
 			expectedWarnings: 0
 		},
@@ -521,18 +523,18 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 				default: "some thing",
 				get() { return "whatever"; }
 			},
-			warning: /default .* ignored/,
+			warning: /default value for property .* ignored/,
 			setProp: false,
 			expectedWarnings: 1
 		},
 		{
-			name: "default with zero-arg getter, with setter",
+			name: "default with zero-arg getter, with setter should not warn",
 			definition: {
 				default: "some thing",
 				get() { return "whatever"; },
 				set (val) { return val; }
 			},
-			warning: /type .* ignored/,
+			warning: /default value for property .* ignored/,
 			setProp: false,
 			expectedWarnings: 0
 		}
