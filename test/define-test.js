@@ -9,9 +9,9 @@ QUnit.test("Can define stuff", function(assert) {
   class Faves extends mixinObject() {
     static get define() {
       return {
-		  color: {
-			  default: "blue"
-		  }
+			color: {
+				default: "blue"
+			}
       };
     }
   }
@@ -30,9 +30,9 @@ QUnit.test("Stuff is defined in constructor for non-element classes", function(a
   class Faves extends mixinObject(Object) {
     static get define() {
       return {
-		  color: {
-			  default: "blue"
-		  }
+			color: {
+				default: "blue"
+			}
       };
     }
 
