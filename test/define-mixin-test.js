@@ -476,25 +476,77 @@ QUnit.test("Warn of async(resolve) is an async function", function(assert) {
 	assert.equal(count(), 1, "1 warning");
 });
 
-
-QUnit.test("If there's zero-arg `get` but not `set`, warn on all sets in dev mode", function(assert) {
-	class MyThing extends mixinObject() {
-		static get define() {
-			return  {
-				todos: {
-					get () { // jshint ignore:line
-						return 'no args here, and no setter!'
-					}
-				}
-			};
+dev.devOnlyTest("warnings are given when type or default is ignored", function(assert) {
+	const testCases = [
+		{
+			name: "zero-arg getter, no setter when property is set",
+			definition: {
+				get() { return "whatever"; }
+			},
+			warning: /type .* ignored/,
+			setProp: true,
+			expectedWarnings: 1
+		},
+		{
+			name: "type with zero-arg getter, no setter",
+			definition: {
+				type: String,
+				get() { return "whatever"; }
+			},
+			warning: /type .* ignored/,
+			setProp: false,
+			expectedWarnings: 1
+		},
+		{
+			name: "type with zero-arg getter, with setter",
+			definition: {
+				type: String,
+				get() { return "whatever"; },
+				set (val) { return val }
+			},
+			warning: /type .* ignored/,
+			setProp: false,
+			expectedWarnings: 0
+		},
+		{
+			name: "default with zero-arg getter, no setter",
+			definition: {
+				default: "some thing",
+				get() { return "whatever"; }
+			},
+			warning: /default .* ignored/,
+			setProp: false,
+			expectedWarnings: 1
+		},
+		{
+			name: "default with zero-arg getter, with setter",
+			definition: {
+				default: "some thing",
+				get() { return "whatever"; },
+				set (val) { return val }
+			},
+			warning: /type .* ignored/,
+			setProp: false,
+			expectedWarnings: 0
 		}
-	}
+	];
 
-	let count = dev.willWarn(/Set value for property .* has a zero-argument getter and no setter/);
-	new MyThing();
-	// trigger the warning
-	const myThing = new MyThing();
-	myThing.todos = 'something'
+	testCases.forEach((testCase) => {
+		let Obj = class extends mixinObject() {
+			static get define() {
+				return {
+					prop: testCase.definition
+				};
+			}
+		};
+		let count = dev.willWarn(testCase.warning);
 
-	assert.equal(count(), 1, "1 warning");
+		let o = new Obj();
+
+		if (testCase.setProp) {
+			o.prop = "a value";
+		}
+
+		assert.equal(count(), testCase.expectedWarnings, `got correct number of warnings for "${testCase.name}"`)
+	});
 });
