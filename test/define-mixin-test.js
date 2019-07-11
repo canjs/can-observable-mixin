@@ -502,7 +502,7 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 			definition: {
 				type: String,
 				get() { return "whatever"; },
-				set (val) { return val }
+				set (val) { return val; }
 			},
 			warning: /type .* ignored/,
 			setProp: false,
@@ -523,7 +523,7 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 			definition: {
 				default: "some thing",
 				get() { return "whatever"; },
-				set (val) { return val }
+				set (val) { return val; }
 			},
 			warning: /type .* ignored/,
 			setProp: false,
@@ -547,6 +547,6 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 			o.prop = "a value";
 		}
 
-		assert.equal(count(), testCase.expectedWarnings, `got correct number of warnings for "${testCase.name}"`)
+		assert.equal(count(), testCase.expectedWarnings, `got correct number of warnings for "${testCase.name}"`);
 	});
 });
