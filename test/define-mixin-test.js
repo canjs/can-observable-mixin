@@ -498,7 +498,7 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 			expectedWarnings: 1
 		},
 		{
-			name: "type with zero-arg getter, no setter, only default type should not warn",
+			name: "only default type with zero-arg getter, no setter - should not warn",
 			definition: {
 				get() { return "whatever"; }
 			},
@@ -507,7 +507,7 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 			expectedWarnings: 0
 		},
 		{
-			name: "type with zero-arg getter, with setter should not warn",
+			name: "type with zero-arg getter, with setter - should not warn",
 			definition: {
 				type: String,
 				get() { return "whatever"; },
@@ -528,7 +528,7 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 			expectedWarnings: 1
 		},
 		{
-			name: "default with zero-arg getter, with setter should not warn",
+			name: "default with zero-arg getter, with setter - should not warn",
 			definition: {
 				default: "some thing",
 				get() { return "whatever"; },
