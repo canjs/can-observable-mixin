@@ -258,9 +258,9 @@ QUnit.test("Passing props into the constructor", function(assert) {
 
 QUnit.test("seal: false prevents the object from being sealed", function(assert) {
 	class Thing extends mixinObject() {
-	  static get seal() {
-		  return false;
-	  }
+		static get seal() {
+			return false;
+		}
 	}
 
 	let p = new Thing();
@@ -473,5 +473,28 @@ QUnit.test("Warn of async(resolve) is an async function", function(assert) {
 
 	let count = dev.willWarn(/async function/);
 	new MyThing();
+	assert.equal(count(), 1, "1 warning");
+});
+
+
+QUnit.test("If there's zero-arg `get` but not `set`, warn on all sets in dev mode", function(assert) {
+	class MyThing extends mixinObject() {
+		static get define() {
+			return  {
+				todos: {
+					get () { // jshint ignore:line
+						return 'no args here, and no setter!'
+					}
+				}
+			};
+		}
+	}
+
+	let count = dev.willWarn(/Set value for property .* has a zero-argument getter and no setter/);
+	new MyThing();
+	// trigger the warning
+	const myThing = new MyThing();
+	myThing.todos = 'something'
+
 	assert.equal(count(), 1, "1 warning");
 });
