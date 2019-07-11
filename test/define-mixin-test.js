@@ -258,9 +258,9 @@ QUnit.test("Passing props into the constructor", function(assert) {
 
 QUnit.test("seal: false prevents the object from being sealed", function(assert) {
 	class Thing extends mixinObject() {
-	  static get seal() {
-		  return false;
-	  }
+		static get seal() {
+			return false;
+		}
 	}
 
 	let p = new Thing();
@@ -474,4 +474,88 @@ QUnit.test("Warn of async(resolve) is an async function", function(assert) {
 	let count = dev.willWarn(/async function/);
 	new MyThing();
 	assert.equal(count(), 1, "1 warning");
+});
+
+dev.devOnlyTest("warnings are given when type or default is ignored", function(assert) {
+	const testCases = [
+		{
+			name: "zero-arg getter, no setter when property is set",
+			definition: {
+				get() { return "whatever"; }
+			},
+			warning: /Set value for property .* ignored/,
+			setProp: true,
+			expectedWarnings: 1
+		},
+		{
+			name: "type with zero-arg getter, no setter",
+			definition: {
+				type: String,
+				get() { return "whatever"; }
+			},
+			warning: /type value for property .* ignored/,
+			setProp: false,
+			expectedWarnings: 1
+		},
+		{
+			name: "only default type with zero-arg getter, no setter - should not warn",
+			definition: {
+				get() { return "whatever"; }
+			},
+			warning: /type value for property .* ignored/,
+			setProp: false,
+			expectedWarnings: 0
+		},
+		{
+			name: "type with zero-arg getter, with setter - should not warn",
+			definition: {
+				type: String,
+				get() { return "whatever"; },
+				set (val) { return val; }
+			},
+			warning: /type value for property .* ignored/,
+			setProp: false,
+			expectedWarnings: 0
+		},
+		{
+			name: "default with zero-arg getter, no setter",
+			definition: {
+				default: "some thing",
+				get() { return "whatever"; }
+			},
+			warning: /default value for property .* ignored/,
+			setProp: false,
+			expectedWarnings: 1
+		},
+		{
+			name: "default with zero-arg getter, with setter - should not warn",
+			definition: {
+				default: "some thing",
+				get() { return "whatever"; },
+				set (val) { return val; }
+			},
+			warning: /default value for property .* ignored/,
+			setProp: false,
+			expectedWarnings: 0
+		}
+	];
+
+	testCases.forEach((testCase) => {
+		let Obj = class extends mixinObject() {
+			static get define() {
+				return {
+					prop: testCase.definition
+				};
+			}
+		};
+		let count = dev.willWarn(testCase.warning);
+
+		let o = new Obj();
+
+		if (testCase.setProp) {
+			o.prop = "a value";
+		}
+
+		assert.equal(count(), testCase.expectedWarnings, `got correct number of warnings for "${testCase.name}"`);
+	});
 });

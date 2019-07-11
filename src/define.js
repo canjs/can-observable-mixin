@@ -238,6 +238,22 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 
 	var type = definition.type;
 
+	//!steal-remove-start
+	if(process.env.NODE_ENV !== 'production') {
+		if(!definition.set && definition.get && definition.get.length === 0 && ( "default" in definition ) ) {
+			canLogDev.warn("can-define-object: default value for property " +
+					canReflect.getName(typePrototype)+"."+ prop +
+					" ignored, as its definition has a zero-argument getter and no setter");
+		}
+
+	if(!definition.set && definition.get && definition.get.length === 0 && ( definition.type && definition.type !== defaultDefinition.type ) ) {
+			canLogDev.warn("can-define-object: type value for property " +
+					canReflect.getName(typePrototype)+"."+ prop +
+					" ignored, as its definition has a zero-argument getter and no setter");
+		}
+	}
+	//!steal-remove-start
+
 	// Special case definitions that have only `type: "*"`.
 	if (type && onlyType(definition) && type === type.Any) {
 		Object_defineNamedPrototypeProperty(typePrototype, prop, {
