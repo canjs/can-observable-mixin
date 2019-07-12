@@ -580,3 +580,21 @@ QUnit.test("Properties can be deleted", function(assert) {
 	obj.bar = "test";
 	assert.equal(obj.bar, "test", "can add back");
 });
+
+QUnit.test("ownKeys only gets keys of props", function(assert) {
+	class MyType extends mixinObject() {
+		static get define() {
+			return {
+				fullName: {
+					get() {
+						return this.first + " " + this.last;
+					}
+				}
+			};
+		}
+	}
+
+	let type = new MyType({ first: "Matthew", last: "Phillips" });
+	let keys = canReflect.getOwnKeys(type);
+	assert.deepEqual(keys, ["first", "last", "fullName"]);
+});
