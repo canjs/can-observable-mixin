@@ -559,3 +559,24 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 		assert.equal(count(), testCase.expectedWarnings, `got correct number of warnings for "${testCase.name}"`);
 	});
 });
+
+QUnit.test("Properties can be deleted", function(assert) {
+	const MyObject = class extends mixinObject() {};
+
+	let obj = new MyObject({
+		foo: "foo",
+		bar: "bar",
+		qux: "qux"
+	});
+
+	canReflect.deleteKeyValue(obj, "foo");
+	assert.equal(obj.foo, undefined, "no longer exists");
+	obj.foo = "test";
+	assert.equal(obj.foo, "test", "can add back");
+
+	obj.deleteKey("bar");
+	assert.equal(obj.bar, undefined, "no longer exists");
+	assert.equal(Object.keys(obj).length, 2, "2 props now");
+	obj.bar = "test";
+	assert.equal(obj.bar, "test", "can add back");
+});

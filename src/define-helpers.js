@@ -85,6 +85,7 @@ const defineHelpers = {
 		var instanceDefines = this._instanceDefinitions;
 		if(instanceDefines && Object.prototype.hasOwnProperty.call(instanceDefines, prop) && !Object.isSealed(this)) {
 			delete instanceDefines[prop];
+			delete this[prop];
 			queues.batch.start();
 			this.dispatch({
 				type: "can.keys",
