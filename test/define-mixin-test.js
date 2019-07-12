@@ -576,6 +576,7 @@ QUnit.test("Properties can be deleted", function(assert) {
 
 	obj.deleteKey("bar");
 	assert.equal(obj.bar, undefined, "no longer exists");
+	assert.equal(Object.keys(obj).length, 2, "2 props now");
 	obj.bar = "test";
 	assert.equal(obj.bar, "test", "can add back");
 });
