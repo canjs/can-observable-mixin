@@ -164,6 +164,23 @@ module.exports = function(Type) {
 			return defineHelpers.deleteKey.call(this, ...args);
 		}
 
+		[Symbol.for("can.getOwnKeys")]() {
+			var keys = canReflect.getOwnEnumerableKeys(this);
+			if(this._computed) {
+				var computedKeys = canReflect.getOwnKeys(this._computed);
+
+				var key;
+				for (var i=0; i<computedKeys.length; i++) {
+					key = computedKeys[i];
+					if (keys.indexOf(key) < 0) {
+						keys.push(key);
+					}
+				}
+			}
+
+			return keys;
+		}
+
 		[Symbol.for("can.getOwnEnumerableKeys")]() {
 			ObservationRecorder.add(this, 'can.keys');
 			ObservationRecorder.add(Object.getPrototypeOf(this), 'can.keys');
