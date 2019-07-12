@@ -160,6 +160,10 @@ module.exports = function(Type) {
 			return getKeyValue.apply(this, args);
 		}
 
+		[Symbol.for("can.deleteKeyValue")](...args) {
+			return defineHelpers.deleteKey.call(this, ...args);
+		}
+
 		[Symbol.for("can.getOwnEnumerableKeys")]() {
 			ObservationRecorder.add(this, 'can.keys');
 			ObservationRecorder.add(Object.getPrototypeOf(this), 'can.keys');
