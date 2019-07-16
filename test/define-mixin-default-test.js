@@ -44,7 +44,7 @@ QUnit.test("Primitives can be provided as the default in the PropDefinition", fu
 	}
 
 	try {
-		person.likesChocolate = "false";
+		person.likesChocolate = "not a boolean";
 	} catch(e) {
 		assert.ok(true, "Boolean cannot be set to a non-boolean");
 	}
@@ -90,7 +90,7 @@ QUnit.test("Primitives can be provided as the default as the property value", fu
 	}
 
 	try {
-		person.likesChocolate = "false";
+		person.likesChocolate = "not a boolean";
 	} catch(e) {
 		assert.ok(true, "Boolean cannot be set to a non-boolean");
 	}
