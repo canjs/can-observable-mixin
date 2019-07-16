@@ -4,7 +4,7 @@ const canReflect = require("can-reflect");
 const supportsCustomElements = "customElements" in window;
 
 if(supportsCustomElements) {
-	QUnit.module("can-define-mixin - Proxy HTMLElement");
+	QUnit.module("can-observable-mixin - Proxy HTMLElement");
 
 	QUnit.test("Can bind on properties not defined", function(assert) {
 		const Base = mixinElement(HTMLElement);

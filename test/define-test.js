@@ -3,7 +3,7 @@ const { mixinObject } = require("./helpers");
 const { hooks } = require("../src/define");
 const canReflect = require("can-reflect");
 
-QUnit.module("can-define-mixin - define()");
+QUnit.module("can-observable-mixin - define()");
 
 QUnit.test("Can define stuff", function(assert) {
   class Faves extends mixinObject() {

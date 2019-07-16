@@ -5,7 +5,7 @@ const canReflect = require("can-reflect");
 const types = require("can-type");
 const dev = require("can-test-helpers").dev;
 
-QUnit.module("can-define-mixin - mixins(Object)");
+QUnit.module("can-observable-mixin - mixins(Object)");
 
 QUnit.test("Can define stuff", function(assert) {
 	class Faves extends mixinObject() {

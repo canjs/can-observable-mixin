@@ -5,7 +5,7 @@ const types = require("can-type");
 
 const DefineObject = mixinObject();
 
-QUnit.module("can-define-mixin - Types");
+QUnit.module("can-observable-mixin - Types");
 
 /*
 Need to support
