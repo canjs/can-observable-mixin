@@ -6,7 +6,7 @@ const ObservationRecorder = require("can-observation-recorder");
 
 const DefineObject = mixinObject();
 
-QUnit.module("can-define-mixin - Proxy Objects");
+QUnit.module("can-observable-mixin - Proxy Objects");
 
 QUnit.test("Can bind on properties not defined", function(assert) {
 	class Favorites extends DefineObject {}

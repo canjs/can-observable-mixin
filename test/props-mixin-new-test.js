@@ -33,7 +33,7 @@ QUnit.test("Calling new DefineObject does not interfere with extended types", fu
 	new DefineObject();
 
 	class Person extends DefineObject {
-		static get define() {
+		static get props() {
 			return {
 				age: 5
 			};

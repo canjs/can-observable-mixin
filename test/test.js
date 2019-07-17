@@ -1,10 +1,15 @@
-require("./define-mixin-test");
-require("./define-test");
-require("./define-types-test");
+require("./props-mixin-test");
+require("./props-test");
+require("./props-types-test");
+require("./props-mixin-default-test");
+require("./props-mixin-new-test");
+
+// can-reflect-tests
 require("./type-events-test");
-require("./define-mixin-default-test");
-require("./define-mixin-new-test");
 
 // Proxy stuff
-require("./define-mixin-proxy-object-test");
-require("./define-mixin-proxy-htmlelement-test");
+require("./props-mixin-proxy-object-test");
+require("./props-mixin-proxy-htmlelement-test");
+
+// legacy `static define = {}`
+require("./define-test");
