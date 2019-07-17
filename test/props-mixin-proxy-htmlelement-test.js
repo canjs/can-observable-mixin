@@ -90,7 +90,7 @@ if(supportsCustomElements) {
 
 		const props = { foo: "bar", baz: "bap" };
 		class Obj extends mixinElement(Object) {
-			static get define() {
+			static get props() {
 				return {
 					foo: String,
 					baz: String

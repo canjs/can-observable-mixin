@@ -1237,7 +1237,13 @@ define.hooks = {
 		let hasBeenDefined = Type.hasOwnProperty(hasBeenDefinedSymbol);
 		if(!hasBeenDefined) {
 			let prototypeObject = Type.prototype;
-			let defines = typeof Type.define === "object" ? Type.define : {};
+			// check for `static props = {}`
+			// fall back to `static define = {}` if `props` doesn't exist
+			let defines = typeof Type.props === "object" ?
+				Type.props :
+				typeof Type.define === "object" ?
+					Type.define :
+					{};
 			define(prototypeObject, defines, null, Type.propertyDefaults);
 			Type[hasBeenDefinedSymbol] = true;
 		}

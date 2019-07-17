@@ -193,7 +193,7 @@ cases.forEach(testCase => {
 		let testName = `${typeName} - ${caseName} - value (${!hasValue ? "NO VALUE" : typeof value === "string" ? `"${value}"` : value})`;
 		QUnit.test(testName, function() {
 			class MyType extends DefineObject {
-				static get define() {
+				static get props() {
 					return {
 						prop: {
 							type: types[caseDefinition.method](type),
@@ -233,7 +233,7 @@ cases.forEach(testCase => {
 
 QUnit.test("Can pass common/primitive types as the type option", function(assert) {
 	class MyThing extends DefineObject {
-		static get define() {
+		static get props() {
 			return {
 				num: Number,
 				str: String,
@@ -259,7 +259,7 @@ QUnit.test("Can pass common/primitive types as the type option", function(assert
 
 QUnit.test("Can pass common/primitive types in a property definition", function(assert) {
 	class MyThing extends DefineObject {
-		static get define() {
+		static get props() {
 			return {
 				num: Number,
 				numProp: { type: Number },
@@ -284,7 +284,7 @@ QUnit.test("types throw when value is set to a different type", function(assert)
 	class ExtendedDefineObject extends DefineObject {}
 
 	class Defined extends DefineObject {
-		static get define() {
+		static get props() {
 			return {
 				// common primitive shorthand
 				num: Number,
@@ -343,7 +343,7 @@ QUnit.test("Can pass Function as the type option", function(assert) {
 	assert.expect(3);
 
 	class MyThing extends DefineObject {
-		static get define() {
+		static get props() {
 			return {
 				func: Function
 			};
@@ -370,7 +370,7 @@ QUnit.test("Can pass Function in a property definition", function(assert) {
 	assert.expect(9);
 
 	class MyThing extends DefineObject {
-		static get define() {
+		static get props() {
 			return {
 				func: Function,
 				funcProp: { type: Function },

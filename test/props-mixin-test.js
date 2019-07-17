@@ -7,9 +7,9 @@ const dev = require("can-test-helpers").dev;
 
 QUnit.module("can-observable-mixin - mixins(Object)");
 
-QUnit.test("Can define stuff", function(assert) {
+QUnit.test("Can define properties", function(assert) {
 	class Faves extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				color: {
 					default: "blue"
@@ -24,7 +24,7 @@ QUnit.test("Can define stuff", function(assert) {
 
 QUnit.test("Changes are observed", function(assert) {
 	class Faves extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				color: {
 					default: "blue"
@@ -44,7 +44,7 @@ QUnit.test("async(resolve) resolves async values", function(assert) {
 	let done = assert.async();
 
 	class Faves extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				age: {
 					async(resolve, last = 1) {
@@ -73,7 +73,7 @@ QUnit.test("async() returning a promise resolves", function(assert) {
 	let done = assert.async();
 
 	class Faves extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				age: {
 					async(resolve, last = 1) {
@@ -100,7 +100,7 @@ QUnit.test("async() returning a promise resolves", function(assert) {
 
 QUnit.test("listenTo to listen to property changes", function(assert) {
 	class Faves extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				color: {}
 			};
@@ -117,7 +117,7 @@ QUnit.test("listenTo to listen to property changes", function(assert) {
 
 QUnit.test("value(prop) can be used to resolve a property based on others", function(assert) {
 	class Person extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				isBirthday: {
 					default: false
@@ -148,7 +148,7 @@ QUnit.test("value(prop) can be used to resolve a property based on others", func
 
 QUnit.test("getSchema returns the schema", function(assert) {
 	class Faves extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				age: {}
 			};
@@ -162,7 +162,7 @@ QUnit.test("getSchema returns the schema", function(assert) {
 QUnit.test("getSchema still works when further deriving", function(assert) {
 	class Base extends mixinObject() {}
 	class Faves extends Base {
-		static get define() {
+		static get props() {
 			return {
 				age: {}
 			};
@@ -180,7 +180,7 @@ QUnit.test("Does not throw if no define is provided", function(assert) {
 
 QUnit.test("JavaScript setters work", function(assert) {
 	class Faves extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {};
 		}
 		set color(v) { // jshint ignore:line
@@ -197,7 +197,7 @@ QUnit.test("JavaScript setters work", function(assert) {
 // It's unlikely something someone would do on purpose anyways.
 QUnit.test("Setters on the define override those on the prototype", function(assert) {
 	class Faves extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				color: {
 					enumerable: false,
@@ -225,7 +225,7 @@ QUnit.test("Setters on the define override those on the prototype", function(ass
 
 QUnit.test("set() can return a different value", function(assert) {
 	class Faves extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				color: {
 					set() {
@@ -243,7 +243,7 @@ QUnit.test("set() can return a different value", function(assert) {
 
 QUnit.test("Passing props into the constructor", function(assert) {
 	class Person extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				age: {
 					default: 1
@@ -274,7 +274,7 @@ QUnit.test("seal: false prevents the object from being sealed", function(assert)
 
 QUnit.test("enumerable: false prevents the property from being enumerable", function(assert) {
 	class Thing extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				shouldEnumerate: {
 					default: "foo"
@@ -297,7 +297,7 @@ QUnit.test("enumerable: false prevents the property from being enumerable", func
 
 QUnit.test("canReflect.hasKey works", function(assert) {
 	class Thing extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				prop: String,
 				derivedProp: {
@@ -328,7 +328,7 @@ QUnit.test("canReflect.hasKey works", function(assert) {
 QUnit.test("setters get the lastSet value", function(assert) {
 	let setLastSet;
 	class Faves extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				food: {
 					set(newValue, lastSet) {
@@ -385,7 +385,7 @@ dev.devOnlyTest("types are not called in production", function(assert) {
 	};
 
 	class Thing extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				foo: oopsType
 			};
@@ -406,7 +406,7 @@ dev.devOnlyTest("types are not called in production", function(assert) {
 
 QUnit.test("Adding expando properties on sealed objects", function(assert) {
 	class MyType extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				myProp: String
 			};
@@ -427,7 +427,7 @@ QUnit.test("Adding expando properties on sealed objects", function(assert) {
 
 QUnit.test("getters on the define object work", function(assert) {
 	class MyType extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				noun: "World",
 				get greeting() {
@@ -443,7 +443,7 @@ QUnit.test("getters on the define object work", function(assert) {
 
 QUnit.test("Error for required properties includes the function name", function(assert) {
 		class MySpecialThing extends mixinObject() {
-			static get define() {
+			static get props() {
 				return {
 					prop: { required: true }
 				};
@@ -460,7 +460,7 @@ QUnit.test("Error for required properties includes the function name", function(
 
 QUnit.test("Warn of async(resolve) is an async function", function(assert) {
 	class MyThing extends mixinObject() {
-		static get define() {
+		static get props() {
 			return  {
 				todos: {
 					async async(resolve) { // jshint ignore:line
@@ -542,7 +542,7 @@ dev.devOnlyTest("warnings are given when type or default is ignored", function(a
 
 	testCases.forEach((testCase) => {
 		let Obj = class extends mixinObject() {
-			static get define() {
+			static get props() {
 				return {
 					prop: testCase.definition
 				};
@@ -583,7 +583,7 @@ QUnit.test("Properties can be deleted", function(assert) {
 
 QUnit.test("ownKeys only gets keys of props", function(assert) {
 	class MyType extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				fullName: {
 					get() {
