@@ -1288,5 +1288,6 @@ define.hooks = {
 		}
 		//!steal-remove-end
 	},
-	expando: define.expando
+	expando: define.expando,
+	normalizeTypeDefinition: define.normalizeTypeDefinition
 };
