@@ -828,29 +828,15 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 		}
 	});
 
-	if(def.type) {
+	if (def.type) {
 		var value = def.type;
-
 		var serialize = value[serializeSymbol];
 		if(serialize) {
 			definition.serialize = function(val){
 				return serialize.call(val);
 			};
 		}
-
-		// normalize type that implements can.new
-		if(value[newSymbol]) {
-			if(value[isMemberSymbol]) {
-				definition.type = value;
-			} else {
-				definition.type = type.check(value);
-			}
-		}
-
-		// normalize type that is a built-in constructor
-		else if (canReflect.isConstructorLike(value)) {
-			definition.type = type.check(value);
-		}
+		definition.type = define.normalizeTypeDefinition(value);
 	}
 
 	var noTypeDefined = !definition.type && (!defaultDefinition.type ||
@@ -1090,6 +1076,24 @@ define.setup = function(props, sealed) {
 
 var returnFirstArg = function(arg){
 	return arg;
+};
+
+define.normalizeTypeDefinition = function normalizeTypeDefinition (value) {
+	// normalize type that implements can.new
+	if(value[newSymbol]) {
+		if(value[isMemberSymbol]) {
+			return value;
+		} else {
+			return type.check(value);
+		}
+	}
+
+	// normalize type that is a built-in constructor
+	else if (canReflect.isConstructorLike(value)) {
+		return type.check(value);
+	}
+
+	return value;
 };
 
 define.expando = function(map, prop, value) {
