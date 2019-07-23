@@ -106,7 +106,8 @@ const defineHelpers = {
 			this.set(prop, undefined);
 		}
 		return this;
-	}
+	},
+	normalizeTypeDefinition: define.normalizeTypeDefinition
 };
 
 module.exports = defineHelpers;
