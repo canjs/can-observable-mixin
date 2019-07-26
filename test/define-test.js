@@ -7,7 +7,7 @@ QUnit.module("can-observable-mixin - define()");
 
 QUnit.test("Can define stuff", function(assert) {
   class Faves extends mixinObject() {
-    static get define() {
+    static get props() {
       return {
 			color: {
 				default: "blue"
@@ -28,7 +28,7 @@ QUnit.test("Does not throw if no define is provided", function(assert) {
 
 QUnit.test("Stuff is defined in constructor for non-element classes", function(assert) {
   class Faves extends mixinObject(Object) {
-    static get define() {
+    static get props() {
       return {
 			color: {
 				default: "blue"
@@ -47,7 +47,7 @@ QUnit.test("Stuff is defined in constructor for non-element classes", function(a
 
 QUnit.test("Default strings work when they are like can-define types", function(assert) {
 	class Person extends mixinObject() {
-		static get define() {
+		static get props() {
 			return {
 				someProp: "number"
 			};
@@ -61,7 +61,7 @@ QUnit.test("Default strings work when they are like can-define types", function(
 QUnit.test("initialize can be called multiple times if Symbol is reset", function(assert) {
 	const metaSymbol = Symbol.for("can.meta");
 	class Obj extends mixinObject() {
-		static get define() {
+		static get props() {
 			return { age: Number };
 		}
 	}

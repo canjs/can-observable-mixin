@@ -4,12 +4,12 @@ const { hooks } = addDefinedProps;
 const canReflect = require("can-reflect");
 const ObservationRecorder = require("can-observation-recorder");
 
-const DefineObject = mixinObject();
+const ObservableObject = mixinObject();
 
 QUnit.module("can-observable-mixin - Proxy Objects");
 
 QUnit.test("Can bind on properties not defined", function(assert) {
-	class Favorites extends DefineObject {}
+	class Favorites extends ObservableObject {}
 
 	let faves = new Favorites();
 
@@ -21,7 +21,7 @@ QUnit.test("Can bind on properties not defined", function(assert) {
 });
 
 QUnit.test("Can listen to changes when listening to undefined props", function(assert) {
-	let map = new DefineObject();
+	let map = new ObservableObject();
 
 	ObservationRecorder.start();
 	map.first; // jshint ignore:line
@@ -32,7 +32,7 @@ QUnit.test("Can listen to changes when listening to undefined props", function(a
 });
 
 QUnit.test("Adding a property on the prototype works", function(assert) {
-	class Favorites extends DefineObject {}
+	class Favorites extends ObservableObject {}
 
 	hooks.finalizeClass(Favorites);
 	Favorites.prototype.aFunction = function() {};
@@ -45,7 +45,7 @@ QUnit.test("Adding a property on the prototype works", function(assert) {
 });
 
 QUnit.test("Symbols are not observable", function(assert) {
-	let map = new DefineObject();
+	let map = new ObservableObject();
 	let sym = Symbol.for("can.something");
 
 	ObservationRecorder.start();
@@ -64,7 +64,7 @@ QUnit.test("Symbols are not observable", function(assert) {
 });
 
 QUnit.test("Does not observe __proto__", function(assert) {
-	class Parent extends DefineObject {
+	class Parent extends ObservableObject {
 		fn() {}
 	}
 	class Child extends Parent {

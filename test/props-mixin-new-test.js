@@ -1,10 +1,10 @@
 const QUnit = require("steal-qunit");
 const { mixinObject } = require("./helpers");
 
-const DefineObject = mixinObject();
+const ObservableObject = mixinObject();
 
-QUnit.test("Calling an extended DefineObject with undefined props when sealed", function(assert) {
-	class Person extends DefineObject {
+QUnit.test("Calling an extended ObservableObject with undefined props when sealed", function(assert) {
+	class Person extends ObservableObject {
 		static get seal() { return true; }
 	}
 
@@ -16,8 +16,8 @@ QUnit.test("Calling an extended DefineObject with undefined props when sealed", 
 	}
 });
 
-QUnit.test("Calling an extended DefineObject with undefined props when unsealed", function(assert) {
-	class Person extends DefineObject {
+QUnit.test("Calling an extended ObservableObject with undefined props when unsealed", function(assert) {
+	class Person extends ObservableObject {
 		static get seal() { return false; }
 	}
 
@@ -29,10 +29,10 @@ QUnit.test("Calling an extended DefineObject with undefined props when unsealed"
 	}
 });
 
-QUnit.test("Calling new DefineObject does not interfere with extended types", function(assert) {
-	new DefineObject();
+QUnit.test("Calling new ObservableObject does not interfere with extended types", function(assert) {
+	new ObservableObject();
 
-	class Person extends DefineObject {
+	class Person extends ObservableObject {
 		static get props() {
 			return {
 				age: 5

@@ -2,12 +2,12 @@ const QUnit = require("steal-qunit");
 const { mixinObject } = require("./helpers");
 const type = require("can-type");
 
-const DefineObject = mixinObject();
+const ObservableObject = mixinObject();
 
 QUnit.test("Primitives can be provided as the default in the PropDefinition", function(assert) {
 	assert.expect(9);
 
-	class Person extends DefineObject {
+	class Person extends ObservableObject {
 		static get props() {
 			return {
 				age: {
@@ -59,7 +59,7 @@ QUnit.test("Primitives can be provided as the default in the PropDefinition", fu
 QUnit.test("Primitives can be provided as the default as the property value", function(assert) {
 	assert.expect(9);
 
-	class Person extends DefineObject {
+	class Person extends ObservableObject {
 		static get props() {
 			return {
 				age: 13,
@@ -103,7 +103,7 @@ QUnit.test("Primitives can be provided as the default as the property value", fu
 });
 
 QUnit.test("Primitives provided as the default sets the type as strict", function(assert) {
-	class Person extends DefineObject {
+	class Person extends ObservableObject {
 		static get props() {
 			return {
 				age: 13
@@ -123,11 +123,11 @@ QUnit.test("Primitives provided as the default sets the type as strict", functio
 	}
 });
 
-QUnit.test("Extended DefineObjectes can be used to set the type", function(assert) {
-	class One extends DefineObject {
+QUnit.test("Extended ObservableObjectes can be used to set the type", function(assert) {
+	class One extends ObservableObject {
 	}
 
-	class Two extends DefineObject {
+	class Two extends ObservableObject {
 		static get props() {
 			return {
 				one: One
@@ -149,7 +149,7 @@ QUnit.test("Extended DefineObjectes can be used to set the type", function(asser
 });
 
 QUnit.test("Allow a default object to be provided by using a getter", function(assert) {
-	class Thing extends DefineObject {
+	class Thing extends ObservableObject {
 		static get props() {
 			return {
 				prop: {
@@ -171,7 +171,7 @@ QUnit.test("Allow a default object to be provided by using a getter", function(a
 QUnit.test("Functions can be provided as the default in the PropDefinition", function(assert) {
 	assert.expect(3);
 
-	class Person extends DefineObject {
+	class Person extends ObservableObject {
 		static get props() {
 			return {
 				getAge: {
@@ -200,7 +200,7 @@ QUnit.test("Functions can be provided as the default in the PropDefinition", fun
 QUnit.test("Functions can be provided as the default as the property value", function(assert) {
 	assert.expect(3);
 
-	class Person extends DefineObject {
+	class Person extends ObservableObject {
 		static get props() {
 			return {
 				getAge() {
@@ -227,7 +227,7 @@ QUnit.test("Functions can be provided as the default as the property value", fun
 QUnit.test("Primitives provided as the default are not strict if there is a propertyDefaults type", function(assert) {
 	assert.expect(4);
 
-	class Person extends DefineObject {
+	class Person extends ObservableObject {
 		static get propertyDefaults() {
 			return {
 				type: type.Any
@@ -259,7 +259,7 @@ QUnit.test("Primitives provided as the default are not strict if there is a prop
 QUnit.test("Primitives provided as the default are not strict if they have a type", function(assert) {
 	assert.expect(4);
 
-	class Person extends DefineObject {
+	class Person extends ObservableObject {
 		static get props() {
 			return {
 				age: {

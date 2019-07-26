@@ -3,7 +3,7 @@ const canReflect = require("can-reflect");
 const { mixinObject } = require("./helpers");
 const types = require("can-type");
 
-const DefineObject = mixinObject();
+const ObservableObject = mixinObject();
 
 QUnit.module("can-observable-mixin - Types");
 
@@ -192,7 +192,7 @@ cases.forEach(testCase => {
 		let typeName = canReflect.getName(type);
 		let testName = `${typeName} - ${caseName} - value (${!hasValue ? "NO VALUE" : typeof value === "string" ? `"${value}"` : value})`;
 		QUnit.test(testName, function() {
-			class MyType extends DefineObject {
+			class MyType extends ObservableObject {
 				static get props() {
 					return {
 						prop: {
@@ -232,7 +232,7 @@ cases.forEach(testCase => {
 });
 
 QUnit.test("Can pass common/primitive types as the type option", function(assert) {
-	class MyThing extends DefineObject {
+	class MyThing extends ObservableObject {
 		static get props() {
 			return {
 				num: Number,
@@ -258,7 +258,7 @@ QUnit.test("Can pass common/primitive types as the type option", function(assert
 });
 
 QUnit.test("Can pass common/primitive types in a property definition", function(assert) {
-	class MyThing extends DefineObject {
+	class MyThing extends ObservableObject {
 		static get props() {
 			return {
 				num: Number,
@@ -281,9 +281,9 @@ QUnit.test("Can pass common/primitive types in a property definition", function(
 QUnit.test("types throw when value is set to a different type", function(assert) {
 	function Thing() {}
 	Thing.prototype = Object.create(Thing);
-	class ExtendedDefineObject extends DefineObject {}
+	class ExtendedObservableObject extends ObservableObject {}
 
-	class Defined extends DefineObject {
+	class Defined extends ObservableObject {
 		static get props() {
 			return {
 				// common primitive shorthand
@@ -298,12 +298,12 @@ QUnit.test("types throw when value is set to a different type", function(assert)
 				dateDefinition: { type: Date },
 				// custom type shorthand
 				thing: Thing,
-				defineObject: DefineObject,
-				extendedDefineObject: ExtendedDefineObject,
+				defineObject: ObservableObject,
+				extendedObservableObject: ExtendedObservableObject,
 				// custom type PropertyDefinition
 				thingDefinition: { type: Thing },
-				defineObjectDefinition: { type: DefineObject },
-				extendedDefineObjectDefinition: { type: ExtendedDefineObject }
+				defineObjectDefinition: { type: ObservableObject },
+				extendedObservableObjectDefinition: { type: ExtendedObservableObject }
 			};
 		}
 	}
@@ -321,10 +321,10 @@ QUnit.test("types throw when value is set to a different type", function(assert)
 		dateDefinition: now.toString(),
 		thing: {},
 		defineObject: {},
-		extendedDefineObject: {},
+		extendedObservableObject: {},
 		thingDefinition: {},
 		defineObjectDefinition: {},
-		extendedDefineObjectDefinition: {}
+		extendedObservableObjectDefinition: {}
 	};
 
 	canReflect.eachKey(testCases, function(value, prop) {
@@ -342,7 +342,7 @@ QUnit.test("types throw when value is set to a different type", function(assert)
 QUnit.test("Can pass Function as the type option", function(assert) {
 	assert.expect(3);
 
-	class MyThing extends DefineObject {
+	class MyThing extends ObservableObject {
 		static get props() {
 			return {
 				func: Function
@@ -369,7 +369,7 @@ QUnit.test("Can pass Function as the type option", function(assert) {
 QUnit.test("Can pass Function in a property definition", function(assert) {
 	assert.expect(9);
 
-	class MyThing extends DefineObject {
+	class MyThing extends ObservableObject {
 		static get props() {
 			return {
 				func: Function,
