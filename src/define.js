@@ -836,7 +836,7 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 				return serialize.call(val);
 			};
 		}
-		definition.type = define.normalizeTypeDefinition(value);
+		definition.type = type.normalize(value);
 	}
 
 	var noTypeDefined = !definition.type && (!defaultDefinition.type ||
@@ -844,11 +844,11 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 
 	if (definition.hasOwnProperty("default")) {
 		if (typeof definition.default === "function" && !definition.default.isAGetter && noTypeDefined) {
-			definition.type = type.check(Function);
+			definition.type = type.normalize(Function);
 		}
 
 		if (canReflect.isPrimitive(definition.default) && noTypeDefined) {
-			definition.type = type.check(definition.default.constructor);
+			definition.type = type.normalize(definition.default.constructor);
 		}
 	}
 
@@ -881,7 +881,7 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 			// only include type from defaultDefininition
 			// if it came from propertyDefaults
 			type: defaultDefinition.typeSetByDefault ?
-				type.check(value.constructor) :
+				type.normalize(value.constructor) :
 				defaultDefinition.type
 		};
 	}
@@ -890,12 +890,12 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 		if(value[isMemberSymbol]) {
 			definition = { type: value };
 		} else {
-			definition = { type: type.check(value) };
+			definition = { type: type.normalize(value) };
 		}
 	}
 	else if(typeof value === "function") {
 		if(canReflect.isConstructorLike(value)) {
-			definition = { type: type.check(value) };
+			definition = { type: type.normalize(value) };
 		} else {
 			definition = { default: value, type: Function };
 		}
@@ -1078,23 +1078,8 @@ var returnFirstArg = function(arg){
 	return arg;
 };
 
-define.normalizeTypeDefinition = function normalizeTypeDefinition (value) {
-	// normalize type that implements can.new
-	if(value[newSymbol]) {
-		if(value[isMemberSymbol]) {
-			return value;
-		} else {
-			return type.check(value);
-		}
-	}
-
-	// normalize type that is a built-in constructor
-	else if (canReflect.isConstructorLike(value)) {
-		return type.check(value);
-	}
-
-	return value;
-};
+// TODO Why is this exported, does it need to be?
+define.normalizeTypeDefinition = type.normalize;
 
 define.expando = function(map, prop, value) {
 	if(define._specialKeys[prop]) {
@@ -1289,5 +1274,5 @@ define.hooks = {
 		//!steal-remove-end
 	},
 	expando: define.expando,
-	normalizeTypeDefinition: define.normalizeTypeDefinition
+	normalizeTypeDefinition: type.normalize //define.normalizeTypeDefinition
 };
