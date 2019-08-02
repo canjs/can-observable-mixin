@@ -252,7 +252,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 					" ignored, as its definition has a zero-argument getter and no setter");
 		}
 	}
-	//!steal-remove-start
+	//!steal-remove-end
 
 	// Special case definitions that have only `type: "*"`.
 	if (type && onlyType(definition) && type === type.Any) {
