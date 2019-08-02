@@ -84,7 +84,7 @@ QUnit.test("Does not observe __proto__", function(assert) {
 });
 
 QUnit.test("Self-referential typing", function(assert) {
-	class Faves extends DefineObject {
+	class Faves extends ObservableObject {
 		static get define() {
 			return {
 				faves: type.late(() => type.convert(Faves))
