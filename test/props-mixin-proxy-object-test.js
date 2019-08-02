@@ -3,6 +3,7 @@ const addDefinedProps = require("../src/define");
 const { hooks } = addDefinedProps;
 const canReflect = require("can-reflect");
 const ObservationRecorder = require("can-observation-recorder");
+const type = require("can-type");
 
 const ObservableObject = mixinObject();
 
@@ -80,4 +81,21 @@ QUnit.test("Does not observe __proto__", function(assert) {
 	let records = ObservationRecorder.stop();
 	let deps = Array.from(records.keyDependencies);
 	assert.equal(deps.length, 0, "Nothing recorded just by calling super.fn()");
+});
+
+QUnit.test("Self-referential typing", function(assert) {
+	class Faves extends DefineObject {
+		static get define() {
+			return {
+				faves: type.late(() => type.convert(Faves))
+			};
+		}
+	}
+
+	let faves = new Faves({
+		faves: {}
+	});
+
+	assert.ok(faves instanceof Faves);
+	assert.ok(faves.faves instanceof Faves);
 });
