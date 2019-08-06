@@ -374,36 +374,6 @@ QUnit.test("propertyDefaults runs on expando properties", function(assert) {
 	assert.deepEqual(p.age, 32, "Converted because of defaults");
 });
 
-dev.devOnlyTest("types are not called in production", function(assert) {
-	let actualEnv = process.env.NODE_ENV;
-	process.env.NODE_ENV = "production";
-
-	let oopsType = {
-		[Symbol.for("can.new")]() {
-			throw new Error("Dont run me");
-		}
-	};
-
-	class Thing extends mixinObject() {
-		static get props() {
-			return {
-				foo: oopsType
-			};
-		}
-	}
-
-	let t = new Thing();
-
-	try {
-		t.foo = "bar";
-		assert.ok(true, "Did not run the type checker");
-	} catch(e) {
-		assert.ok(false, "Should not have run the type");
-	} finally {
-		process.env.NODE_ENV = actualEnv;
-	}
-});
-
 QUnit.test("Adding expando properties on sealed objects", function(assert) {
 	class MyType extends mixinObject() {
 		static get props() {
