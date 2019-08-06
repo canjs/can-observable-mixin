@@ -374,7 +374,7 @@ QUnit.test("propertyDefaults runs on expando properties", function(assert) {
 	assert.deepEqual(p.age, 32, "Converted because of defaults");
 });
 
-QUnit.test("Adding expando properties on sealed objects", function(assert) {
+dev.devOnlyTest("Adding expando properties on sealed objects", function(assert) {
 	class MyType extends mixinObject() {
 		static get props() {
 			return {
