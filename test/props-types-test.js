@@ -2,6 +2,7 @@ const QUnit = require("steal-qunit");
 const canReflect = require("can-reflect");
 const { mixinObject } = require("./helpers");
 const types = require("can-type");
+const dev = require("can-test-helpers").dev;
 
 const ObservableObject = mixinObject();
 
@@ -70,28 +71,6 @@ const shouldHaveThrownBecauseRequired = notOk.bind(null, "Should have thrown bec
 const shouldNotThrowBecauseShouldConvert = notOk.bind(null, "This should not have thrown, should have converted");
 
 let matrix = {
-	checkNoMaybeNotRequired: {
-		method: "check",
-		check: strictEqual,
-		throws: throwsBecauseOfWrongType
-	},
-	checkNoMaybeRequired: {
-		method: "check",
-		required: true,
-		check: strictEqual,
-		throws: throwsBecauseOfWrongType
-	},
-	maybeNotRequired: {
-		method: "maybe",
-		check: strictEqual,
-		throws: throwsBecauseOfWrongType
-	},
-	maybeRequired: {
-		method: "maybe",
-		required: true,
-		check: strictEqual,
-		throws: throwsBecauseOfWrongType
-	},
 	maybeConvertNotRequired: {
 		method: "maybeConvert",
 		check: equal,
@@ -115,6 +94,33 @@ let matrix = {
 		throws: shouldNotThrowBecauseShouldConvert
 	}
 };
+
+if (process.env.NODE_ENV !== "production") {
+	canReflect.assignMap(matrix, {
+		checkNoMaybeNotRequired: {
+			method: "check",
+			check: strictEqual,
+			throws: throwsBecauseOfWrongType
+		},
+		checkNoMaybeRequired: {
+			method: "check",
+			required: true,
+			check: strictEqual,
+			throws: throwsBecauseOfWrongType
+		},
+		maybeNotRequired: {
+			method: "maybe",
+			check: strictEqual,
+			throws: throwsBecauseOfWrongType
+		},
+		maybeRequired: {
+			method: "maybe",
+			required: true,
+			check: strictEqual,
+			throws: throwsBecauseOfWrongType
+		}
+	});
+}
 
 let checkIsNaN = {
 	check: isNaN
@@ -278,7 +284,7 @@ QUnit.test("Can pass common/primitive types in a property definition", function(
 	assert.strictEqual(thing.numPropWithDefault, 33, "{ type: Number, default: <number> } works");
 });
 
-QUnit.test("types throw when value is set to a different type", function(assert) {
+dev.devOnlyTest("types throw when value is set to a different type", function(assert) {
 	function Thing() {}
 	Thing.prototype = Object.create(Thing);
 	class ExtendedObservableObject extends ObservableObject {}
@@ -340,7 +346,7 @@ QUnit.test("types throw when value is set to a different type", function(assert)
 });
 
 QUnit.test("Can pass Function as the type option", function(assert) {
-	assert.expect(3);
+	assert.expect(2);
 
 	class MyThing extends ObservableObject {
 		static get props() {
@@ -358,6 +364,22 @@ QUnit.test("Can pass Function as the type option", function(assert) {
 
 	thing.func = function() { return 30; };
 	assert.equal(thing.func(), 30, "function can be overwritten");
+});
+
+dev.devOnlyTest("Function as the type option type checks", function(assert) {
+	assert.expect(1);
+
+	class MyThing extends ObservableObject {
+		static get props() {
+			return {
+				func: Function
+			};
+		}
+	}
+
+	let thing = new MyThing({
+		func: function() { return 33; }
+	});
 
 	try {
 		thing.func = 50;
@@ -367,7 +389,7 @@ QUnit.test("Can pass Function as the type option", function(assert) {
 });
 
 QUnit.test("Can pass Function in a property definition", function(assert) {
-	assert.expect(9);
+	assert.expect(6);
 
 	class MyThing extends ObservableObject {
 		static get props() {
@@ -395,6 +417,25 @@ QUnit.test("Can pass Function in a property definition", function(assert) {
 	assert.strictEqual(thing.func(), 30, "prop: Function can be overwritten");
 	assert.strictEqual(thing.funcProp(), 30, "{ type: Function } can be overwritten");
 	assert.strictEqual(thing.funcPropWithDefault(), 30, "{ type: Function, default: <Function> } can be overwritten");
+});
+
+dev.devOnlyTest("Function in a property definition type checks", function(assert) {
+	assert.expect(3);
+
+	class MyThing extends ObservableObject {
+		static get props() {
+			return {
+				func: Function,
+				funcProp: { type: Function },
+				funcPropWithDefault: { type: Function, default() { return 33; } }
+			};
+		}
+	}
+
+	let thing = new MyThing({
+		func: function() { return 33; },
+		funcProp: function() { return 33; }
+	});
 
 	try {
 		thing.func = 50;

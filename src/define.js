@@ -665,16 +665,9 @@ make = {
 				if(type.canDefineType) {
 					return setter;
 				} else {
-					if(process.env.NODE_ENV !== 'production') {
-						return function setter(newValue){
-							return set.call(this, canReflect.convert(newValue, type));
-						};
-					} else {
-						// Prod mode, just set the value.
-						return function setter(newValue) {
-							return set.call(this, newValue);
-						};
-					}
+					return function setter(newValue){
+						return set.call(this, canReflect.convert(newValue, type));
+					};
 				}
 			}
 			return setter;
