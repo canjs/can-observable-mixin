@@ -1,11 +1,12 @@
 const QUnit = require("steal-qunit");
 const { mixinObject } = require("./helpers");
 const type = require("can-type");
+const dev = require("can-test-helpers").dev;
 
 const DefineObject = mixinObject();
 
 QUnit.test("Primitives can be provided as the default in the PropDefinition", function(assert) {
-	assert.expect(9);
+	assert.expect(6);
 
 	class Person extends DefineObject {
 		static get props() {
@@ -36,6 +37,28 @@ QUnit.test("Primitives can be provided as the default in the PropDefinition", fu
 	assert.equal(person.age, 30, "Number can be set to another number");
 	assert.equal(person.likesChocolate, true, "Boolean can be set to another boolean");
 	assert.equal(person.favoriteColor, "red", "Strings can be set to another string");
+});
+
+dev.devOnlyTest("Primitives can be provided as the default in the PropDefinition should type check", function(assert) {
+	assert.expect(3);
+
+	class Person extends DefineObject {
+		static get props() {
+			return {
+				age: {
+					default: 13
+				},
+				likesChocolate: {
+					default: false
+				},
+				favoriteColor: {
+					default: "green"
+				}
+			};
+		}
+	}
+
+	let person = new Person();
 
 	try {
 		person.age = "50";
@@ -57,7 +80,7 @@ QUnit.test("Primitives can be provided as the default in the PropDefinition", fu
 });
 
 QUnit.test("Primitives can be provided as the default as the property value", function(assert) {
-	assert.expect(9);
+	assert.expect(6);
 
 	class Person extends DefineObject {
 		static get props() {
@@ -82,6 +105,22 @@ QUnit.test("Primitives can be provided as the default as the property value", fu
 	assert.equal(person.age, 30, "Number can be set to another number");
 	assert.equal(person.likesChocolate, true, "Boolean can be set to another boolean");
 	assert.equal(person.favoriteColor, "red", "Strings can be set to another string");
+});
+
+dev.devOnlyTest("Primitives can be provided as the default as the property value should type check", function(assert) {
+	assert.expect(3);
+
+	class Person extends DefineObject {
+		static get props() {
+			return {
+				age: 13,
+				likesChocolate: false,
+				favoriteColor: "green"
+			};
+		}
+	}
+
+	let person = new Person();
 
 	try {
 		person.age = "50";
@@ -102,7 +141,7 @@ QUnit.test("Primitives can be provided as the default as the property value", fu
 	}
 });
 
-QUnit.test("Primitives provided as the default sets the type as strict", function(assert) {
+dev.devOnlyTest("Primitives provided as the default sets the type as strict", function(assert) {
 	class Person extends DefineObject {
 		static get props() {
 			return {
@@ -123,7 +162,7 @@ QUnit.test("Primitives provided as the default sets the type as strict", functio
 	}
 });
 
-QUnit.test("Extended DefineObjectes can be used to set the type", function(assert) {
+QUnit.test("Extended DefineObjects can be used to set the type", function(assert) {
 	class One extends DefineObject {
 	}
 
@@ -140,11 +179,13 @@ QUnit.test("Extended DefineObjectes can be used to set the type", function(asser
 
 	assert.equal(two.one, one, "Able to pass the instance");
 
-	try {
-		new Two({ one: {} });
-		assert.ok(false, "Should have thrown");
-	} catch(e) {
-		assert.ok(true, "Throws because it is a strict type");
+	if(process.env.NODE_ENV !== "production") {
+		try {
+			new Two({ one: {} });
+			assert.ok(false, "Should have thrown");
+		} catch(e) {
+			assert.ok(true, "Throws because it is a strict type");
+		}
 	}
 });
 
@@ -169,7 +210,7 @@ QUnit.test("Allow a default object to be provided by using a getter", function(a
 });
 
 QUnit.test("Functions can be provided as the default in the PropDefinition", function(assert) {
-	assert.expect(3);
+	assert.expect(2);
 
 	class Person extends DefineObject {
 		static get props() {
@@ -189,6 +230,24 @@ QUnit.test("Functions can be provided as the default in the PropDefinition", fun
 
 	person.getAge = function() { return 30; };
 	assert.equal(person.getAge(), 30, "function can be overwritten");
+});
+
+dev.devOnlyTest("Functions provided as the default in the PropDefinition should type check", function(assert) {
+	assert.expect(1);
+
+	class Person extends DefineObject {
+		static get props() {
+			return {
+				getAge: {
+					default() {
+						return 13;
+					}
+				}
+			};
+		}
+	}
+
+	let person = new Person();
 
 	try {
 		person.getAge = 50;
@@ -198,7 +257,7 @@ QUnit.test("Functions can be provided as the default in the PropDefinition", fun
 });
 
 QUnit.test("Functions can be provided as the default as the property value", function(assert) {
-	assert.expect(3);
+	assert.expect(2);
 
 	class Person extends DefineObject {
 		static get props() {
@@ -216,6 +275,22 @@ QUnit.test("Functions can be provided as the default as the property value", fun
 
 	person.getAge = function() { return 30; };
 	assert.equal(person.getAge(), 30, "function can be overwritten");
+});
+
+dev.devOnlyTest("Functions provided as the default as the property value should type check", function(assert) {
+	assert.expect(1);
+
+	class Person extends DefineObject {
+		static get props() {
+			return {
+				getAge() {
+					return 13;
+				}
+			};
+		}
+	}
+
+	let person = new Person();
 
 	try {
 		person.getAge = 50;
