@@ -88,6 +88,7 @@ const defineHelpers = {
 			delete this[prop];
 			queues.batch.start();
 			this.dispatch({
+				action: "can.keys",
 				type: "can.keys",
 				target: this
 			});
@@ -96,6 +97,9 @@ const defineHelpers = {
 				delete this._data[prop];
 				//delete this[prop];
 				this.dispatch({
+					action: "delete",
+					key: prop,
+					oldValue: oldValue,
 					type: prop,
 					target: this,
 					patches: [{type: "delete", key: prop}],

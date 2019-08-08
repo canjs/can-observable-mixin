@@ -99,3 +99,64 @@ QUnit.test("Self-referential typing", function(assert) {
 	assert.ok(faves instanceof Faves);
 	assert.ok(faves.faves instanceof Faves);
 });
+
+QUnit.test("oldValue and value are on event object", function(assert) {
+	assert.expect(2);
+
+	class Faves extends ObservableObject {
+		static get props() {
+			return {
+				prop: String
+			};
+		}
+	}
+
+	let faves = new Faves({ prop: "value" });
+
+	faves.listenTo("prop", (ev) => {
+		assert.equal(ev.value, "value2", "has the new value");
+		assert.equal(ev.oldValue, "value", "has the old value");
+	});
+
+	faves.prop = "value2";
+});
+
+QUnit.test("deleteKey includes the oldValue", function(assert) {
+	assert.expect(1);
+
+	class Faves extends ObservableObject {
+		static get props() {
+			return {
+				prop: type.Any
+			};
+		}
+	}
+
+	let faves = new Faves({ prop: "value" });
+	faves.listenTo("prop", ev => {
+		assert.equal(ev.oldValue, "value", "includes the old value");
+	});
+	faves.deleteKey("prop");
+});
+
+QUnit.test("Changes in getters includes the old and new values", function(assert) {
+	class Faves extends ObservableObject {
+		static get props() {
+			return {
+				one: String,
+				two: {
+					get() {
+						return this.one;
+					}
+				}
+			};
+		}
+	}
+
+	let faves = new Faves({ one: "one" });
+	faves.listenTo("one", ev => {
+		assert.equal(ev.value, "two", "has the new value");
+		assert.equal(ev.oldValue, "one", "Has the old value");
+	});
+	faves.one = "two";
+});

@@ -412,6 +412,7 @@ define.makeDefineInstanceKey = function(constructor) {
 		}
 
 		this.prototype.dispatch({
+			action: "can.keys",
 			type: "can.keys",
 			target: this.prototype
 		});
@@ -448,6 +449,10 @@ make = {
 				computeObj.oldValue = newVal;
 
 				map.dispatch({
+					action: "prop",
+					key: prop,
+					value: newVal,
+					oldValue: oldValue,
 					type: prop,
 					target: map
 				}, [newVal, oldValue]);
@@ -525,6 +530,10 @@ make = {
 
 						dispatched = {
 							patches: [{type: "set", key: prop, value: newVal}],
+							action: "prop",
+							key: prop,
+							value: newVal,
+							oldValue: current,
 							type: prop,
 							target: this
 						};
@@ -548,6 +557,10 @@ make = {
 				if (newVal !== current) {
 					var dispatched = {
 						patches: [{type: "set", key: prop, value: newVal}],
+						action: "prop",
+						key: prop,
+						value: newVal,
+						oldValue: current,
 						type: prop,
 						target: map
 					};
@@ -1113,18 +1126,24 @@ define.expando = function(map, prop, value) {
 		if(!map[inSetupSymbol]) {
 			queues.batch.start();
 			map.dispatch({
+				action: "can.keys",
 				type: "can.keys",
 				target: map
 			});
 			if(Object.prototype.hasOwnProperty.call(map._data, prop)) {
 				map.dispatch({
+					action: "add",
+					key: prop,
 					type: prop,
+					value: map._data[prop],
 					target: map,
 					patches: [{type: "add", key: prop, value: map._data[prop]}],
 				},[map._data[prop], undefined]);
 			} else {
 				map.dispatch({
+					action: "set",
 					type: "set",
+					value: map._data[prop],
 					target: map,
 					patches: [{type: "add", key: prop, value: map._data[prop]}],
 				},[map._data[prop], undefined]);
