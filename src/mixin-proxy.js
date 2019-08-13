@@ -1,8 +1,11 @@
 const defineBehavior = require("./define");
 const ObservationRecorder = require("can-observation-recorder");
+const canSymbol = require( "can-symbol" );
 
 const eventDispatcher = defineBehavior.make.set.eventDispatcher;
-const inSetupSymbol = Symbol.for("can.initializing");
+const inSetupSymbol = canSymbol.for("can.initializing");
+
+const canLogDev = require("can-log/dev/dev");
 
 // A bug in Safari means that __proto__ key is sent. This causes problems
 // When addEventListener is called on a non-element.
@@ -22,10 +25,24 @@ let isProtoReadOnSuper = false;
 	}
 })();
 
+let wasLogged = false;
+function logNotSupported() {
+	if (!wasLogged && (typeof Proxy !== "function")) {
+		wasLogged = true;
+		canLogDev.warn("can-observable-mixin/mixin-proxy requires ES Proxies which are not supported by your JS runtime.");
+	}
+}
+
 function proxyPrototype(Base) {
 	const instances = new WeakSet();
 
 	function LateDefined() {
+		//!steal-remove-start
+		if(process.env.NODE_ENV !== "production") {
+			logNotSupported();
+		}
+		//!steal-remove-end
+		
 		let inst = Reflect.construct(Base, arguments, new.target);
 		instances.add(inst);
 		return inst;
@@ -70,7 +87,10 @@ function proxyPrototype(Base) {
 		}
 	};
 
-	LateDefined.prototype = new Proxy(underlyingPrototypeObject, proxyHandlers);
+	LateDefined.prototype = (typeof Proxy === "function")
+		? new Proxy(underlyingPrototypeObject, proxyHandlers)
+		: underlyingPrototypeObject;
+
 	return LateDefined;
 }
 
