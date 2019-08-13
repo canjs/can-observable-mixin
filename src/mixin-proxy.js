@@ -87,9 +87,7 @@ function proxyPrototype(Base) {
 		}
 	};
 
-	LateDefined.prototype = (typeof Proxy === "function")
-		? new Proxy(underlyingPrototypeObject, proxyHandlers)
-		: underlyingPrototypeObject;
+	LateDefined.prototype = (typeof Proxy === "function") ? new Proxy(underlyingPrototypeObject, proxyHandlers) : underlyingPrototypeObject;
 
 	return LateDefined;
 }
