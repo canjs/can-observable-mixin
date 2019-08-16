@@ -23,6 +23,7 @@
     "can-reflect": "^1.17.9",
     "can-simple-observable": "^2.4.1",
     "can-string-to-any": "^1.2.0",
+    "can-symbol": "^1.6.0",
     "can-type": "^0.1.13"
   },
   "devDependencies": {
