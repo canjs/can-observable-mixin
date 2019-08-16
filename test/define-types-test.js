@@ -313,11 +313,11 @@ QUnit.test("types throw when value is set to a different type", function(assert)
 	const testCases = {
 		num: "33",
 		str: 33,
-		bool: "false",
+		bool: "not a boolean",
 		date: now.toString(),
 		numDefinition: "33",
 		strDefinition: 33,
-		boolDefinition: "false",
+		boolDefinition: "not a boolean",
 		dateDefinition: now.toString(),
 		thing: {},
 		defineObject: {},
