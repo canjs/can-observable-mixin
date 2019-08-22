@@ -190,6 +190,10 @@ module.exports = function(Type) {
 			return defineHelpers.reflectSerialize.apply(this, args);
 		}
 
+		[Symbol.for("can.unwrap")](...args) {
+			return defineHelpers.reflectUnwrap.apply(this, args);
+		}
+
 		[Symbol.for("can.hasKey")](key) {
 			return (key in this._define.definitions) || (this._instanceDefinitions !== undefined && key in this._instanceDefinitions);
 		}

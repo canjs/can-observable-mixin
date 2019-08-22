@@ -147,3 +147,18 @@ QUnit.test("should not serialize properties using value and get behaviors unless
 	let expected = { prop: "b", propGetter: "b", propValue: "b", propAsync: "b" };
 	assert.deepEqual(obj.serialize(), expected, "all props are serialized");
 });
+
+QUnit.test("should implement can.unwrap", function(assert) {
+	class Obj extends mixinObject() {
+		static get props() {
+			return {
+				definedValue: String,
+				undefinedValue: String
+			};
+		}
+	}
+
+	const obj = new Obj({ definedValue: "a" });
+
+	assert.deepEqual(canReflect.unwrap(obj), { definedValue: "a" }, "undefined props are not returned by unwrap");
+});
