@@ -227,6 +227,13 @@ var callAsync = function(fn) {
 
 define.extensions = function () {};
 
+define.isEnumerable = function(definition) {
+	return typeof definition !== "object" ||
+		("serialize" in definition ?
+			!!definition.serialize :
+			(!definition.get && !definition.async && !definition.value));
+};
+
 // typePrototype - the prototype of the type we are defining `prop` on.
 // `definition` - the user provided definition
 define.property = function(typePrototype, prop, definition, dataInitializers, computedInitializers, defaultDefinition) {
@@ -389,7 +396,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	Object_defineNamedPrototypeProperty(typePrototype, prop, {
 		get: getter,
 		set: setter,
-		enumerable: "serialize" in definition ? !!definition.serialize : !definition.get,
+		enumerable: define.isEnumerable(definition),
 		configurable: true
 	});
 };
