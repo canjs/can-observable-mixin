@@ -1,7 +1,7 @@
 {
   "name": "can-observable-mixin",
   "description": "Define properties on JavaScript classes",
-  "version": "1.0.0-pre.6",
+  "version": "1.0.0-pre.7",
   "author": {
     "name": "Bitovi",
     "email": "contact@bitovi.com",
