@@ -88,3 +88,62 @@ QUnit.test("defineInstanceKey does not add to the base prototype", function(asse
 	let desc = Object.getOwnPropertyDescriptor(Base.prototype, "_saving");
 	assert.ok(!desc, "There is no descriptor on the Base class");
 });
+
+QUnit.test("should not serialize properties using value and get behaviors unless they are `enumerable: true`", function(assert) {
+	const props = {
+		prop: String,
+		propValue: {
+			value({ listenTo, resolve }) {
+				listenTo("prop", ({ value }) => resolve(value));
+			}
+		},
+		propGetter: {
+			get() {
+				return this.prop;
+			}
+		},
+		propAsync: {
+			async(resolve) {
+				resolve(this.prop);
+			}
+		}
+	};
+
+	class Obj extends mixinObject() {
+		static get props() {
+			return props;
+		}
+	}
+
+	let obj = new Obj();
+	obj.listenTo("propValue", () => {});
+	obj.listenTo("propGetter", () => {});
+	obj.listenTo("propAsync", () => {});
+
+	assert.deepEqual(obj.serialize(), {}, "{} by default");
+
+	obj.prop = "a";
+	assert.deepEqual(obj.serialize(), { prop: "a" }, "only prop is serialized");
+
+	// make props enumerable
+	props.propValue.enumerable = true;
+	props.propGetter.enumerable = true;
+	props.propAsync.enumerable = true;
+
+	class EnumerableObj extends mixinObject() {
+		static get props() {
+			return props;
+		}
+	}
+
+	obj = new EnumerableObj();
+	obj.listenTo("propValue", () => {});
+	obj.listenTo("propGetter", () => {});
+	obj.listenTo("propAsync", () => {});
+
+	assert.deepEqual(obj.serialize(), {}, "{} by default");
+
+	obj.prop = "b";
+	let expected = { prop: "b", propGetter: "b", propValue: "b", propAsync: "b" };
+	assert.deepEqual(obj.serialize(), expected, "all props are serialized");
+});
