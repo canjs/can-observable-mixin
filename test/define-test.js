@@ -162,3 +162,29 @@ QUnit.test("should implement can.unwrap", function(assert) {
 
 	assert.deepEqual(canReflect.unwrap(obj), { definedValue: "a" }, "undefined props are not returned by unwrap");
 });
+
+QUnit.test("properties using value behavior reset when unbound", function(assert) {
+	class Obj extends mixinObject() {
+		static get props() {
+			return {
+				prop: String,
+				derivedProp: {
+					value({ listenTo, resolve }) {
+						listenTo("prop", ({ value }) => resolve(value));
+					}
+				}
+			};
+		}
+	}
+	let obj = new Obj();
+
+	obj.listenTo("derivedProp", () => {});
+
+	obj.prop = "a value";
+
+	assert.equal(obj.derivedProp, "a value", "value set");
+
+	obj.stopListening();
+
+	assert.equal(obj.derivedProp, undefined, "value reset");
+});
