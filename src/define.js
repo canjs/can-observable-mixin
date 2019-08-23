@@ -472,7 +472,9 @@ make = {
 		return function(){
 			var map = this;
 			var defaultValue = getDefault.call(this);
-			var computeObj = make.computeObj(map, prop, new ResolverObservable(definition.value, map, defaultValue));
+			var computeObj = make.computeObj(map, prop, new ResolverObservable(definition.value, map, defaultValue, {
+				resetUnboundValueInGet: true
+			}));
 			//!steal-remove-start
 			if(process.env.NODE_ENV !== 'production') {
 				Object.defineProperty(computeObj.handler, "name", {
