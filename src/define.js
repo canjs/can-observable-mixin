@@ -580,7 +580,7 @@ make = {
 					}
 					//!steal-remove-end
 
-					map.dispatch(dispatched, [newVal, current]);
+					eventQueue.dispatch.call(map, dispatched, [newVal, current]);
 				}
 			}
 		},
