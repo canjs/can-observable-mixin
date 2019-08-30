@@ -22,7 +22,7 @@ QUnit.test("ObservableObject has onEvent", function(assert){
 	class Type extends mixinObject() {}
 
 	assert.notOk( canReflect.isBound(Type), "not bound");
-	canReflect.onEvent(Type, "created", function(event){
+	canReflect.onEvent(Type, "created", function(){
 		assert.ok( true, "event occured");
 	});
 	assert.ok( canReflect.isBound(Type), "bound");
