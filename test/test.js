@@ -1,3 +1,4 @@
+require("./create-constructor-function-test");
 require("./props-mixin-test");
 require("./props-test");
 require("./props-types-test");
