@@ -5,12 +5,12 @@ const canReflect = require("can-reflect");
 const ObservationRecorder = require("can-observation-recorder");
 const type = require("can-type");
 
-const DefineObject = mixinObject();
+const ObservableObject = mixinObject();
 
 QUnit.module("can-observable-mixin - Proxy Objects");
 
 QUnit.test("Can bind on properties not defined", function(assert) {
-	class Favorites extends DefineObject {}
+	class Favorites extends ObservableObject {}
 
 	let faves = new Favorites();
 
@@ -22,7 +22,7 @@ QUnit.test("Can bind on properties not defined", function(assert) {
 });
 
 QUnit.test("Can listen to changes when listening to undefined props", function(assert) {
-	let map = new DefineObject();
+	let map = new ObservableObject();
 
 	ObservationRecorder.start();
 	map.first; // jshint ignore:line
@@ -33,7 +33,7 @@ QUnit.test("Can listen to changes when listening to undefined props", function(a
 });
 
 QUnit.test("Adding a property on the prototype works", function(assert) {
-	class Favorites extends DefineObject {}
+	class Favorites extends ObservableObject {}
 
 	hooks.finalizeClass(Favorites);
 	Favorites.prototype.aFunction = function() {};
@@ -46,7 +46,7 @@ QUnit.test("Adding a property on the prototype works", function(assert) {
 });
 
 QUnit.test("Symbols are not observable", function(assert) {
-	let map = new DefineObject();
+	let map = new ObservableObject();
 	let sym = Symbol.for("can.something");
 
 	ObservationRecorder.start();
@@ -65,7 +65,7 @@ QUnit.test("Symbols are not observable", function(assert) {
 });
 
 QUnit.test("Does not observe __proto__", function(assert) {
-	class Parent extends DefineObject {
+	class Parent extends ObservableObject {
 		fn() {}
 	}
 	class Child extends Parent {
@@ -84,7 +84,7 @@ QUnit.test("Does not observe __proto__", function(assert) {
 });
 
 QUnit.test("Self-referential typing", function(assert) {
-	class Faves extends DefineObject {
+	class Faves extends ObservableObject {
 		static get define() {
 			return {
 				faves: type.late(() => type.convert(Faves))
@@ -98,4 +98,65 @@ QUnit.test("Self-referential typing", function(assert) {
 
 	assert.ok(faves instanceof Faves);
 	assert.ok(faves.faves instanceof Faves);
+});
+
+QUnit.test("oldValue and value are on event object", function(assert) {
+	assert.expect(2);
+
+	class Faves extends ObservableObject {
+		static get props() {
+			return {
+				prop: String
+			};
+		}
+	}
+
+	let faves = new Faves({ prop: "value" });
+
+	faves.listenTo("prop", (ev) => {
+		assert.equal(ev.value, "value2", "has the new value");
+		assert.equal(ev.oldValue, "value", "has the old value");
+	});
+
+	faves.prop = "value2";
+});
+
+QUnit.test("deleteKey includes the oldValue", function(assert) {
+	assert.expect(1);
+
+	class Faves extends ObservableObject {
+		static get props() {
+			return {
+				prop: type.Any
+			};
+		}
+	}
+
+	let faves = new Faves({ prop: "value" });
+	faves.listenTo("prop", ev => {
+		assert.equal(ev.oldValue, "value", "includes the old value");
+	});
+	faves.deleteKey("prop");
+});
+
+QUnit.test("Changes in getters includes the old and new values", function(assert) {
+	class Faves extends ObservableObject {
+		static get props() {
+			return {
+				one: String,
+				two: {
+					get() {
+						return this.one;
+					}
+				}
+			};
+		}
+	}
+
+	let faves = new Faves({ one: "one" });
+	faves.listenTo("one", ev => {
+		assert.equal(ev.value, "two", "has the new value");
+		assert.equal(ev.oldValue, "one", "Has the old value");
+	});
+	faves.one = "two";
 });

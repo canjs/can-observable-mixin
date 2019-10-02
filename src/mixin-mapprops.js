@@ -1,5 +1,5 @@
 const addDefinedProps = require("./define");
-const { updateSchemaKeys, hooks } = addDefinedProps;
+const { updateSchemaKeys, hooks, isEnumerable } = addDefinedProps;
 
 const defineHelpers = require("./define-helpers");
 const ObservationRecorder = require("can-observation-recorder");
@@ -10,10 +10,9 @@ const queues = require("can-queues");
 const getSchemaSymbol = Symbol.for("can.getSchema");
 
 function keysForDefinition(definitions) {
-	var keys = [];
-	for(var prop in definitions) {
-		var definition = definitions[prop];
-		if(typeof definition !== "object" || ("serialize" in definition ? !!definition.serialize : !definition.get)) {
+	const keys = [];
+	for(let prop in definitions) {
+		if(isEnumerable(definitions[prop])) {
 			keys.push(prop);
 		}
 	}
@@ -189,6 +188,10 @@ module.exports = function(Type) {
 
 		[Symbol.for("can.serialize")](...args) {
 			return defineHelpers.reflectSerialize.apply(this, args);
+		}
+
+		[Symbol.for("can.unwrap")](...args) {
+			return defineHelpers.reflectUnwrap.apply(this, args);
 		}
 
 		[Symbol.for("can.hasKey")](key) {

@@ -227,6 +227,13 @@ var callAsync = function(fn) {
 
 define.extensions = function () {};
 
+define.isEnumerable = function(definition) {
+	return typeof definition !== "object" ||
+		("serialize" in definition ?
+			!!definition.serialize :
+			(!definition.get && !definition.async && !definition.value));
+};
+
 // typePrototype - the prototype of the type we are defining `prop` on.
 // `definition` - the user provided definition
 define.property = function(typePrototype, prop, definition, dataInitializers, computedInitializers, defaultDefinition) {
@@ -241,13 +248,13 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	//!steal-remove-start
 	if(process.env.NODE_ENV !== 'production') {
 		if(!definition.set && definition.get && definition.get.length === 0 && ( "default" in definition ) ) {
-			canLogDev.warn("can-define-object: default value for property " +
+			canLogDev.warn("can-observable-object: default value for property " +
 					canReflect.getName(typePrototype)+"."+ prop +
 					" ignored, as its definition has a zero-argument getter and no setter");
 		}
 
 	if(!definition.set && definition.get && definition.get.length === 0 && ( definition.type && definition.type !== defaultDefinition.type ) ) {
-			canLogDev.warn("can-define-object: type value for property " +
+			canLogDev.warn("can-observable-object: type value for property " +
 					canReflect.getName(typePrototype)+"."+ prop +
 					" ignored, as its definition has a zero-argument getter and no setter");
 		}
@@ -324,11 +331,11 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 		if (process.env.NODE_ENV !== 'production') {
 			// If value is an object or array, give a warning
 			if (definition.default !== null && typeof definition.default === 'object') {
-				canLogDev.warn("can-define-object: The default value for " + canReflect.getName(typePrototype)+"."+prop + " is set to an object. This will be shared by all instances of the DefineMap. Use a function that returns the object instead.");
+				canLogDev.warn("can-observable-object: The default value for " + canReflect.getName(typePrototype)+"."+prop + " is set to an object. This will be shared by all instances of the DefineMap. Use a function that returns the object instead.");
 			}
 			// If value is a constructor, give a warning
 			if (definition.default && canReflect.isConstructorLike(definition.default)) {
-				canLogDev.warn("can-define-object: The \"default\" for " + canReflect.getName(typePrototype)+"."+prop + " is set to a constructor. Did you mean \"Default\" instead?");
+				canLogDev.warn("can-observable-object: The \"default\" for " + canReflect.getName(typePrototype)+"."+prop + " is set to a constructor. Did you mean \"Default\" instead?");
 			}
 		}
 		//!steal-remove-end
@@ -372,7 +379,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 		setter = function() {
 			//!steal-remove-start
 			if(process.env.NODE_ENV !== 'production') {
-				canLogDev.warn("can-define-object: Set value for property " +
+				canLogDev.warn("can-observable-object: Set value for property " +
 					canReflect.getName(typePrototype)+"."+ prop +
 					" ignored, as its definition has a zero-argument getter and no setter");
 			}
@@ -389,7 +396,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	Object_defineNamedPrototypeProperty(typePrototype, prop, {
 		get: getter,
 		set: setter,
-		enumerable: "serialize" in definition ? !!definition.serialize : !definition.get,
+		enumerable: define.isEnumerable(definition),
 		configurable: true
 	});
 };
@@ -412,6 +419,7 @@ define.makeDefineInstanceKey = function(constructor) {
 		}
 
 		this.prototype.dispatch({
+			action: "can.keys",
 			type: "can.keys",
 			target: this.prototype
 		});
@@ -448,6 +456,10 @@ make = {
 				computeObj.oldValue = newVal;
 
 				map.dispatch({
+					action: "prop",
+					key: prop,
+					value: newVal,
+					oldValue: oldValue,
 					type: prop,
 					target: map
 				}, [newVal, oldValue]);
@@ -460,7 +472,9 @@ make = {
 		return function(){
 			var map = this;
 			var defaultValue = getDefault.call(this);
-			var computeObj = make.computeObj(map, prop, new ResolverObservable(definition.value, map, defaultValue));
+			var computeObj = make.computeObj(map, prop, new ResolverObservable(definition.value, map, defaultValue, {
+				resetUnboundValueInGet: true
+			}));
 			//!steal-remove-start
 			if(process.env.NODE_ENV !== 'production') {
 				Object.defineProperty(computeObj.handler, "name", {
@@ -525,6 +539,10 @@ make = {
 
 						dispatched = {
 							patches: [{type: "set", key: prop, value: newVal}],
+							action: "prop",
+							key: prop,
+							value: newVal,
+							oldValue: current,
 							type: prop,
 							target: this
 						};
@@ -548,6 +566,10 @@ make = {
 				if (newVal !== current) {
 					var dispatched = {
 						patches: [{type: "set", key: prop, value: newVal}],
+						action: "prop",
+						key: prop,
+						value: newVal,
+						oldValue: current,
 						type: prop,
 						target: map
 					};
@@ -558,7 +580,7 @@ make = {
 					}
 					//!steal-remove-end
 
-					map.dispatch(dispatched, [newVal, current]);
+					eventQueue.dispatch.call(map, dispatched, [newVal, current]);
 				}
 			}
 		},
@@ -611,7 +633,7 @@ make = {
 							//!steal-remove-start
 							if(process.env.NODE_ENV !== 'production') {
 								asyncTimer = setTimeout(function() {
-									canLogDev.warn('can-define-object: Setter "' + canReflect.getName(self)+"."+prop + '" did not return a value or call the setter callback.');
+									canLogDev.warn('can-observable-object: Setter "' + canReflect.getName(self)+"."+prop + '" did not return a value or call the setter callback.');
 								}, canLogDev.warnTimeout);
 							}
 							//!steal-remove-end
@@ -944,7 +966,7 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propert
 				else if (resultType !== 'undefined') {
 					if(process.env.NODE_ENV !== 'production') {
                     	// Ex: {prop: 0}
-						canLogDev.error(canReflect.getName(typePrototype)+"."+prop + " does not match a supported definitionObject. See: https://canjs.com/doc/can-define-object/object.types.definitionObject.html");
+						canLogDev.error(canReflect.getName(typePrototype)+"."+prop + " does not match a supported definitionObject. See: https://canjs.com/doc/can-observable-object/object.types.definitionObject.html");
 					}
 				}
 				//!steal-remove-end
@@ -1113,18 +1135,24 @@ define.expando = function(map, prop, value) {
 		if(!map[inSetupSymbol]) {
 			queues.batch.start();
 			map.dispatch({
+				action: "can.keys",
 				type: "can.keys",
 				target: map
 			});
 			if(Object.prototype.hasOwnProperty.call(map._data, prop)) {
 				map.dispatch({
+					action: "add",
+					key: prop,
 					type: prop,
+					value: map._data[prop],
 					target: map,
 					patches: [{type: "add", key: prop, value: map._data[prop]}],
 				},[map._data[prop], undefined]);
 			} else {
 				map.dispatch({
+					action: "set",
 					type: "set",
+					value: map._data[prop],
 					target: map,
 					patches: [{type: "add", key: prop, value: map._data[prop]}],
 				},[map._data[prop], undefined]);
