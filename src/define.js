@@ -697,7 +697,7 @@ make = {
 							var typeName = canReflect.getName(type[baseTypeSymbol]);
 							var propType = canString.capitalize(typeof prop);
 							var message  = newValue +  ' is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + propType + '". ';
-							message += 'Use "' + prop + ': type.To' + typeName + '" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
+							message += 'Use "' + prop + ': type.convert(' + typeName + ')" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
 							throw new Error(message);
 						}
 						//!steal-remove-end
