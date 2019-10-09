@@ -3,6 +3,7 @@ const { mixinObject } = require("./helpers");
 const { hooks } = require("../src/define");
 const canReflect = require("can-reflect");
 const type = require('can-type');
+const dev = require("can-test-helpers").dev;
 
 QUnit.module("can-observable-mixin - define()");
 
@@ -190,7 +191,7 @@ QUnit.test("properties using value behavior reset when unbound", function(assert
 	assert.equal(obj.derivedProp, undefined, "value reset");
 });
 
-QUnit.test('On error include the name of the property that is being set', function(assert) {
+dev.devOnlyTest('On error include the name of the property that is being set', function(assert) {
 	class Person extends mixinObject() {
 		static get props() {
 			return {

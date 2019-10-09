@@ -690,9 +690,9 @@ make = {
 					return setter;
 				} else {
 					return function setter(newValue){
+						//!steal-remove-start
 						try {
-							var val = canReflect.convert(newValue, type);
-							return set.call(this, val);
+							return set.call(this, canReflect.convert(newValue, type));
 						} catch (error) {
 							var typeName = canReflect.getName(type[baseTypeSymbol]);
 							var propType = canString.capitalize(typeof prop);
@@ -700,6 +700,8 @@ make = {
 							message += 'Use "' + prop + ': type.To' + typeName + '" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
 							throw new Error(message);
 						}
+						//!steal-remove-end
+						return set.call(this, canReflect.convert(newValue, type));
 					};
 				}
 			}
