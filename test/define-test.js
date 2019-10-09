@@ -2,6 +2,7 @@ const QUnit = require("steal-qunit");
 const { mixinObject } = require("./helpers");
 const { hooks } = require("../src/define");
 const canReflect = require("can-reflect");
+const type = require('can-type');
 
 QUnit.module("can-observable-mixin - define()");
 
@@ -187,4 +188,22 @@ QUnit.test("properties using value behavior reset when unbound", function(assert
 	obj.stopListening();
 
 	assert.equal(obj.derivedProp, undefined, "value reset");
+});
+
+QUnit.test('On error include the name of the property that is being set', function(assert) {
+	class Person extends mixinObject() {
+		static get props() {
+			return {
+				age: type.check(Number)
+			};
+		}
+	}
+
+	var farah = new Person();
+	
+	try {
+		farah.age = '4';
+	} catch (error) {
+		assert.equal(error.message, '4 is not of type Number. Property age is using type: String');
+	}
 });

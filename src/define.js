@@ -18,13 +18,15 @@ var canLogDev = require("can-log/dev/dev");
 
 var defineLazyValue = require("can-define-lazy-value");
 var type = require("can-type");
+var canString = require('can-string');
 
 var newSymbol = Symbol.for("can.new"),
 	serializeSymbol = Symbol.for("can.serialize"),
 	inSetupSymbol = Symbol.for("can.initializing"),
 	isMemberSymbol = Symbol.for("can.isMember"),
 	hasBeenDefinedSymbol = Symbol.for("can.hasBeenDefined"),
-	canMetaSymbol = Symbol.for("can.meta");
+	canMetaSymbol = Symbol.for("can.meta"),
+	baseTypeSymbol = Symbol.for("can.baseType");
 
 var eventsProto, define,
 	make, makeDefinition, getDefinitionsAndMethods, getDefinitionOrMethod;
@@ -688,7 +690,15 @@ make = {
 					return setter;
 				} else {
 					return function setter(newValue){
-						return set.call(this, canReflect.convert(newValue, type));
+						try {
+							var val = canReflect.convert(newValue, type);
+							return set.call(this, val);
+						} catch (error) {
+							var typeName = canReflect.getName(type[baseTypeSymbol]);
+							var propType = canString.capitalize(typeof prop);
+							var message  = newValue +  ' is not of type ' + typeName + '. Property ' + prop + ' is using type: ' + propType;
+							throw new Error(message);
+						}
 					};
 				}
 			}
