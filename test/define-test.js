@@ -204,6 +204,6 @@ QUnit.test('On error include the name of the property that is being set', functi
 	try {
 		farah.age = '4';
 	} catch (error) {
-		assert.equal(error.message, '4 is not of type Number. Property age is using type: String');
+		assert.equal(error.message, '4 is not of type Number. Property age is using "type: String". Use "age: type.ToNumber" to automatically convert values to Numbers when setting the "age" property.');
 	}
 });
