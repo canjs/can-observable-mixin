@@ -18,7 +18,6 @@ var canLogDev = require("can-log/dev/dev");
 
 var defineLazyValue = require("can-define-lazy-value");
 var type = require("can-type");
-var canString = require('can-string');
 
 var newSymbol = Symbol.for("can.new"),
 	serializeSymbol = Symbol.for("can.serialize"),
@@ -691,14 +690,15 @@ make = {
 				} else {
 					return function setter(newValue){
 						//!steal-remove-start
-						try {
-							return set.call(this, canReflect.convert(newValue, type));
-						} catch (error) {
-							var typeName = canReflect.getName(type[baseTypeSymbol]);
-							var propType = canString.capitalize(typeof prop);
-							var message  = newValue +  ' is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + propType + '". ';
-							message += 'Use "' + prop + ': type.convert(' + typeName + ')" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
-							throw new Error(message);
+						if(process.env.NODE_ENV !== 'production') {
+							try {
+								return set.call(this, canReflect.convert(newValue, type));
+							} catch (error) {
+								var typeName = canReflect.getName(type[baseTypeSymbol]);
+								var message  = newValue +  ' is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + typeName + '". ';
+								message += 'Use "' + prop + ': type.convert(' + typeName + ')" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
+								throw new Error(message);
+							}
 						}
 						//!steal-remove-end
 						return set.call(this, canReflect.convert(newValue, type));
