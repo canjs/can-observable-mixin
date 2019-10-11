@@ -24,7 +24,8 @@ var newSymbol = Symbol.for("can.new"),
 	inSetupSymbol = Symbol.for("can.initializing"),
 	isMemberSymbol = Symbol.for("can.isMember"),
 	hasBeenDefinedSymbol = Symbol.for("can.hasBeenDefined"),
-	canMetaSymbol = Symbol.for("can.meta");
+	canMetaSymbol = Symbol.for("can.meta"),
+	baseTypeSymbol = Symbol.for("can.baseType");
 
 var eventsProto, define,
 	make, makeDefinition, getDefinitionsAndMethods, getDefinitionOrMethod;
@@ -688,6 +689,18 @@ make = {
 					return setter;
 				} else {
 					return function setter(newValue){
+						//!steal-remove-start
+						if(process.env.NODE_ENV !== 'production') {
+							try {
+								return set.call(this, canReflect.convert(newValue, type));
+							} catch (error) {
+								var typeName = canReflect.getName(type[baseTypeSymbol]);
+								var message  = newValue +  ' is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + typeName + '". ';
+								message += 'Use "' + prop + ': type.convert(' + typeName + ')" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
+								throw new Error(message);
+							}
+						}
+						//!steal-remove-end
 						return set.call(this, canReflect.convert(newValue, type));
 					};
 				}
