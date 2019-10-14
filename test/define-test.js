@@ -210,7 +210,7 @@ dev.devOnlyTest('On error include the name of the property that is being set', f
 });
 
 
-dev.devOnlyTest('Better error message for Right-hand side of instanceof is not callable for arrays', function(assert) {
+dev.devOnlyTest('Handle types as arrays to fix "Right-hand side of instanceof is not callable for arrays"', function(assert) {
 	class Foo extends mixinObject() {
 		static get props() {
 			return {
@@ -219,11 +219,10 @@ dev.devOnlyTest('Better error message for Right-hand side of instanceof is not c
 		}
 	}
 	var foo = new Foo();
-
+	foo.list = [ "one", "two" ];
 	try {
-		foo.list = [ "one", "two" ];
-
+		assert.ok(true, 'No errors, it handles arrays values as type');
 	} catch (error) {
-		assert.equal(error.message, '[one,two] is not of type Array[]. Property list is using "type: Array[]". Use "list: type.convert(Array[])" to automatically convert values to Array[]s when setting the "list" property.');
+		assert.ok(error.message);
 	}
 });

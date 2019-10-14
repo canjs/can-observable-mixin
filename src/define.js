@@ -931,7 +931,7 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 			definition = { default: value, type: Function };
 		}
 	} else if( Array.isArray(value) ) {
-		definition = { type: value };
+		definition = { type: type.normalize(Array) };
 	} else if( canReflect.isPlainObject(value) ){
 		definition = value;
 	}
