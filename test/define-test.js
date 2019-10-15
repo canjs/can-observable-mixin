@@ -208,3 +208,21 @@ dev.devOnlyTest('On error include the name of the property that is being set', f
 		assert.equal(error.message, '4 is not of type Number. Property age is using "type: Number". Use "age: type.convert(Number)" to automatically convert values to Numbers when setting the "age" property.');
 	}
 });
+
+
+dev.devOnlyTest('Handle types as arrays to fix "Right-hand side of instanceof is not callable for arrays"', function(assert) {
+	class Foo extends mixinObject() {
+		static get props() {
+			return {
+				list: []
+			};
+		}
+	}
+	var foo = new Foo();
+	foo.list = [ "one", "two" ];
+	try {
+		assert.ok(true, 'No errors, it handles arrays values as type');
+	} catch (error) {
+		assert.ok(error.message);
+	}
+});
