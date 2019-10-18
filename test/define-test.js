@@ -205,7 +205,7 @@ dev.devOnlyTest('On error include the name of the property that is being set', f
 	try {
 		farah.age = '4';
 	} catch (error) {
-		assert.equal(error.message, '"4" is not of type Number. Property age is using "type: Number". Use "age: type.convert(Number)" to automatically convert values to Numbers when setting the "age" property.');
+		assert.equal(error.message, '"4" (string) is not of type Number. Property age is using "type: Number". Use "age: type.convert(Number)" to automatically convert values to Numbers when setting the "age" property.');
 	}
 });
 

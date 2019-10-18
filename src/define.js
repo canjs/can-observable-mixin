@@ -695,7 +695,8 @@ make = {
 								return set.call(this, canReflect.convert(newValue, type));
 							} catch (error) {
 								var typeName = canReflect.getName(type[baseTypeSymbol]);
-								var message  = '"' + newValue + '"' +  ' is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + typeName + '". ';
+								var valueType = typeof newValue;
+								var message  = '"' + newValue + '"' +  ' ('+ valueType + ') is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + typeName + '". ';
 								message += 'Use "' + prop + ': type.convert(' + typeName + ')" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
 								throw new Error(message);
 							}
