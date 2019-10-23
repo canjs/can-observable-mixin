@@ -3,7 +3,7 @@ const canSymbol = require("can-symbol");
 
 const mixinMapProps = require("../src/mixin-mapprops");
 
-QUnit.module("can-observable-mixin - mixins(Object)");
+QUnit.module("can-observable-mixin - mixins(Array)");
 
 QUnit.test(".update works", function(assert) {
 	class MyArray extends mixinMapProps(Array) {}
