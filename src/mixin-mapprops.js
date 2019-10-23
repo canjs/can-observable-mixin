@@ -26,7 +26,11 @@ function assign(source) {
 }
 function update(source) {
 	queues.batch.start();
-	canReflect.updateMap(this, source || {});
+	if (canReflect.isListLike(source)) {
+		canReflect.updateList(this, source);
+	} else {
+		canReflect.updateMap(this, source || {});
+	}
 	queues.batch.stop();
 }
 function assignDeep(source){
@@ -37,8 +41,12 @@ function assignDeep(source){
 }
 function updateDeep(source){
 	queues.batch.start();
-	// TODO: we should probably just throw an error instead of cleaning
-	canReflect.updateDeepMap(this, source || {});
+	if (canReflect.isListLike(source)) {
+		canReflect.updateDeepList(this, source);
+	} else {
+		// TODO: we should probably just throw an error instead of cleaning
+		canReflect.updateDeepMap(this, source || {});
+	}
 	queues.batch.stop();
 }
 function setKeyValue(key, value) {
@@ -196,6 +204,10 @@ module.exports = function(Type) {
 
 		[Symbol.for("can.hasKey")](key) {
 			return (key in this._define.definitions) || (this._instanceDefinitions !== undefined && key in this._instanceDefinitions);
+		}
+
+		[Symbol.for("can.updateDeep")](...args) {
+			return this.updateDeep(...args);
 		}
 	};
 };

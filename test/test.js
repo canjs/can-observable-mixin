@@ -4,6 +4,7 @@ require("./props-test");
 require("./props-types-test");
 require("./props-mixin-default-test");
 require("./props-mixin-new-test");
+require("./array-mixin-test");
 
 // can-reflect-tests
 require("./type-events-test");
