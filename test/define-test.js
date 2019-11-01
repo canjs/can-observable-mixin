@@ -3,19 +3,20 @@ const { mixinObject } = require("./helpers");
 const { hooks } = require("../src/define");
 const canReflect = require("can-reflect");
 const type = require('can-type');
+const Observation = require('can-observation');
 const dev = require("can-test-helpers").dev;
 
 QUnit.module("can-observable-mixin - define()");
 
 QUnit.test("Can define stuff", function(assert) {
   class Faves extends mixinObject() {
-    static get props() {
-      return {
+	static get props() {
+	  return {
 			color: {
 				default: "blue"
 			}
-      };
-    }
+	  };
+	}
   }
 
   let faves = new Faves();
@@ -30,13 +31,13 @@ QUnit.test("Does not throw if no define is provided", function(assert) {
 
 QUnit.test("Stuff is defined in constructor for non-element classes", function(assert) {
   class Faves extends mixinObject(Object) {
-    static get props() {
-      return {
+	static get props() {
+	  return {
 			color: {
 				default: "blue"
 			}
-      };
-    }
+	  };
+	}
 
 	constructor() {
 		super();
@@ -226,3 +227,34 @@ dev.devOnlyTest('Handle types as arrays to fix "Right-hand side of instanceof is
 		assert.ok(error.message);
 	}
 });
+
+dev.devOnlyTest('Only can-type error should be catched', function(assert) {
+	class T extends mixinObject() {
+		static get props() {
+			return  {
+				aStr: {
+					type: type.maybe(String),
+					default: "Hi"
+				},
+				get foo() {
+					return this.aStr.toUpperCase();
+				}
+			};
+		}
+	}
+
+	var t = new T();
+
+	var obs = new Observation(function() {
+		return t.foo;
+	});
+	canReflect.onValue(obs, function() {});
+	
+	try {
+		t.aStr = null;
+	} catch (error) {
+		assert.equal(error.type, undefined, 'can-type error only thrown on wrong types');
+	}
+	
+});
+
