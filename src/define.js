@@ -694,11 +694,15 @@ make = {
 							try {
 								return set.call(this, canReflect.convert(newValue, type));
 							} catch (error) {
-								var typeName = canReflect.getName(type[baseTypeSymbol]);
-								var valueType = typeof newValue;
-								var message  = '"' + newValue + '"' +  ' ('+ valueType + ') is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + typeName + '". ';
-								message += 'Use "' + prop + ': type.convert(' + typeName + ')" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
-								throw new Error(message);
+								if (error.type === 'can-type-error') {
+									var typeName = canReflect.getName(type[baseTypeSymbol]);
+									var valueType = typeof newValue;
+									var message  = '"' + newValue + '"' +  ' ('+ valueType + ') is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + typeName + '". ';
+									message += 'Use "' + prop + ': type.convert(' + typeName + ')" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
+									throw new Error(message);
+								} else {
+									throw error;
+								}
 							}
 						}
 						//!steal-remove-end
