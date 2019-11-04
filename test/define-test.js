@@ -3,7 +3,6 @@ const { mixinObject } = require("./helpers");
 const { hooks } = require("../src/define");
 const canReflect = require("can-reflect");
 const type = require('can-type');
-const Observation = require('can-observation');
 const dev = require("can-test-helpers").dev;
 
 QUnit.module("can-observable-mixin - define()");
@@ -244,14 +243,12 @@ dev.devOnlyTest('Only can-type error should be catched', function(assert) {
 	}
 
 	var t = new T();
+	t.aStr = null;
 
-	var obs = new Observation(function() {
-		return t.foo;
-	});
-	canReflect.onValue(obs, function() {});
-	
 	try {
-		t.aStr = null;
+		// For linter
+		var val = t.foo;
+		assert.ok(val);
 	} catch (error) {
 		assert.equal(error.type, undefined, 'can-type error only thrown on wrong types');
 	}
