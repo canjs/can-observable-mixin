@@ -699,10 +699,10 @@ make = {
 									var valueType = typeof newValue;
 									var message  = '"' + newValue + '"' +  ' ('+ valueType + ') is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + typeName + '". ';
 									message += 'Use "' + prop + ': type.convert(' + typeName + ')" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
-									throw new Error(message);
-								} else {
-									throw error;
+									error.message = message;
+									
 								}
+								throw error;
 							}
 						}
 						//!steal-remove-end

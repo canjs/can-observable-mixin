@@ -228,28 +228,30 @@ dev.devOnlyTest('Handle types as arrays to fix "Right-hand side of instanceof is
 });
 
 dev.devOnlyTest('Only can-type error should be catched', function(assert) {
+	
+
 	class T extends mixinObject() {
 		static get props() {
 			return  {
 				aStr: {
 					type: type.maybe(String),
-					default: "Hi"
-				},
-				get foo() {
-					return this.aStr.toUpperCase();
+					default: 'Hi'
 				}
 			};
 		}
 	}
 
 	var t = new T();
-	t.aStr = null;
-
+	
+	
+	t.on('aStr', function(newVal) {
+		newVal.toUpperCase();
+	});
+	
 	try {
-		// For linter
-		var val = t.foo;
-		assert.ok(val);
+		t.aStr = null;
 	} catch (error) {
+		assert.ok(error.message !== '"null" (object) is not of type String. Property aStr is using "type: String". Use "aStr: type.convert(String)" to automatically convert values to Strings when setting the "aStr" property.');
 		assert.equal(error.type, undefined, 'can-type error only thrown on wrong types');
 	}
 	
