@@ -260,6 +260,15 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 					" ignored, as its definition has a zero-argument getter and no setter");
 		}
 	}
+
+	for (let defFuncProp of ['get', 'set', 'value']) {
+		var propType = definition[defFuncProp] && typeof definition[defFuncProp];
+		if (propType && propType !== 'function') {
+			canLogDev.error(`can-observable-object: "${defFuncProp}" for property ${canReflect.getName(typePrototype)}.${prop}` +
+				` is expected to be a function, but it's a ${propType}.`);
+			return;
+		}
+	}
 	//!steal-remove-end
 
 	// Special case definitions that have only `type: "*"`.
