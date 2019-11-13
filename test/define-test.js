@@ -254,6 +254,44 @@ dev.devOnlyTest('Only can-type error should be catched', function(assert) {
 		assert.ok(error.message !== '"null" (object) is not of type String. Property aStr is using "type: String". Use "aStr: type.convert(String)" to automatically convert values to Strings when setting the "aStr" property.');
 		assert.equal(error.type, undefined, 'can-type error only thrown on wrong types');
 	}
-	
+
+});
+
+dev.devOnlyTest("Raise error if value, getter or setter aren't functions", function(assert) {
+	class Foo extends mixinObject() {
+		static get props() {
+			return {
+				prop1: {
+					value: 'Blah',
+				}
+			};
+		}
+	}
+
+	class Bar extends mixinObject() {
+		static get props() {
+			return {
+				prop1: {
+					get: 'Blah',
+				}
+			};
+		}
+	}
+
+	class Baz extends mixinObject() {
+		static get props() {
+			return {
+				prop1: {
+					set: 'Blah',
+				}
+			};
+		}
+	}
+
+	let undo = dev.willError(/function/);
+	new Foo();
+	new Bar();
+	new Baz();
+	assert.equal(undo(), 3, "Errored on the non-function define arguments.");
 });
 
