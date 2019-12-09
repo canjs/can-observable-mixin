@@ -890,7 +890,11 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 		}
 
 		if (canReflect.isPrimitive(definition.default) && noTypeDefined) {
-			definition.type = type.normalize(definition.default.constructor);
+			if (definition.default === null || typeof definition.default === 'undefined') {
+				definition.type = type.Any;
+			} else {
+				definition.type = type.normalize(definition.default.constructor);
+			}
 		}
 	}
 
