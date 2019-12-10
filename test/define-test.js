@@ -310,3 +310,20 @@ QUnit.test('Define default property null or undefined', function (assert) {
 	assert.equal(foo.nullProp, null);
 	assert.equal(foo.nullProp, undefined);
 });
+
+
+QUnit.test('Define property null or undefined', function (assert) {
+	class Foo extends mixinObject() {
+		static get props() {
+			return {
+				nullProp: null,
+				undefinedProp: null
+			};
+		}
+	}
+
+	var foo = new Foo();
+
+	assert.equal(foo.nullProp, null);
+	assert.equal(foo.nullProp, undefined);
+});

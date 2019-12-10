@@ -921,14 +921,20 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	// Clean up the value to make it a definition-like object
 	var definition;
+	var definitionType;
 	if(canReflect.isPrimitive(value)) {
-		definition = {
-			default: value,
+		if (value === null || typeof value === 'undefined') {
+			definitionType = type.Any;
+		} else {
 			// only include type from defaultDefininition
 			// if it came from propertyDefaults
-			type: defaultDefinition.typeSetByDefault ?
+			definitionType = defaultDefinition.typeSetByDefault ?
 				type.normalize(value.constructor) :
-				defaultDefinition.type
+				defaultDefinition.type;
+		}
+		definition = {
+			default: value,
+			type: definitionType
 		};
 	}
     // copies a `Type`'s methods over
