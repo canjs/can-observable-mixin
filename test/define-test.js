@@ -295,3 +295,35 @@ dev.devOnlyTest("Raise error if value, getter or setter aren't functions", funct
 	assert.equal(undo(), 3, "Errored on the non-function define arguments.");
 });
 
+QUnit.test('Define default property null or undefined', function (assert) {
+	class Foo extends mixinObject() {
+		static get props() {
+			return {
+				nullProp: { default: null },
+				undefinedProp: { default: undefined }
+			};
+		}
+	}
+
+	var foo = new Foo();
+
+	assert.equal(foo.nullProp, null);
+	assert.equal(foo.nullProp, undefined);
+});
+
+
+QUnit.test('Define property null or undefined', function (assert) {
+	class Foo extends mixinObject() {
+		static get props() {
+			return {
+				nullProp: null,
+				undefinedProp: null
+			};
+		}
+	}
+
+	var foo = new Foo();
+
+	assert.equal(foo.nullProp, null);
+	assert.equal(foo.nullProp, undefined);
+});
