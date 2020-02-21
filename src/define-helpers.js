@@ -11,10 +11,10 @@ const defineHelpers = {
 	// returns `true` if the value was defined and set
 	defineExpando: define.expando,
 	reflectSerialize: function(unwrapped){
-		var constructorDefinitions = this._define.definitions;
-		var defaultDefinition = this._define.defaultDefinition;
+		const constructorDefinitions = this._define.definitions;
+		const defaultDefinition = this._define.defaultDefinition;
 		this.forEach(function(val, name){
-			var propDef = constructorDefinitions[name];
+			const propDef = constructorDefinitions[name];
 
 			if(propDef && typeof propDef.serialize === "function") {
 				val = propDef.serialize.call(this, val, name);
@@ -39,14 +39,14 @@ const defineHelpers = {
 		return unwrapped;
 	},
 	log: function(key) {
-		var instance = this;
+		const instance = this;
 
-		var quoteString = function quoteString(x) {
+		const quoteString = function quoteString(x) {
 			return typeof x === "string" ? JSON.stringify(x) : x;
 		};
 
-		var meta = ensureMeta(instance);
-		var allowed = meta.allowedLogKeysSet || new Set();
+		const meta = ensureMeta(instance);
+		const allowed = meta.allowedLogKeysSet || new Set();
 		meta.allowedLogKeysSet = allowed;
 
 		if (key) {
@@ -54,7 +54,7 @@ const defineHelpers = {
 		}
 
 		meta._log = function(event, data) {
-			var type = event.type;
+			const type = event.type;
 
 			if (
 				type === "can.onPatches" || (key && !allowed.has(type)) ||
@@ -82,7 +82,7 @@ const defineHelpers = {
 		};
 	},
 	deleteKey: function(prop){
-		var instanceDefines = this._instanceDefinitions;
+		const instanceDefines = this._instanceDefinitions;
 		if(instanceDefines && Object.prototype.hasOwnProperty.call(instanceDefines, prop) && !Object.isSealed(this)) {
 			delete instanceDefines[prop];
 			delete this[prop];
@@ -92,7 +92,7 @@ const defineHelpers = {
 				type: "can.keys",
 				target: this
 			});
-			var oldValue = this._data[prop];
+			const oldValue = this._data[prop];
 			if(oldValue !== undefined) {
 				delete this._data[prop];
 				//delete this[prop];

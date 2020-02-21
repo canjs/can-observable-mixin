@@ -200,7 +200,7 @@ dev.devOnlyTest('On error include the name of the property that is being set', f
 		}
 	}
 
-	var farah = new Person();
+	const farah = new Person();
 	
 	try {
 		farah.age = '4';
@@ -218,7 +218,7 @@ dev.devOnlyTest('Handle types as arrays to fix "Right-hand side of instanceof is
 			};
 		}
 	}
-	var foo = new Foo();
+	const foo = new Foo();
 	foo.list = [ "one", "two" ];
 	try {
 		assert.ok(true, 'No errors, it handles arrays values as type');
@@ -241,7 +241,7 @@ dev.devOnlyTest('Only can-type error should be catched', function(assert) {
 		}
 	}
 
-	var t = new T();
+	const t = new T();
 	
 	
 	t.on('aStr', function(newVal) {
@@ -305,7 +305,7 @@ QUnit.test('Define default property null or undefined', function (assert) {
 		}
 	}
 
-	var foo = new Foo();
+	const foo = new Foo();
 
 	assert.equal(foo.nullProp, null);
 	assert.equal(foo.nullProp, undefined);
@@ -322,7 +322,7 @@ QUnit.test('Define property null or undefined', function (assert) {
 		}
 	}
 
-	var foo = new Foo();
+	const foo = new Foo();
 
 	assert.equal(foo.nullProp, null);
 	assert.equal(foo.nullProp, undefined);
