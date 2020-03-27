@@ -2,7 +2,7 @@
 
 const canReflect = require("can-reflect");
 
-var define;
+let define; //jshint ignore:line
 const Observation = require("can-observation");
 const ObservationRecorder = require("can-observation-recorder");
 const AsyncObservable = require("can-simple-observable/async/async");
