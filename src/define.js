@@ -1,25 +1,25 @@
 "use strict";
 
-var canReflect = require("can-reflect");
+const canReflect = require("can-reflect");
 
-var define;
-var Observation = require("can-observation");
-var ObservationRecorder = require("can-observation-recorder");
-var AsyncObservable = require("can-simple-observable/async/async");
-var SettableObservable = require("can-simple-observable/settable/settable");
-var ResolverObservable = require("can-simple-observable/resolver/resolver");
+let define; //jshint ignore:line
+const Observation = require("can-observation");
+const ObservationRecorder = require("can-observation-recorder");
+const AsyncObservable = require("can-simple-observable/async/async");
+const SettableObservable = require("can-simple-observable/settable/settable");
+const ResolverObservable = require("can-simple-observable/resolver/resolver");
 
-var eventQueue = require("can-event-queue/map/map");
-var addTypeEvents = require("can-event-queue/type/type");
-var queues = require("can-queues");
+const eventQueue = require("can-event-queue/map/map");
+const addTypeEvents = require("can-event-queue/type/type");
+const queues = require("can-queues");
 
-var assign = require("can-assign");
-var canLogDev = require("can-log/dev/dev");
+const assign = require("can-assign");
+const canLogDev = require("can-log/dev/dev");
 
-var defineLazyValue = require("can-define-lazy-value");
-var type = require("can-type");
+const defineLazyValue = require("can-define-lazy-value");
+const type = require("can-type");
 
-var newSymbol = Symbol.for("can.new"),
+const newSymbol = Symbol.for("can.new"),
 	serializeSymbol = Symbol.for("can.serialize"),
 	inSetupSymbol = Symbol.for("can.initializing"),
 	isMemberSymbol = Symbol.for("can.isMember"),
@@ -27,7 +27,7 @@ var newSymbol = Symbol.for("can.new"),
 	canMetaSymbol = Symbol.for("can.meta"),
 	baseTypeSymbol = Symbol.for("can.baseType");
 
-var eventsProto, define,
+let eventsProto,
 	make, makeDefinition, getDefinitionsAndMethods, getDefinitionOrMethod;
 
 // UTILITIES
@@ -39,8 +39,8 @@ function observableType() {
 	throw new Error("This is not currently implemented.");
 }
 
-var AsyncFunction;
-var browserSupportsAsyncFunctions = (function() {
+let AsyncFunction;
+const browserSupportsAsyncFunctions = (function() {
 	try {
 		AsyncFunction = (async function(){}).constructor;
 		return true;
@@ -55,9 +55,9 @@ function isAsyncFunction(fn) {
 	return fn && fn instanceof AsyncFunction;
 }
 
-var peek = ObservationRecorder.ignore(canReflect.getValue.bind(canReflect));
+const peek = ObservationRecorder.ignore(canReflect.getValue.bind(canReflect));
 
-var Object_defineNamedPrototypeProperty = Object.defineProperty;
+let Object_defineNamedPrototypeProperty = Object.defineProperty;
 //!steal-remove-start
 if(process.env.NODE_ENV !== 'production') {
 	Object_defineNamedPrototypeProperty = function(obj, prop, definition) {
@@ -98,7 +98,7 @@ function defineNotWritableAndNotEnumerable(obj, prop, value) {
 }
 
 function eachPropertyDescriptor(map, cb, ...args){
-	for(var prop of Object.getOwnPropertyNames(map)) {
+	for(const prop of Object.getOwnPropertyNames(map)) {
 		if(map.hasOwnProperty(prop)) {
 			cb.call(map, prop, Object.getOwnPropertyDescriptor(map, prop), ...args);
 		}
@@ -106,21 +106,21 @@ function eachPropertyDescriptor(map, cb, ...args){
 }
 
 function getEveryPropertyAndSymbol(obj) {
-	var props = Object.getOwnPropertyNames(obj);
-	var symbols = ("getOwnPropertySymbols" in Object) ?
+	const props = Object.getOwnPropertyNames(obj);
+	const symbols = ("getOwnPropertySymbols" in Object) ?
 	  Object.getOwnPropertySymbols(obj) : [];
 	return props.concat(symbols);
 }
 
 module.exports = define = function(typePrototype, defines, baseDefine, propertyDefaults = {}) {
 	// default property definitions on _data
-	var prop,
+	let prop,
 		dataInitializers = Object.create(baseDefine ? baseDefine.dataInitializers : null),
 		// computed property definitions on _computed
 		computedInitializers = Object.create(baseDefine ? baseDefine.computedInitializers : null),
 		required = new Set();
 
-	var result = getDefinitionsAndMethods(defines, baseDefine, typePrototype, propertyDefaults);
+	const result = getDefinitionsAndMethods(defines, baseDefine, typePrototype, propertyDefaults);
 	result.dataInitializers = dataInitializers;
 	result.computedInitializers = computedInitializers;
 	result.required = required;
@@ -145,9 +145,9 @@ module.exports = define = function(typePrototype, defines, baseDefine, propertyD
 		}
 	} else {
 		defineLazyValue(typePrototype, "_data", function() {
-			var map = this;
-			var data = {};
-			for (var prop in dataInitializers) {
+			const map = this;
+			const data = {};
+			for (const prop in dataInitializers) {
 				defineLazyValue(data, prop, dataInitializers[prop].bind(map), true);
 			}
 			return data;
@@ -163,9 +163,9 @@ module.exports = define = function(typePrototype, defines, baseDefine, propertyD
 		}
 	} else {
 		defineLazyValue(typePrototype, "_computed", function() {
-			var map = this;
-			var data = Object.create(null);
-			for (var prop in computedInitializers) {
+			const map = this;
+			const data = Object.create(null);
+			for (const prop in computedInitializers) {
 				defineLazyValue(data, prop, computedInitializers[prop].bind(map));
 			}
 			return data;
@@ -192,7 +192,7 @@ module.exports = define = function(typePrototype, defines, baseDefine, propertyD
 
 	// Places Symbol.iterator or @@iterator on the prototype
 	// so that this can be iterated with for/of and canReflect.eachIndex
-	var iteratorSymbol = Symbol.iterator || Symbol.for("iterator");
+	const iteratorSymbol = Symbol.iterator || Symbol.for("iterator");
 	if(!typePrototype[iteratorSymbol]) {
 		defineConfigurableAndNotEnumerable(typePrototype, iteratorSymbol, function(){
 			return new define.Iterator(this);
@@ -202,8 +202,8 @@ module.exports = define = function(typePrototype, defines, baseDefine, propertyD
 	return result;
 };
 
-var onlyType = function(obj){
-	for(var prop in obj) {
+const onlyType = function(obj){
+	for(const prop in obj) {
 		if(prop !== "type") {
 			return false;
 		}
@@ -211,7 +211,7 @@ var onlyType = function(obj){
 	return true;
 };
 
-var callAsync = function(fn) {
+const callAsync = function(fn) {
 	return function asyncResolver(lastSet, resolve){
 		let newValue = fn.call(this, resolve, lastSet);
 
@@ -238,13 +238,13 @@ define.isEnumerable = function(definition) {
 // typePrototype - the prototype of the type we are defining `prop` on.
 // `definition` - the user provided definition
 define.property = function(typePrototype, prop, definition, dataInitializers, computedInitializers, defaultDefinition) {
-	var propertyDefinition = define.extensions.apply(this, arguments);
+	const propertyDefinition = define.extensions.apply(this, arguments);
 
 	if (propertyDefinition) {
 		definition = makeDefinition(prop, propertyDefinition, defaultDefinition || {}, typePrototype);
 	}
 
-	var type = definition.type;
+	const type = definition.type;
 
 	//!steal-remove-start
 	if(process.env.NODE_ENV !== 'production') {
@@ -262,7 +262,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	}
 
 	for (let defFuncProp of ['get', 'set', 'value']) {
-		var propType = definition[defFuncProp] && typeof definition[defFuncProp];
+		const propType = definition[defFuncProp] && typeof definition[defFuncProp];
 		if (propType && propType !== 'function') {
 			canLogDev.error(`can-observable-object: "${defFuncProp}" for property ${canReflect.getName(typePrototype)}.${prop}` +
 				` is expected to be a function, but it's a ${propType}.`);
@@ -286,7 +286,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	// Where the value is stored.  If there is a `get` the source of the value
 	// will be a compute in `this._computed[prop]`.  If not, the source of the
 	// value will be in `this._data[prop]`.
-	var dataProperty = definition.get || definition.async || definition.value ? "computed" : "data",
+	let dataProperty = definition.get || definition.async || definition.value ? "computed" : "data",
 
 		// simple functions that all read/get/set to the right place.
 		// - reader - reads the value but does not observe.
@@ -321,7 +321,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	//!steal-remove-end
 
 	// Determine the type converter
-	var typeConvert = function(val) {
+	let typeConvert = function(val) {
 		return val;
 	};
 
@@ -330,7 +330,7 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 	}
 
 	// make a setter that's going to fire of events
-	var eventsSetter = make.set.events(prop, reader, setter, make.eventType[dataProperty](prop));
+	const eventsSetter = make.set.events(prop, reader, setter, make.eventType[dataProperty](prop));
 	if(definition.value) {
 		computedInitializers[prop] = make.resolver(prop, definition, typeConvert);
 	}
@@ -414,13 +414,13 @@ define.property = function(typePrototype, prop, definition, dataInitializers, co
 define.makeDefineInstanceKey = function(constructor) {
 	constructor[Symbol.for("can.defineInstanceKey")] = function(property, value) {
 		define.hooks.finalizeClass(this);
-		var defineResult = this.prototype._define;
+		const defineResult = this.prototype._define;
 		if(value && typeof value.value !== "undefined") {
 			value.default = value.value;
 			value.type = type.Any;
 			delete value.value;
 		}
-		var definition = getDefinitionOrMethod(property, value, defineResult.defaultDefinition, this);
+		const definition = getDefinitionOrMethod(property, value, defineResult.defaultDefinition, this);
 		if(definition && typeof definition === "object") {
 			define.property(this.prototype, property, definition, defineResult.dataInitializers, defineResult.computedInitializers, defineResult.defaultDefinition);
 			defineResult.definitions[property] = definition;
@@ -438,7 +438,7 @@ define.makeDefineInstanceKey = function(constructor) {
 
 // Makes a simple constructor function.
 define.Constructor = function(defines, sealed) {
-	var constructor = function DefineConstructor(props) {
+	const constructor = function DefineConstructor(props) {
 		Object.defineProperty(this, inSetupSymbol, {
 			configurable: true,
 			enumerable: false,
@@ -448,7 +448,7 @@ define.Constructor = function(defines, sealed) {
 		define.setup.call(this, props, sealed);
 		this[inSetupSymbol] = false;
 	};
-	var result = define(constructor.prototype, defines);
+	const result = define(constructor.prototype, defines);
 	addTypeEvents(constructor);
 	define.makeDefineInstanceKey(constructor, result);
 	return constructor;
@@ -457,12 +457,12 @@ define.Constructor = function(defines, sealed) {
 // A bunch of helper functions that are used to create various behaviors.
 make = {
 	computeObj: function(map, prop, observable) {
-		var computeObj = {
+		const computeObj = {
 			oldValue: undefined,
 			compute: observable,
 			count: 0,
 			handler: function(newVal) {
-				var oldValue = computeObj.oldValue;
+				let oldValue = computeObj.oldValue;
 				computeObj.oldValue = newVal;
 
 				map.dispatch({
@@ -478,11 +478,11 @@ make = {
 		return computeObj;
 	},
 	resolver: function(prop, definition, typeConvert) {
-		var getDefault = make.get.defaultValue(prop, definition, typeConvert);
+		const getDefault = make.get.defaultValue(prop, definition, typeConvert);
 		return function(){
-			var map = this;
-			var defaultValue = getDefault.call(this);
-			var computeObj = make.computeObj(map, prop, new ResolverObservable(definition.value, map, defaultValue, {
+			const map = this;
+			const defaultValue = getDefault.call(this);
+			const computeObj = make.computeObj(map, prop, new ResolverObservable(definition.value, map, defaultValue, {
 				resetUnboundValueInGet: true
 			}));
 			//!steal-remove-start
@@ -499,9 +499,9 @@ make = {
 	compute: function(prop, get, defaultValueFn) {
 
 		return function() {
-			var map = this,
-				defaultValue = defaultValueFn && defaultValueFn.call(this),
-				observable, computeObj;
+			const map = this;
+			const defaultValue = defaultValueFn && defaultValueFn.call(this);
+			let observable, computeObj;
 
 			if(get.length === 0) {
 				observable = new Observation(get, map);
@@ -542,9 +542,9 @@ make = {
 					setData.call(this, newVal);
 				}
 				else {
-					var current = getCurrent.call(this);
+					const current = getCurrent.call(this);
 					if (newVal !== current) {
-						var dispatched;
+						let dispatched;
 						setData.call(this, newVal);
 
 						dispatched = {
@@ -574,7 +574,7 @@ make = {
 			}
 			else {
 				if (newVal !== current) {
-					var dispatched = {
+					const dispatched = {
 						patches: [{type: "set", key: prop, value: newVal}],
 						action: "prop",
 						key: prop,
@@ -600,14 +600,14 @@ make = {
 				var asyncTimer;
 				//!steal-remove-end
 
-				var self = this;
+				const self = this;
 
 				// call the setter, if returned value is undefined,
 				// this means the setter is async so we
 				// do not call update property and return right away
 
 				queues.batch.start();
-				var setterCalled = false,
+				const setterCalled = false,
 					current = getCurrent.call(this),
 					setValue = setter.call(this, value, current);
 
@@ -704,9 +704,9 @@ make = {
 								return set.call(this, canReflect.convert(newValue, type));
 							} catch (error) {
 								if (error.type === 'can-type-error') {
-									var typeName = canReflect.getName(type[baseTypeSymbol]);
-									var valueType = typeof newValue;
-									var message  = '"' + newValue + '"' +  ' ('+ valueType + ') is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + typeName + '". ';
+									const typeName = canReflect.getName(type[baseTypeSymbol]);
+									const valueType = typeof newValue;
+									let message  = '"' + newValue + '"' +  ' ('+ valueType + ') is not of type ' + typeName + '. Property ' + prop + ' is using "type: ' + typeName + '". ';
 									message += 'Use "' + prop + ': type.convert(' + typeName + ')" to automatically convert values to ' + typeName + 's when setting the "' + prop + '" property.';
 									error.message = message;
 									
@@ -750,7 +750,7 @@ make = {
 		},
 		lastSet: function(prop) {
 			return function() {
-				var observable = this._computed[prop].compute;
+				const observable = this._computed[prop].compute;
 				if(observable.lastSetValue) {
 					return canReflect.getValue(observable.lastSetValue);
 				}
@@ -762,7 +762,7 @@ make = {
 		// uses the default value
 		defaultValue: function(prop, definition, typeConvert, callSetter) {
 			return function() {
-				var value = definition.default;
+				let value = definition.default;
 				if (value !== undefined) {
 					// call `get default() { ... }` but not `default() { ... }`
 					if (typeof value === "function" && value.isAGetter) {
@@ -774,10 +774,10 @@ make = {
 					// TODO: there's almost certainly a faster way of making this happen
 					// But this is maintainable.
 
-					var VALUE;
-					var sync = true;
+					let VALUE;
+					let sync = true;
 
-					var setter = make.set.setter(prop, definition.set, function(){}, function(value){
+					const setter = make.set.setter(prop, definition.set, function(){}, function(value){
 						if(sync) {
 							VALUE = value;
 						} else {
@@ -807,7 +807,7 @@ make = {
 		},
 		computed: function(prop) {
 			return function(/*val*/) {
-				var compute = this._computed[prop].compute;
+				const compute = this._computed[prop].compute;
 				if (ObservationRecorder.isRecording()) {
 					ObservationRecorder.add(this, prop);
 					if (!canReflect.isBound(compute)) {
@@ -824,13 +824,13 @@ make = {
 define.behaviors = ["get", "set", "value", "type", "serialize"];
 
 // This cleans up a particular behavior and adds it to the definition
-var addBehaviorToDefinition = function(definition, behavior, descriptor, def, prop, typePrototype) {
+const addBehaviorToDefinition = function(definition, behavior, descriptor, def, prop, typePrototype) {
 	if(behavior === "enumerable") {
 		// treat enumerable like serialize
 		definition.serialize = !!def[behavior];
 	}
 	else if(behavior === "type") {
-		var behaviorDef = def[behavior];
+		const behaviorDef = def[behavior];
 		if (typeof behaviorDef !== 'undefined') {
 			definition[behavior] = behaviorDef;
 		}
@@ -838,7 +838,7 @@ var addBehaviorToDefinition = function(definition, behavior, descriptor, def, pr
 	else {
 		// This is a good place to do warnings? This gets called for every behavior
 		// Both by .define() and .property()
-		var value = descriptor.get || descriptor.value;
+		const value = descriptor.get || descriptor.value;
 		if (descriptor.get) {
 			value.isAGetter = true;
 		}
@@ -856,7 +856,7 @@ var addBehaviorToDefinition = function(definition, behavior, descriptor, def, pr
 // Currently, this is adding default behavior
 // copying `type` over, and even cleaning up the final definition object
 makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
-	var definition = {};
+	let definition = {};
 
 	eachPropertyDescriptor(def, function(behavior, descriptor) {
 		addBehaviorToDefinition(definition, behavior, descriptor, def, prop, typePrototype);
@@ -871,8 +871,8 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 	});
 
 	if (def.type) {
-		var value = def.type;
-		var serialize = value[serializeSymbol];
+		const value = def.type;
+		const serialize = value[serializeSymbol];
 		if(serialize) {
 			definition.serialize = function(val){
 				return serialize.call(val);
@@ -881,7 +881,7 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 		definition.type = type.normalize(value);
 	}
 
-	var noTypeDefined = !definition.type && (!defaultDefinition.type ||
+	const noTypeDefined = !definition.type && (!defaultDefinition.type ||
 		defaultDefinition.type && defaultDefinition.typeSetByDefault);
 
 	if (definition.hasOwnProperty("default")) {
@@ -900,7 +900,7 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 
 	// if there's no type definition, take it from the defaultDefinition
 	if(!definition.type) {
-		var defaultsCopy = canReflect.assignMap({}, defaultDefinition);
+		const defaultsCopy = canReflect.assignMap({}, defaultDefinition);
 		definition = canReflect.assignMap(defaultsCopy, definition);
 	}
 
@@ -920,8 +920,8 @@ makeDefinition = function(prop, def, defaultDefinition, typePrototype) {
 // This is dealing with a string value
 getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 	// Clean up the value to make it a definition-like object
-	var definition;
-	var definitionType;
+	let definition;
+	let definitionType;
 	if(canReflect.isPrimitive(value)) {
 		if (value === null || typeof value === 'undefined') {
 			definitionType = type.Any;
@@ -967,10 +967,10 @@ getDefinitionOrMethod = function(prop, value, defaultDefinition, typePrototype){
 // called by can.define
 getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propertyDefaults) {
 	// make it so the definitions include base definitions on the proto
-	var definitions = Object.create(baseDefines ? baseDefines.definitions : null);
-	var methods = {};
+	const definitions = Object.create(baseDefines ? baseDefines.definitions : null);
+	let methods = {};
 	// first lets get a default if it exists
-	var defaultDefinition;
+	let defaultDefinition;
 	if(propertyDefaults) {
 		defaultDefinition = getDefinitionOrMethod("*", propertyDefaults, {}, typePrototype);
 	} else {
@@ -978,7 +978,7 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propert
 	}
 
 	function addDefinition(prop, propertyDescriptor, skipGetDefinitionForMethods) {
-		var value;
+		let value;
 		if(propertyDescriptor.get || propertyDescriptor.set) {
 			value = { get: propertyDescriptor.get, set: propertyDescriptor.set };
 		} else {
@@ -989,8 +989,8 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propert
 			methods[prop] = value;
 			return;
 		} else {
-			var result = getDefinitionOrMethod(prop, value, defaultDefinition, typePrototype);
-			var resultType = typeof result;
+			const result = getDefinitionOrMethod(prop, value, defaultDefinition, typePrototype);
+			const resultType = typeof result;
 			if(result && resultType === "object" && canReflect.size(result) > 0) {
 				definitions[prop] = result;
 			}
@@ -1002,7 +1002,7 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propert
 				//!steal-remove-start
 				else if (resultType !== 'undefined') {
 					if(process.env.NODE_ENV !== 'production') {
-                    	// Ex: {prop: 0}
+						// Ex: {prop: 0}
 						canLogDev.error(canReflect.getName(typePrototype)+"."+prop + " does not match a supported definitionObject. See: https://canjs.com/doc/can-observable-object/object.types.definitionObject.html");
 					}
 				}
@@ -1023,7 +1023,7 @@ getDefinitionsAndMethods = function(defines, baseDefines, typePrototype, propert
 eventsProto = eventQueue({});
 
 function setupComputed(instance, eventName) {
-	var computedBinding = instance._computed && instance._computed[eventName];
+	const computedBinding = instance._computed && instance._computed[eventName];
 	if (computedBinding && computedBinding.compute) {
 		if (!computedBinding.count) {
 			computedBinding.count = 1;
@@ -1036,7 +1036,7 @@ function setupComputed(instance, eventName) {
 	}
 }
 function teardownComputed(instance, eventName){
-	var computedBinding = instance._computed && instance._computed[eventName];
+	const computedBinding = instance._computed && instance._computed[eventName];
 	if (computedBinding) {
 		if (computedBinding.count === 1) {
 			computedBinding.count = 0;
@@ -1069,8 +1069,8 @@ eventsProto.on = eventsProto.bind = eventsProto.addEventListener;
 eventsProto.off = eventsProto.unbind = eventsProto.removeEventListener;
 
 
-var onKeyValueSymbol = Symbol.for("can.onKeyValue");
-var offKeyValueSymbol = Symbol.for("can.offKeyValue");
+const onKeyValueSymbol = Symbol.for("can.onKeyValue");
+const offKeyValueSymbol = Symbol.for("can.offKeyValue");
 
 canReflect.assignSymbols(eventsProto,{
 	"can.onKeyValue": function(key){
@@ -1091,10 +1091,10 @@ define.finalizeInstance = function() {
 };
 
 define.setup = function(props, sealed) {
-	var requiredButNotProvided = new Set(this._define.required);
-	var definitions = this._define.definitions;
-	var instanceDefinitions = Object.create(null);
-	var map = this;
+	const requiredButNotProvided = new Set(this._define.required);
+	const definitions = this._define.definitions;
+	const instanceDefinitions = Object.create(null);
+	const map = this;
 	canReflect.eachKey(props, function(value, prop){
 		if(requiredButNotProvided.has(prop)) {
 			requiredButNotProvided.delete(prop);
@@ -1113,7 +1113,8 @@ define.setup = function(props, sealed) {
 		defineConfigurableAndNotEnumerable(this, "_instanceDefinitions", instanceDefinitions);
 	}
 	if(requiredButNotProvided.size) {
-		var msg, missingProps = Array.from(requiredButNotProvided);
+		let msg;
+		const missingProps = Array.from(requiredButNotProvided);
 		let thisName = canReflect.getName(this);
 		if(requiredButNotProvided.size === 1) {
 			msg = `${thisName}: Missing required property [${missingProps[0]}].`;
@@ -1126,7 +1127,7 @@ define.setup = function(props, sealed) {
 };
 
 
-var returnFirstArg = function(arg){
+const returnFirstArg = function(arg){
 	return arg;
 };
 
@@ -1139,12 +1140,12 @@ define.expando = function(map, prop, value) {
 		return true;
 	}
 	// first check if it's already a constructor define
-	var constructorDefines = map._define.definitions;
+	const constructorDefines = map._define.definitions;
 	if(constructorDefines && constructorDefines[prop]) {
 		return;
 	}
 	// next if it's already on this instances
-	var instanceDefines = map._instanceDefinitions;
+	let instanceDefines = map._instanceDefinitions;
 	if(!instanceDefines) {
 		if(Object.isSealed(map)) {
 			let errorMessage = `Cannot set property [${prop}] on sealed instance of ${canReflect.getName(map)}`;
@@ -1159,7 +1160,7 @@ define.expando = function(map, prop, value) {
 		instanceDefines = map._instanceDefinitions;
 	}
 	if(!instanceDefines[prop]) {
-		var defaultDefinition = map._define.defaultDefinition || { type: observableType };
+		const defaultDefinition = map._define.defaultDefinition || { type: observableType };
 		define.property(map, prop, defaultDefinition, {},{});
 		// possibly convert value to List or DefineMap
 		if(defaultDefinition.type) {
@@ -1205,11 +1206,11 @@ define.defineConfigurableAndNotEnumerable = defineConfigurableAndNotEnumerable;
 define.make = make;
 define.getDefinitionOrMethod = getDefinitionOrMethod;
 define._specialKeys = {_data: true, _computed: true};
-var simpleGetterSetters = {};
+let simpleGetterSetters = {};
 define.makeSimpleGetterSetter = function(prop){
 	if(simpleGetterSetters[prop] === undefined) {
 
-		var setter = make.set.events(prop, make.get.data(prop), make.set.data(prop), make.eventType.data(prop) );
+		const setter = make.set.events(prop, make.get.data(prop), make.set.data(prop), make.eventType.data(prop) );
 
 		simpleGetterSetters[prop] = {
 			get: make.get.data(prop),
@@ -1233,12 +1234,12 @@ define.Iterator = function(obj){
 };
 
 define.Iterator.prototype.next = function(){
-	var key;
+	let key;
 	if(this.definitions.length) {
 		key = this.definitions.shift();
 
 		// Getters should not be enumerable
-		var def = this.obj._define.definitions[key];
+		const def = this.obj._define.definitions[key];
 		if(def.get) {
 			return this.next();
 		}
@@ -1261,8 +1262,8 @@ define.Iterator.prototype.next = function(){
 };
 
 define.updateSchemaKeys = function(schema, definitions) {
-	for(var prop in definitions) {
-		var definition = definitions[prop];
+	for(const prop in definitions) {
+		const definition = definitions[prop];
 		if(definition.serialize !== false ) {
 			if(definition.type) {
 				schema.keys[prop] = definition.type;
@@ -1296,8 +1297,8 @@ define.hooks = {
 		}
 	},
 	initialize: function(instance, props) {
-		var firstInitialize = !instance.hasOwnProperty(canMetaSymbol);
-		var sealed = instance.constructor.seal;
+		const firstInitialize = !instance.hasOwnProperty(canMetaSymbol);
+		const sealed = instance.constructor.seal;
 
 		if (firstInitialize) {
 			define.finalizeInstance.call(instance);

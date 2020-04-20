@@ -50,13 +50,13 @@ function updateDeep(source){
 	queues.batch.stop();
 }
 function setKeyValue(key, value) {
-	var defined = defineHelpers.defineExpando(this, key, value);
+	const defined = defineHelpers.defineExpando(this, key, value);
 	if(!defined) {
 		this[key] = value;
 	}
 }
 function getKeyValue(key) {
-	var value = this[key];
+	const value = this[key];
 	if(value !== undefined || key in this || Object.isSealed(this)) {
 		return value;
 	} else {
@@ -172,12 +172,12 @@ module.exports = function(Type) {
 		}
 
 		[Symbol.for("can.getOwnKeys")]() {
-			var keys = canReflect.getOwnEnumerableKeys(this);
+			const keys = canReflect.getOwnEnumerableKeys(this);
 			if(this._computed) {
-				var computedKeys = canReflect.getOwnKeys(this._computed);
+				const computedKeys = canReflect.getOwnKeys(this._computed);
 
-				var key;
-				for (var i=0; i<computedKeys.length; i++) {
+				let key;
+				for (let i=0; i<computedKeys.length; i++) {
 					key = computedKeys[i];
 					if (keys.indexOf(key) < 0) {
 						keys.push(key);
