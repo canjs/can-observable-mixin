@@ -48,6 +48,8 @@ function proxyPrototype(Base) {
 		return inst;
 	}
 
+	LateDefined.instances = instances;
+
 	const underlyingPrototypeObject = Object.create(Base.prototype);
 
 	const getHandler = isProtoReadOnSuper ?
