@@ -43,7 +43,7 @@ function proxyPrototype(Base) {
 		}
 		//!steal-remove-end
 
-		let inst = Reflect.construct(Base, arguments, new.target);
+		let inst = Reflect.construct(Base, arguments, this.constructor);
 		instances.add(inst);
 		return inst;
 	}
